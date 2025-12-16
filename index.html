@@ -3,138 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI EXCHANGE</title>
-
+    <title>ABSI EXCHANGE | Professional Trading</title>
+    
     <link rel="icon" type="image/jpeg" href="Unnamed.jpg">
     <link rel="apple-touch-icon" href="Unnamed.jpg">
 
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; }
-        body { 
-            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.85)), url('Unnamed.jpg');
-            background-size: cover; background-position: center; background-attachment: fixed;
-            color: white; font-family: 'Segoe UI', sans-serif; overflow-x: hidden;
+        :root {
+            --bg-color: #0b0e11;
+            --panel-bg: #1e2329;
+            --gold: #f0b90b;
+            --buy: #0ecb81;
+            --sell: #f6465d;
+            --text-gray: #848e9c;
         }
 
-        .action-bar {
-            background: rgba(30, 35, 41, 0.95); padding: 15px; display: flex; justify-content: center; gap: 10px; border-bottom: 1px solid #444;
-        }
-        .btn-quick {
-            flex: 1; padding: 18px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem;
-            text-transform: uppercase; transition: 0.3s;
-        }
-        .q-buy { background: #00c087; color: white; }
-        .q-sell { background: #f84960; color: white; }
+        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-color); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
 
-        .trading-header {
-            padding: 15px; background: rgba(22, 26, 30, 0.9); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid gold;
+        /* Navigation Bar */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 20px; background: var(--panel-bg); border-bottom: 1px solid #333;
         }
-        .brand-name { color: gold; font-weight: bold; font-size: 1.3rem; }
+        .brand { color: var(--gold); font-size: 1.5rem; font-weight: bold; text-decoration: none; }
 
-        .trading-container { height: 60vh; width: 100%; background: #000; }
-        #chart-area { height: 100%; width: 100%; }
-
-        select { 
-            background: #2b3139; color: gold; border: 1px solid gold; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.9rem;
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            grid-template-rows: 60vh 1fr;
+            gap: 5px; padding: 5px; height: calc(100vh - 60px);
         }
 
-        .info-section { padding: 40px 10px; text-align: center; }
-        .pair-title { font-size: 2.5rem; color: gold; font-weight: bold; margin-bottom: 5px; }
-        
-        .timer-container { display: flex; justify-content: center; gap: 10px; margin: 25px 0; }
-        .timer-box { background: gold; color: black; padding: 15px; border-radius: 12px; min-width: 75px; }
-        .timer-box span { font-size: 2.2rem; font-weight: bold; display: block; }
+        /* Panels */
+        .panel { background: var(--panel-bg); border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; }
+        .panel-header { padding: 10px; font-size: 0.9rem; border-bottom: 1px solid #333; color: var(--text-gray); font-weight: bold; }
 
-        .about-box { 
-            font-size: 1.3rem; max-width: 900px; margin: 20px auto; background: rgba(0, 0, 0, 0.8); 
-            padding: 25px; border-radius: 15px; border: 1px solid gold; line-height: 1.7;
+        /* TradingView Chart */
+        #chart-area { grid-column: 2 / 3; grid-row: 1 / 2; }
+
+        /* Order Book */
+        .order-book { grid-column: 1 / 2; grid-row: 1 / 3; }
+        .ob-row { display: flex; justify-content: space-between; padding: 3px 10px; font-family: monospace; font-size: 0.85rem; transition: 0.2s; }
+        .ob-row:hover { background: #2b3139; }
+        .price-sell { color: var(--sell); }
+        .price-buy { color: var(--buy); }
+
+        /* Trade Terminal */
+        .terminal { grid-column: 2 / 3; grid-row: 2 / 3; padding: 20px; }
+        .trade-inputs { display: flex; gap: 20px; margin-top: 15px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        input { background: #2b3139; border: 1px solid #444; color: white; padding: 12px; border-radius: 5px; outline: none; }
+        input:focus { border-color: var(--gold); }
+        .btn-trade { padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .btn-buy { background: var(--buy); color: white; }
+        .btn-sell { background: var(--sell); color: white; }
+
+        /* Market History */
+        .history { grid-column: 3 / 4; grid-row: 1 / 3; }
+
+        /* Countdown & Info */
+        .launch-info {
+            grid-column: 1 / 4; text-align: center; padding: 40px; background: linear-gradient(to bottom, #1e2329, #0b0e11);
+            border-top: 2px solid var(--gold); margin-top: 5px;
         }
+        .timer-container { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
+        .timer-box { background: var(--gold); color: black; padding: 20px; border-radius: 10px; min-width: 80px; }
+        .timer-box span { font-size: 2rem; font-weight: bold; display: block; }
 
-        @media (max-width: 600px) {
-            .trading-container { height: 70vh; }
-            .pair-title { font-size: 2rem; }
+        @media (max-width: 1000px) {
+            .main-layout { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; }
+            .order-book, .history { display: none; }
+            #chart-area { height: 400px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="action-bar">
-        <button class="btn-quick q-buy" onclick="alert('جاري التوجيه لمحرك الشراء...')">BUY / شراء</button>
-        <button class="btn-quick q-sell" onclick="alert('جاري التوجيه لمحرك البيع...')">SELL / بيع</button>
-    </div>
-
-    <div class="trading-header">
-        <div class="brand-name">ABSI EXCHANGE</div>
-        <select id="pairSelector" onchange="changePair()">
-            <optgroup label="عملة المنصة">
-                <option value="BINANCE:ABSIUSDT">ABSI / USDT (Soon)</option>
-            </optgroup>
-            <optgroup label="العملات القيادية">
-                <option value="BINANCE:BTCUSDT" selected>BTC / USDT</option>
-                <option value="BINANCE:ETHUSDT">ETH / USDT</option>
-                <option value="BINANCE:SOLUSDT">SOL / USDT</option>
-            </optgroup>
-            <optgroup label="عملات الميم">
-                <option value="BINANCE:DOGEUSDT">DOGE / USDT</option>
-                <option value="BINANCE:PEPEUSDT">PEPE / USDT</option>
-                <option value="BINANCE:SHIBUSDT">SHIB / USDT</option>
-            </optgroup>
-            <optgroup label="عملات مستقرة">
-                <option value="BINANCE:USDCUSDT">USDC / USDT</option>
-                <option value="BINANCE:FDUSDUSDT">FDUSD / USDT</option>
-            </optgroup>
+    <nav class="navbar">
+        <a href="#" class="brand">ABSI EXCHANGE</a>
+        <select id="pairSelector" onchange="changePair()" style="background:#2b3139; color:var(--gold); border:1px solid #444; padding:5px 15px; border-radius:5px;">
+            <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+            <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+            <option value="BINANCE:SOLUSDT">SOL/USDT</option>
         </select>
-    </div>
+        <div style="font-size: 0.8rem; color: var(--text-gray);">الحالة: <span style="color:var(--buy)">متصل ●</span></div>
+    </nav>
 
-    <div class="trading-container">
-        <div id="chart-area"><div id="tradingview_widget"></div></div>
-    </div>
-
-    <div class="info-section">
-        <div class="pair-title">ABSI/USDT</div>
-        <div class="timer-container">
-            <div class="timer-box"><span id="days">19</span><label>يوم</label></div>
-            <div class="timer-box"><span id="hours">00</span><label>ساعة</label></div>
-            <div class="timer-box"><span id="minutes">00</span><label>دقيقة</label></div>
+    <div class="main-layout">
+        <div class="panel order-book">
+            <div class="panel-header">دفتر الطلبات (Order Book)</div>
+            <div id="sell-orders" style="display: flex; flex-direction: column-reverse;"></div>
+            <div style="text-align: center; padding: 10px; font-weight: bold; font-size: 1.2rem; background: #2b3139; margin: 5px 0;">
+                <span id="current-price">98,450.00</span> 
+            </div>
+            <div id="buy-orders"></div>
         </div>
-        <div class="about-box">استعد لانطلاق التداول الرسمي. منصة <b>ABSI EXCHANGE</b> توفر لك الآن الرسوم البيانية الحية لأكثر من 1000 زوج تداول عبر محرك البحث المدمج.</div>
-        <p style="color: gold; font-weight: bold;">© 2025 ABSI GOLD - Professional Trading View</p>
+
+        <div class="panel" id="chart-area">
+            <div id="tradingview_widget" style="height: 100%;"></div>
+        </div>
+
+        <div class="panel terminal">
+            <div class="panel-header">تنفيذ الأوامر (Spot)</div>
+            <div class="trade-inputs">
+                <div class="input-group">
+                    <label style="color:var(--text-gray)">شراء BTC</label>
+                    <input type="number" placeholder="السعر USDT" value="98450">
+                    <input type="number" placeholder="الكمية BTC">
+                    <button class="btn-trade btn-buy">شراء / Buy</button>
+                </div>
+                <div class="input-group">
+                    <label style="color:var(--text-gray)">بيع BTC</label>
+                    <input type="number" placeholder="السعر USDT" value="98450">
+                    <input type="number" placeholder="الكمية BTC">
+                    <button class="btn-trade btn-sell">بيع / Sell</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel history">
+            <div class="panel-header">آخر العمليات (Market Trades)</div>
+            <div id="trade-history"></div>
+        </div>
+    </div>
+
+    <div class="launch-info">
+        <h2 style="color: var(--gold); font-size: 2.5rem;">انطلاق العملة الرسمية ABSI</h2>
+        <div class="timer-container">
+            <div class="timer-box"><span id="days">00</span><small>يوم</small></div>
+            <div class="timer-box"><span id="hours">00</span><small>ساعة</small></div>
+            <div class="timer-box"><span id="minutes">00</span><small>دقيقة</small></div>
+            <div class="timer-box"><span id="seconds">00</span><small>ثانية</small></div>
+        </div>
+        <p style="max-width: 700px; margin: 0 auto; color: #ccc;">نحن نبني الجيل القادم من التداول الرقمي. ترقبوا الإطلاق الرسمي لمنصتنا المتكاملة مع سيولة عالمية وأمان فائق.</p>
     </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <script type="text/javascript">
+    <script>
+        // 1. Chart Logic
         function loadChart(symbol) {
             new TradingView.widget({
-                "width": "100%", "height": "100%",
-                "symbol": symbol,
-                "interval": "60",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1",
-                "locale": "ar",
-                "toolbar_bg": "#f1f3f6",
-                "enable_publishing": false,
-                "allow_symbol_change": true, // تفعيل أيقونة البحث
-                "hide_side_toolbar": false, // إظهار شريط الأدوات الجانبي للرسم
-                "container_id": "tradingview_widget"
+                "autosize": true, "symbol": symbol, "interval": "60", "timezone": "Etc/UTC",
+                "theme": "dark", "style": "1", "locale": "ar", "enable_publishing": false,
+                "allow_symbol_change": true, "container_id": "tradingview_widget"
             });
         }
-
         loadChart("BINANCE:BTCUSDT");
 
         function changePair() {
-            const selectedPair = document.getElementById("pairSelector").value;
-            loadChart(selectedPair);
+            loadChart(document.getElementById("pairSelector").value);
         }
 
-        const target = new Date(); target.setDate(target.getDate() + 19);
-        function timer() {
-            const diff = target - new Date();
-            document.getElementById("days").innerText = Math.floor(diff / (1000*60*60*24));
-            document.getElementById("hours").innerText = Math.floor((diff / (1000*60*60)) % 24);
-            document.getElementById("minutes").innerText = Math.floor((diff / (1000*60)) % 60);
+        // 2. Simulated Order Book & Trades
+        function generateOrderBook() {
+            const sellDiv = document.getElementById('sell-orders');
+            const buyDiv = document.getElementById('buy-orders');
+            const historyDiv = document.getElementById('trade-history');
+            
+            for(let i=0; i<15; i++) {
+                sellDiv.innerHTML += `<div class="ob-row"><span class="price-sell">${(98500 + i*5).toLocaleString()}</span><span>${(Math.random()*2).toFixed(3)}</span></div>`;
+                buyDiv.innerHTML += `<div class="ob-row"><span class="price-buy">${(98400 - i*5).toLocaleString()}</span><span>${(Math.random()*2).toFixed(3)}</span></div>`;
+                historyDiv.innerHTML += `<div class="ob-row"><span>${(98450 + Math.random()*20).toFixed(2)}</span><span style="color:var(--text-gray)">${new Date().toLocaleTimeString()}</span></div>`;
+            }
         }
-        setInterval(timer, 1000); timer();
+        generateOrderBook();
+
+        // 3. Countdown Timer (Target: Jan 1, 2026)
+        const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
+        
+        setInterval(() => {
+            const now = new Date().getTime();
+            const diff = targetDate - now;
+
+            document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById("hours").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById("minutes").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById("seconds").innerText = Math.floor((diff % (1000 * 60)) / 1000);
+        }, 1000);
     </script>
 </body>
 </html>
