@@ -65,12 +65,14 @@
             width: 100%;
         }
         
-        /* شريط القائمة العلوي - أصبح ضيقاً وموجزاً */
+        /* شريط القائمة العلوي - تم إلغاء التباعد بين العناصر */
         .nav { 
             background: #161a1e; 
-            padding: 5px 8px; /* حشو ضيق جداً */
+            padding: 5px 8px; 
             display: flex; 
-            justify-content: space-between; 
+            /* التعديل الأهم: جعل العناصر تترتب متجاورة من اليمين (اليسار في حالة RTL) */
+            justify-content: flex-start; /* لالغاء المسافات الفارغة */
+            gap: 10px; /* مسافة بسيطة بين اسم المنصة والزوج */
             align-items: center; 
             flex-shrink: 0;
             border-bottom: 1px solid #2b3139;
@@ -78,8 +80,8 @@
         .nav h2 {
             color: #ffc107; 
             margin: 0;
-            font-size: 14px; /* حجم خط صغير جداً */
-            white-space: nowrap; /* لمنع الكلمة من النزول سطر جديد */
+            font-size: 14px; 
+            white-space: nowrap; 
         }
         /* حاوية المحتوى الرئيسية */
         .container { 
@@ -101,7 +103,7 @@
             cursor: pointer; 
             font-size: 12px; 
         }
-        /* تخطيط الشبكة (Grid) - أصبح الآن للعرض الأفقي فقط (شاشات كبيرة) */
+        /* تخطيط الشبكة (Grid) - للعرض الأفقي (شاشات كبيرة) */
         .grid { 
             display: grid; 
             grid-template-columns: 75% 25%; 
@@ -120,6 +122,12 @@
         
         /* تصميم الأجهزة الصغيرة (هواتف) - التنسيق الجديد المطلوب */
         @media (max-width: 1000px) { 
+            
+            /* تجميع الشريط العلوي على اليسار (الزاوية اليمنى في RTL) */
+            .nav { 
+                justify-content: flex-start;
+                padding: 4px 6px;
+            } 
             
             /* إلغاء تنسيق الشبكة لعرض المحتوى عمودياً فقط */
             .grid { 
@@ -172,7 +180,7 @@
     <div class="nav">
         <h2>ABSI Exchange</h2>
         <div>
-            <label style="margin-right: 10px; color: #a0a0a0; font-size: 12px;">الزوج:</label>
+            <label style="margin-right: 5px; color: #a0a0a0; font-size: 12px;">الزوج:</label>
             <select id="tokenSelector" onchange="updateChart()">
                 <option value="0x6b744158428587d5b546304a0e980a3c2670e309">ABSI / USDT</option>
                 <option value="0x55d398326f99059ff775485246999027b3197955">USDT / BNB</option>
