@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABSI Token</title> <style>
+        body { background-color: #0b0e11; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .nav { background: #1e2329; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .container { display: flex; flex-direction: column; gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
+        select { background: #2b3139; color: gold; border: 1px solid #474d57; padding: 10px; border-radius: 5px; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        iframe { border: 1px solid #2b3139; border-radius: 12px; background: #161a1e; }
+        @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="nav">
+    <h2 style="color: gold; margin: 0;">ABSI Exchange</h2>
+    <div>
+        <label>اختر العملة: </label>
+        <select id="tokenSelector" onchange="updateChart()">
+            <option value="0xb67b14095493034a742881617e472683935365f5">ABSI USDT</option>
+            <option value="0x55d398326f99059ff775485246999027b3197955">USDT (BNB Chain)</option>
+            <option value="0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c">BNB (Wrapped)</option>
+        </select>
+    </div>
+</div>
+
+<div class="container">
+    <div class="grid">
+        <div id="chartContainer">
+            <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0xb67b14095493034a742881617e472683935365f5?embed=1" width="100%" height="600"></iframe>
+        </div>
+
+        <div id="swapContainer">
+            <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0xb67b14095493034a742881617e472683935365f5" width="100%" height="600"></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateChart() {
+        const tokenAddress = document.getElementById('tokenSelector').value;
+        // تحديث الرسم البياني
+        document.getElementById('tradingChart').src = `https://www.geckoterminal.com/bsc/pools/${tokenAddress}?embed=1`;
+        // تحديث واجهة الشراء والبيع
+        document.getElementById('swapWidget').src = `https://pancakeswap.finance/swap?outputCurrency=${tokenAddress}`;
+    }
+</script>
+
+</body>
+</html>
