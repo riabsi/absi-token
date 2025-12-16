@@ -2,155 +2,128 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI EXCHANGE - Professional Mode</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ABSI EXCHANGE</title>
     <style>
-        :root { --bg-color: #0b0e11; --text-gray: #848e9c; --binance-yellow: #fcd535; --green: #0ecb81; --red: #f6465d; }
-        body { background: var(--bg-color); color: white; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; }
+        :root { --bg: #0b0e11; --card: #161a1e; --yellow: #fcd535; --green: #0ecb81; --red: #f6465d; --gray: #848e9c; }
+        
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: white; font-family: sans-serif; overflow-x: hidden; }
 
-        /* شريط التبويبات العلوي (مثل بايننس) */
-        .top-tabs {
-            display: flex; background: #1e2329; padding: 10px 5px; justify-content: space-around;
-            border-bottom: 1px solid #2b3139; font-size: 0.9rem; color: var(--text-gray);
+        /* الهيدر العلوي المثبت */
+        .app-header {
+            background: var(--card); padding: 8px 12px; display: flex; flex-direction: column; border-bottom: 1px solid #2b3139;
         }
-        .tab.active { color: white; border-bottom: 2px solid var(--binance-yellow); padding-bottom: 5px; }
+        .top-nav { display: flex; justify-content: space-around; font-size: 0.8rem; color: var(--gray); margin-bottom: 8px; }
+        .top-nav span.active { color: white; border-bottom: 2px solid var(--yellow); padding-bottom: 2px; }
+        
+        .pair-bar { display: flex; justify-content: space-between; align-items: center; }
+        .pair-info { display: flex; align-items: center; gap: 8px; }
+        .logo-small { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--yellow); }
 
-        /* شريط العملة المختار */
-        .pair-header {
-            padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; background: #161a1e;
-        }
-        .pair-info { display: flex; align-items: center; gap: 10px; }
-        .pair-info h2 { margin: 0; font-size: 1.2rem; color: white; }
-        .price-change { color: var(--green); font-size: 0.8rem; }
+        /* منطقة التداول الرئيسية */
+        .trade-section { display: grid; grid-template-columns: 1.2fr 0.8fr; background: var(--bg); border-bottom: 1px solid #2b3139; }
 
-        /* منطقة التداول الرئيسية (Grid) */
-        .trade-layout {
-            display: grid; grid-template-columns: 1fr 1.5fr; gap: 2px; background: #2b3139; height: 500px;
-        }
+        /* دفتر الطلبات (يسار) */
+        .order-book { padding: 5px; font-size: 0.7rem; border-left: 1px solid #2b3139; height: 220px; overflow: hidden; }
+        .ob-row { display: flex; justify-content: space-between; line-height: 1.4; }
 
-        /* 1. دفتر الطلبات (اليسار) */
-        .order-book { background: var(--bg-color); padding: 5px; font-size: 0.75rem; display: flex; flex-direction: column; }
-        .ob-header { display: flex; justify-content: space-between; color: var(--text-gray); margin-bottom: 5px; }
-        .ob-row { display: flex; justify-content: space-between; height: 20px; align-items: center; }
+        /* لوحة الأوامر (يمين) - تم تصغيرها */
+        .order-panel { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+        .side-tabs { display: flex; border-radius: 4px; overflow: hidden; height: 30px; }
+        .side-tabs button { flex: 1; border: none; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+        .btn-buy { background: var(--green); color: white; }
+        .btn-sell { background: #2b3139; color: var(--gray); }
 
-        /* 2. منطقة الأوامر (اليمين) */
-        .order-form { background: var(--bg-color); padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .side-btns { display: flex; gap: 5px; }
-        .side-btn { flex: 1; padding: 8px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .buy-active { background: var(--green); color: white; }
-        .sell-inactive { background: #2b3139; color: var(--text-gray); }
+        .mini-input { background: #2b3139; border-radius: 4px; padding: 6px; font-size: 0.75rem; display: flex; justify-content: space-between; }
+        .execute-btn { background: var(--green); color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; margin-top: 5px; font-size: 0.85rem; }
 
-        .input-box {
-            background: #2b3139; border-radius: 4px; padding: 8px; display: flex; justify-content: space-between; font-size: 0.8rem;
-        }
-        .input-box span { color: var(--text-gray); }
+        /* منطقة الشموع */
+        .chart-box { height: 250px; width: 100%; background: #000; }
 
-        /* زر الشراء الكبير */
-        .btn-main-buy {
-            background: var(--green); color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; margin-top: 10px;
-        }
-
-        /* قسم الشموع (أسفل الأوامر أو حسب المساحة) */
-        .charts-container { background: #000; height: 300px; border-top: 5px solid #1e2329; }
-
-        /* العداد */
-        .footer-info { padding: 30px 10px; text-align: center; background: linear-gradient(to bottom, #161a1e, #000); }
-        .absi-title { color: var(--binance-yellow); font-size: 1.8rem; font-weight: bold; margin-bottom: 15px; }
-        .timer-flex { display: flex; justify-content: center; gap: 10px; }
-        .t-box { background: var(--binance-yellow); color: black; padding: 10px; border-radius: 6px; min-width: 60px; font-weight: bold; }
+        /* العداد السفلي المدمج */
+        .listing-footer { padding: 15px 10px; text-align: center; background: var(--card); }
+        .listing-footer h3 { margin: 0 0 10px 0; color: var(--yellow); font-size: 1.1rem; }
+        .timer-grid { display: flex; justify-content: center; gap: 8px; }
+        .t-unit { background: var(--yellow); color: black; padding: 8px; border-radius: 6px; min-width: 50px; font-weight: bold; }
+        .t-unit span { font-size: 1.2rem; display: block; }
+        .t-unit small { font-size: 0.6rem; }
     </style>
 </head>
 <body>
 
-    <div class="top-tabs">
-        <div class="tab">تحويل العملة</div>
-        <div class="tab active">فوري</div>
-        <div class="tab">عقود آجلة</div>
-        <div class="tab">تداول افتراضي</div>
-    </div>
-
-    <div class="pair-header">
-        <div class="pair-info">
-            <img src="Unnamed.jpg" style="width:25px; height:25px; border-radius:50%;" alt="ABSI">
-            <h2>ABSI/USDT</h2>
-            <span class="price-change">+12.5%</span>
+    <header class="app-header">
+        <div class="top-nav">
+            <span>تحويل</span><span class="active">فوري</span><span>عقود</span><span>تداول افتراضي</span>
         </div>
-        <div style="color: var(--text-gray); font-size: 1.2rem;">≡</div>
-    </div>
-
-    <div class="trade-layout">
-        <div class="order-book" id="liveOrderBook">
-            <div class="ob-header"><span>السعر</span><span>المبلغ</span></div>
+        <div class="pair-bar">
+            <div class="pair-info">
+                <img src="Unnamed.jpg" class="logo-small">
+                <span style="font-weight:bold;">ABSI/USDT</span>
+                <span style="color:var(--green); font-size:0.75rem;">+12.5%</span>
             </div>
-
-        <div class="order-form">
-            <div class="side-btns">
-                <button class="side-btn buy-active">شراء</button>
-                <button class="side-btn sell-inactive">بيع</button>
-            </div>
-            
-            <div style="font-size: 0.8rem; color: var(--text-gray);">طلب حدي ▾</div>
-            
-            <div class="input-box"><span>السعر</span><b>0.0025</b><span>USDT</span></div>
-            <div class="input-box"><span>المبلغ</span><b>--</b><span>ABSI</span></div>
-            
-            <div style="display:flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-gray);">
-                <span>متاح</span><span>0.00 USDT</span>
-            </div>
-
-            <button class="btn-main-buy">شراء ABSI</button>
+            <span style="color:var(--gray)">☰</span>
         </div>
-    </div>
+    </header>
 
-    <div class="charts-container">
-        <div id="tradingview_widget" style="height:100%; width:100%;"></div>
-    </div>
-
-    <div class="footer-info">
-        <div class="absi-title">ABSI/USDT LISTING</div>
-        <div class="timer-flex">
-            <div class="t-box"><span id="d">19</span><br><small>يوم</small></div>
-            <div class="t-box"><span id="h">00</span><br><small>ساعة</small></div>
-            <div class="t-box"><span id="m">00</span><br><small>دقيقة</small></div>
+    <main class="trade-section">
+        <div class="order-panel">
+            <div class="side-tabs">
+                <button class="btn-buy">شراء</button>
+                <button class="btn-sell">بيع</button>
+            </div>
+            <div style="font-size:0.7rem; color:var(--gray)">طلب حدي ▾</div>
+            <div class="mini-input"><span>السعر</span><b>0.0025</b></div>
+            <div class="mini-input"><span>المبلغ</span><span style="color:var(--gray)">ABSI</span></div>
+            <button class="execute-btn">شراء ABSI</button>
         </div>
-        <p style="color: #555; margin-top: 20px;">تداول بمسؤولية - منصة ABSI الرسمية</p>
+
+        <div class="order-book" id="ob">
+            </div>
+    </main>
+
+    <div class="chart-box">
+        <div id="tv_chart" style="height:100%; width:100%;"></div>
     </div>
 
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <footer class="listing-footer">
+        <h3>ABSI LISTING COUNTDOWN</h3>
+        <div class="timer-grid">
+            <div class="t-unit"><span id="d">19</span><small>يوم</small></div>
+            <div class="t-unit"><span id="h">00</span><small>ساعة</small></div>
+            <div class="t-unit"><span id="m">00</span><small>دقيقة</small></div>
+            <div class="t-unit"><span id="s">00</span><small>ثانية</small></div>
+        </div>
+        <p style="font-size:0.7rem; color:var(--gray); margin-top:10px;">منصة ABSI الرسمية - تداول بأمان</p>
+    </footer>
+
+    <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // تحميل الشارت
+        // الشارت
         new TradingView.widget({
-            "width": "100%", "height": "100%", "symbol": "BINANCE:BTCUSDT",
-            "interval": "15", "theme": "dark", "style": "1", "locale": "ar", "container_id": "tradingview_widget"
+            "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": "15", "theme": "dark", "style": "1", "locale": "ar", "container_id": "tv_chart", "hide_top_toolbar": true
         });
 
-        // محاكاة حركة دفتر الطلبات (Order Book)
-        function updateOrderBook() {
-            const ob = document.getElementById('liveOrderBook');
-            let rows = '<div class="ob-header"><span>السعر</span><span>المبلغ</span></div>';
-            // البيع (أحمر)
-            for(let i=0; i<6; i++) {
-                rows += `<div class="ob-row"><span style="color:var(--red)">0.0025${i}</span><span style="color:white">${(Math.random()*100).toFixed(1)}M</span></div>`;
-            }
-            // السعر الحالي
-            rows += `<div style="font-size:1.1rem; color:var(--green); padding:5px 0; font-weight:bold;">0.002514 ≈ $0.0025</div>`;
-            // الشراء (أخضر)
-            for(let i=0; i<6; i++) {
-                rows += `<div class="ob-row"><span style="color:var(--green)">0.0024${i}</span><span style="color:white">${(Math.random()*100).toFixed(1)}M</span></div>`;
-            }
-            ob.innerHTML = rows;
+        // محاكاة دفتر الطلبات
+        function fillOB() {
+            const ob = document.getElementById('ob');
+            let h = '';
+            for(let i=0; i<5; i++) h += `<div class="ob-row"><span style="color:var(--red)">0.0025${i}</span><span>${(Math.random()*10).toFixed(1)}M</span></div>`;
+            h += `<div style="color:var(--green); font-weight:bold; padding:4px 0; font-size:0.8rem; text-align:center;">0.002514 ↑</div>`;
+            for(let i=0; i<5; i++) h += `<div class="ob-row"><span style="color:var(--green)">0.0024${i}</span><span>${(Math.random()*10).toFixed(1)}M</span></div>`;
+            ob.innerHTML = h;
         }
-        setInterval(updateOrderBook, 800);
+        setInterval(fillOB, 1000); fillOB();
 
         // العداد
-        const target = new Date(); target.setDate(target.getDate() + 19);
-        function timer() {
-            const diff = target - new Date();
-            document.getElementById("d").innerText = Math.floor(diff / (1000*60*60*24));
-            document.getElementById("h").innerText = Math.floor((diff / (1000*60*60)) % 24);
-            document.getElementById("m").innerText = Math.floor((diff / (1000*60)) % 60);
+        const end = new Date(); end.setDate(end.getDate() + 19);
+        function updateT() {
+            const now = new Date(); const diff = end - now;
+            document.getElementById('d').innerText = Math.floor(diff / (1000*60*60*24));
+            document.getElementById('h').innerText = Math.floor((diff / (1000*60*60)) % 24);
+            document.getElementById('m').innerText = Math.floor((diff / (1000*60)) % 60);
+            document.getElementById('s').innerText = Math.floor((diff / 1000) % 60);
         }
-        setInterval(timer, 1000); timer();
+        setInterval(updateT, 1000); updateT();
     </script>
 </body>
 </html>
