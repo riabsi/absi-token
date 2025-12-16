@@ -4,297 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABSI Token | Exchange</title>
-    <link rel="manifest" href="/manifest.json">
-
     <style>
         /* الخلفية والخطوط الأساسية - Dark Mode */
         body { 
-            background-color: #0c1015; 
+            background-color: #0c1015; /* خلفية داكنة جداً */
             color: #e0e0e0; 
             font-family: 'Arial', sans-serif; 
             margin: 0; 
-            height: 100vh; 
+            height: 100vh; /* ملء ارتفاع الشاشة */
             display: flex; 
             flex-direction: column;
-            overflow: hidden; 
-            overflow-x: hidden; 
+            overflow: hidden; /* لمنع ظهور شريط التمرير الأفقي غير الضروري */
         }
-        
-        /* ... (تنسيقات شاشة القفل) ... */
-
-        #main-content {
-            display: none; 
-            flex-grow: 1;
-            width: 100%;
-        }
-        
         /* شريط القائمة العلوي */
         .nav { 
             background: #161a1e; 
-            padding: 5px 8px; 
+            padding: 15px 20px; 
             display: flex; 
-            justify-content: flex-start;
+            justify-content: space-between; 
             align-items: center; 
             flex-shrink: 0;
             border-bottom: 1px solid #2b3139;
-            
-            /* الحل للمساحة السوداء في وضع سطح المكتب (Desktop) */
-            width: fit-content; 
-            margin-left: auto; /* يدفع شريط التنقل إلى اليمين */
         }
-
-        .nav-content {
-            display: flex;
-            align-items: center;
-            gap: 15px; 
-        }
-
         .nav h2 {
-            color: #ffc107; 
+            color: #ffc107; /* لون ذهبي/أصفر للتأكيد */
             margin: 0;
-            font-size: 16px; 
-            white-space: nowrap; 
+            font-size: 24px;
         }
-        
+        /* حاوية المحتوى الرئيسية */
+        .container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; /* تقليل الفراغ */
+            padding: 8px; /* تقليل الحشو */
+            max-width: none; /* إزالة الحد الأقصى للعرض */
+            flex-grow: 1; 
+            width: 100%;
+        }
         /* قائمة اختيار العملة */
         select { 
             background: #2b3139; 
             color: #e0e0e0; 
             border: 1px solid #474d57; 
-            padding: 3px 6px; 
+            padding: 8px 15px; 
             border-radius: 4px; 
             cursor: pointer; 
-            font-size: 13px; 
+            font-size: 14px;
         }
-
-        /* حاوية المحتوى الرئيسية */
-        .container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 4px; 
-            padding: 4px; 
-            max-width: none; 
-            flex-grow: 1; 
-            width: 100%;
-        }
-        
-        /* إطارات Iframes (الرسم البياني وواجهة التداول) - تنسيق سطح المكتب */
+        /* تخطيط الشبكة (Chart + Swap) */
         .grid { 
             display: grid; 
-            grid-template-columns: 75% 25%; 
+            grid-template-columns: 75% 25%; /* تداول بنسبة 3:1 (مثل بايننس) */
             gap: 8px; 
             flex-grow: 1; 
         }
+        /* إطارات Iframes (الرسم البياني وواجهة التداول) */
         iframe { 
             border: 1px solid #2b3139; 
             border-radius: 4px; 
             background: #161a1e; 
-            height: calc(100vh - 45px); /* ارتفاع كافٍ لسطح المكتب */
+            /* حساب الارتفاع: (كامل الشاشة) - (ارتفاع القائمة العلوية + الحشو) */
+            height: calc(100vh - 75px); 
             min-height: 500px; 
             width: 100%;
         }
-        
-        /* تصميم الأجهزة الصغيرة (هواتف) - الإصلاح الأخير */
+        /* تصميم الأجهزة الصغيرة (هواتف) */
         @media (max-width: 1000px) { 
-            
-            /* شريط التنقل على الهواتف - يجب أن يملأ العرض مع محاذاة لليمين */
-            .nav {
-                width: 100%; 
-                justify-content: flex-start; 
-                padding: 4px 6px;
-                margin-left: 0; /* إلغاء خاصية الدفع لليمين لسطح المكتب */
-            }
-
-            .nav-content {
-                 gap: 5px; 
-            }
-
-            /* إصلاح الـ Grid: جعلها عمودية بملء العرض */
-            .grid { 
-                grid-template-columns: 1fr; 
-                display: block; /* التغيير إلى عرض Block للسماح بالترتيب العمودي */
-            } 
-
-            /* حاوية التمرير */
-             .container { 
-                overflow-y: scroll; 
-                height: calc(100vh - 40px); /* ارتفاع كافٍ للتمرير */
-                padding: 4px; 
-            } 
-
-            /* إصلاح اختفاء الإطارات: تحديد ارتفاع واضح لكل عنصر */
-             #tradingChart {
-                /* ارتفاع الرسم البياني يمثل نصف مساحة العرض المرئية تقريباً */
-                height: 50vh; 
-                margin-bottom: 4px; 
-                width: 100%;
-            }
-            
-            #swapWidget {
-                /* ارتفاع المحفظة ثابت ومعقول */
-                height: 400px; 
-                width: 100%; 
-            }
-
-            #swapContainer {
-                /* توسيط المحفظة تحت الرسم البياني */
-                max-width: 450px; 
-                margin: 0 auto 8px auto; 
-            }
-            
-        }
-        
-        /* تنسيق شاشة القفل (للسهولة) */
-        #auth-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #0c1015;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        #auth-screen h1 {
-            color: #ffc107;
-            margin-bottom: 30px;
-        }
-        #passcode-input {
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #474d57;
-            border-radius: 4px;
-            background: #161a1e;
-            color: #e0e0e0;
-            text-align: center;
-            font-size: 18px;
-            width: 200px;
-        }
-        #auth-button {
-            padding: 10px 30px;
-            border: none;
-            border-radius: 4px;
-            background-color: #ffc107;
-            color: #0c1015;
-            cursor: pointer;
-            font-weight: bold;
+            .grid { grid-template-columns: 1fr; } 
+            iframe { height: 500px; } /* ارتفاع ثابت للقراءة المريحة على الموبايل */
+            .container { overflow-y: scroll; } /* لتمرير الصفحة عمودياً في الأجهزة الصغيرة */
         }
     </style>
 </head>
 <body>
 
-<script>
-    document.addEventListener('DOMContentLoaded', initAuth);
-</script>
-
-<div id="auth-screen">
-    <h1>ABSI Exchange</h1>
-    <p id="auth-message" style="color: #a0a0a0; margin-bottom: 5px;"></p>
-    <input type="number" id="passcode-input" maxlength="4" placeholder="أربعة أرقام" pattern="\d{4}">
-    <button id="auth-button" onclick="handleAuth()"></button>
-    <p id="error-message" style="color: red; margin-top: 10px; display: none;">الرمز السري غير صحيح. حاول مرة أخرى.</p>
+<div class="nav">
+    <h2>ABSI Exchange</h2>
+    <div>
+        <label style="margin-right: 10px; color: #a0a0a0;">الزوج:</label>
+        <select id="tokenSelector" onchange="updateChart()">
+            <option value="0x6b744158428587d5b546304a0e980a3c2670e309">ABSI / USDT</option>
+            <option value="0x55d398326f99059ff775485246999027b3197955">USDT / BNB</option>
+            <option value="0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c">BNB / BUSD</option>
+        </select>
+    </div>
 </div>
 
-
-<div id="main-content">
-    <div class="nav">
-        <div class="nav-content">
-            <h2>ABSI Exchange</h2>
-            <div style="display: flex; align-items: center;">
-                <label style="margin-right: 5px; color: #a0a0a0; font-size: 12px;">الزوج:</label>
-                <select id="tokenSelector" onchange="updateChart()">
-                    <option value="0x55d398326f99059ff775485246999027b3197955">USDT / BNB</option>
-                    <option value="0x6b744158428587d5b546304a0e980a3c2670e309">ABSI / USDT</option>
-                    <option value="0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c">BNB / BUSD</option>
-                </select>
-            </div>
+<div class="container">
+    <div class="grid">
+        <div id="chartContainer">
+            <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x6b744158428587d5b546304a0e980a3c2670e309?embed=1" loading="lazy" width="100%" allowfullscreen></iframe>
         </div>
-    </div>
 
-    <div class="container">
-        <div class="grid">
-            <div id="chartContainer">
-                <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x55d398326f99059ff775485246999027b3197955?embed=1" loading="lazy" width="100%" allowfullscreen></iframe>
-            </div>
-
-            <div id="swapContainer">
-                <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x55d398326f99059ff775485246999027b3197955" loading="lazy" width="100%" allowfullscreen></iframe>
-            </div>
+        <div id="swapContainer">
+            <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x6b744158428587d5b546304a0e980a3c2670e309" loading="lazy" width="100%" allowfullscreen></iframe>
         </div>
     </div>
 </div>
 
 <script>
-    // **********************************************
-    // وظيفة الرمز السري الديناميكي (Local Storage)
-    // **********************************************
-    const PASSCODE_KEY = 'absi_user_passcode';
-    const inputField = document.getElementById('passcode-input');
-    const authButton = document.getElementById('auth-button');
-    const authMessage = document.getElementById('auth-message');
-    const errorMsg = document.getElementById('error-message');
-
-    function getStoredPasscode() {
-        return localStorage.getItem(PASSCODE_KEY);
-    }
-
-    function showMainContent() {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('main-content').style.display = 'flex';
-    }
-
-    function handleAuth() {
-        const storedPasscode = getStoredPasscode();
-        const input = inputField.value;
-
-        if (input.length !== 4) {
-            errorMsg.innerText = "الرمز السري يجب أن يكون 4 أرقام.";
-            errorMsg.style.display = 'block';
-            return;
-        }
-
-        if (storedPasscode) {
-            // حالة: الرمز السري موجود (تحقق من الرمز)
-            if (input === storedPasscode) {
-                showMainContent();
-            } else {
-                errorMsg.innerText = "الرمز السري غير صحيح. حاول مرة أخرى.";
-                errorMsg.style.display = 'block';
-                inputField.value = '';
-            }
-        } else {
-            // حالة: الرمز السري غير موجود (تعيين الرمز)
-            localStorage.setItem(PASSCODE_KEY, input);
-            errorMsg.style.display = 'none';
-            alert('تم تعيين الرمز السري بنجاح! سيتم استخدامه في المرات القادمة.');
-            showMainContent();
-        }
-    }
-
-    function initAuth() {
-        const storedPasscode = getStoredPasscode();
-        if (storedPasscode) {
-            // الرمز موجود: اطلب من المستخدم إدخاله
-            authMessage.innerText = "الرجاء إدخال الرمز السري للمتابعة:";
-            authButton.innerText = "دخول";
-            inputField.placeholder = "الرمز السري الخاص بك";
-        } else {
-            // الرمز غير موجود: اطلب من المستخدم تعيينه
-            authMessage.innerText = "الرجاء تعيين رمز سري مكون من 4 أرقام:";
-            authButton.innerText = "تعيين الرمز";
-            inputField.placeholder = "اختر رمزاً سرياً";
-        }
-    }
-
-    // **********************************************
-    // وظيفة تحديث الرسوم البيانية
-    // **********************************************
     function updateChart() {
         const tokenAddress = document.getElementById('tokenSelector').value;
+        // تحديث الرسم البياني
         document.getElementById('tradingChart').src = `https://www.geckoterminal.com/bsc/pools/${tokenAddress}?embed=1`;
+        // تحديث واجهة الشراء والبيع (Swap)
         document.getElementById('swapWidget').src = `https://pancakeswap.finance/swap?outputCurrency=${tokenAddress}`;
     }
 </script>
