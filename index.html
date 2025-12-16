@@ -1,53 +1,114 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI Multi-DEX Platform</title>
+    <title>ABSI Global - منصة التداول</title>
+
+    <link rel="icon" type="image/jpeg" href="unnamed.jpg">
+    <link rel="apple-touch-icon" href="unnamed.jpg">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0b0e11">
+    
     <style>
-        body { background-color: #0b0e11; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        .nav { background: #1e2329; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .container { display: flex; flex-direction: column; gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
-        select { background: #2b3139; color: gold; border: 1px solid #474d57; padding: 10px; border-radius: 5px; cursor: pointer; }
-        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        iframe { border: 1px solid #2b3139; border-radius: 12px; background: #161a1e; }
-        @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
+        body { background-color: #0b0e11; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; line-height: 1.6; }
+        .nav { background: #1e2329; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid gold; position: sticky; top: 0; z-index: 1000; }
+        .logo-text { color: gold; font-size: 24px; font-weight: bold; text-decoration: none; }
+        #install-btn { background: #ffffff; color: #000; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; cursor: pointer; border: none; display: none; }
+        
+        .hero { padding: 40px 20px; background: radial-gradient(circle, #1e2329 0%, #0b0e11 100%); }
+        .hero h1 { font-size: 2.5rem; color: gold; margin-bottom: 15px; }
+
+        .about-project { max-width: 800px; margin: 40px auto; padding: 30px; background: rgba(255, 215, 0, 0.05); border-left: 4px solid gold; border-right: 4px solid gold; border-radius: 15px; text-align: right; }
+        .about-project h2 { color: gold; text-align: center; margin-bottom: 20px; }
+
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .info-card { background: #1e2329; border: 1px solid #2b3139; padding: 20px; border-radius: 12px; transition: 0.3s; }
+        .info-card h4 { color: gold; margin-bottom: 10px; font-size: 0.9rem; }
+
+        .timer-container { display: flex; justify-content: center; gap: 10px; margin: 30px 0; flex-wrap: wrap; }
+        .timer-box { background: rgba(255, 215, 0, 0.1); border: 1px solid gold; padding: 15px; border-radius: 12px; min-width: 65px; }
+        .timer-box span { display: block; font-size: 1.8rem; font-weight: bold; }
+        .timer-box label { color: gold; font-size: 0.7rem; }
+
+        .airdrop-card { background: #1c2127; border: 2px solid gold; padding: 30px; border-radius: 15px; max-width: 500px; margin: 40px auto; }
+        .airdrop-input { width: 85%; padding: 12px; border-radius: 25px; border: 1px solid #474d57; background: #0b0e11; color: white; text-align: center; margin-bottom: 15px; }
+        .btn-submit { background: gold; color: black; padding: 12px 35px; border-radius: 25px; font-weight: bold; border: none; cursor: pointer; width: 100%; }
+
+        .footer { background: #1e2329; padding: 40px 20px; margin-top: 50px; border-top: 1px solid #2b3139; }
+        .social-links a { color: gold; text-decoration: none; font-size: 1.2rem; font-weight: bold; margin: 0 15px; }
     </style>
 </head>
 <body>
 
 <div class="nav">
-    <h2 style="color: gold; margin: 0;">ABSI Exchange</h2>
-    <div>
-        <label>اختر العملة: </label>
-        <select id="tokenSelector" onchange="updateChart()">
-            <option value="0xb67b14095493034a742881617e472683935365f5">ABSI USDT</option>
-            <option value="0x55d398326f99059ff775485246999027b3197955">USDT (BNB Chain)</option>
-            <option value="0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c">BNB (Wrapped)</option>
-        </select>
+    <a href="#" class="logo-text">ABSI GLOBAL</a>
+    <button id="install-btn">تثبيت التطبيق 📲</button>
+</div>
+
+<div class="hero">
+    <h1>مستقبل التداول بين يديك</h1>
+    
+    <div class="about-project">
+        <h2>رؤية مشروع ABSI</h2>
+        <p>عملة <strong>ABSI</strong> هي المحرك الأساسي لمنظومة تداول لا مركزية تجمع بين السرعة والأمان. نحن نبني منصة دولية تهدف لتوسيع نطاق التمويل اللامركزي بضريبة 0% وضمان السيولة الدائمة للمستثمرين.</p>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-card"><h4>رمز العملة</h4><p>ABSI</p></div>
+        <div class="info-card"><h4>الإجمالي</h4><p>200,000,000,000</p></div>
+        <div class="info-card"><h4>الشبكة</h4><p>BNB Chain</p></div>
+        <div class="info-card"><h4>الضريبة</h4><p>0% 🔥</p></div>
+    </div>
+
+    <h3 style="color: gold; margin-top: 40px;">العد التنازلي للافتتاح</h3>
+    <div class="timer-container">
+        <div class="timer-box"><span id="days">20</span><label>يوم</label></div>
+        <div class="timer-box"><span id="hours">00</span><label>ساعة</label></div>
+        <div class="timer-box"><span id="minutes">00</span><label>دقيقة</label></div>
+    </div>
+
+    <div class="airdrop-card">
+        <h2>🎁 الإنزال الجوي (Airdrop)</h2>
+        <p>سجل عنوان محفظتك (BEP-20) لتكون من المؤهلين للحصول على الهدايا!</p>
+        <input type="text" id="walletInput" class="airdrop-input" placeholder="0x... عنوان محفظتك">
+        <button class="btn-submit" onclick="alert('✅ تم تسجيل محفظتك بنجاح!')">سجل الآن</button>
     </div>
 </div>
 
-<div class="container">
-    <div class="grid">
-        <div id="chartContainer">
-            <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0xb67b14095493034a742881617e472683935365f5?embed=1" width="100%" height="600"></iframe>
-        </div>
-
-        <div id="swapContainer">
-            <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0xb67b14095493034a742881617e472683935365f5" width="100%" height="600"></iframe>
-        </div>
+<footer class="footer">
+    <div class="social-links">
+        <a href="https://t.me/ABSI_USDT" target="_blank">✈️ Telegram</a>
+        <a href="https://x.com/ABSIUSDT" target="_blank">🐦 Twitter</a>
     </div>
-</div>
+    <p>© 2025 ABSI GLOBAL</p>
+</footer>
 
 <script>
-    function updateChart() {
-        const tokenAddress = document.getElementById('tokenSelector').value;
-        // تحديث الرسم البياني
-        document.getElementById('tradingChart').src = `https://www.geckoterminal.com/bsc/pools/${tokenAddress}?embed=1`;
-        // تحديث واجهة الشراء والبيع
-        document.getElementById('swapWidget').src = `https://pancakeswap.finance/swap?outputCurrency=${tokenAddress}`;
+    const launchDate = new Date();
+    launchDate.setDate(launchDate.getDate() + 20);
+
+    function updateTimer() {
+        const now = new Date().getTime();
+        const diff = launchDate - now;
+        document.getElementById("days").innerHTML = Math.floor(diff / (1000 * 60 * 60 * 24));
+        document.getElementById("hours").innerHTML = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        document.getElementById("minutes").innerHTML = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     }
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('install-btn').style.display = 'block';
+    });
+    document.getElementById('install-btn').addEventListener('click', () => {
+        if (deferredPrompt) deferredPrompt.prompt();
+    });
 </script>
 
 </body>
