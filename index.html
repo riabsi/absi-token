@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABSI Global - منصة التداول</title>
 
-    <link rel="icon" type="image/jpeg" href="unnamed.jpg">
-    <link rel="apple-touch-icon" href="unnamed.jpg">
+    <link rel="icon" type="image/jpeg" href="Unnamed.jpg">
+    <link rel="apple-touch-icon" href="Unnamed.jpg">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ABSI Global">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b0e11">
     
     <style>
@@ -23,29 +25,40 @@
 
         .about-project { max-width: 800px; margin: 40px auto; padding: 30px; background: rgba(255, 215, 0, 0.05); border-left: 4px solid gold; border-right: 4px solid gold; border-radius: 15px; text-align: right; }
         .about-project h2 { color: gold; text-align: center; margin-bottom: 20px; }
+        .about-project p { font-size: 1.1rem; color: #d1d4dc; margin-bottom: 15px; }
 
         .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; max-width: 900px; margin: 30px auto; padding: 0 20px; }
         .info-card { background: #1e2329; border: 1px solid #2b3139; padding: 20px; border-radius: 12px; transition: 0.3s; }
+        .info-card:hover { border-color: gold; transform: translateY(-5px); }
         .info-card h4 { color: gold; margin-bottom: 10px; font-size: 0.9rem; }
+        .info-card p { font-size: 1.1rem; font-weight: bold; margin: 0; }
 
         .timer-container { display: flex; justify-content: center; gap: 10px; margin: 30px 0; flex-wrap: wrap; }
         .timer-box { background: rgba(255, 215, 0, 0.1); border: 1px solid gold; padding: 15px; border-radius: 12px; min-width: 65px; }
-        .timer-box span { display: block; font-size: 1.8rem; font-weight: bold; }
+        .timer-box span { display: block; font-size: 1.8rem; font-weight: bold; color: white; }
         .timer-box label { color: gold; font-size: 0.7rem; }
 
-        .airdrop-card { background: #1c2127; border: 2px solid gold; padding: 30px; border-radius: 15px; max-width: 500px; margin: 40px auto; }
-        .airdrop-input { width: 85%; padding: 12px; border-radius: 25px; border: 1px solid #474d57; background: #0b0e11; color: white; text-align: center; margin-bottom: 15px; }
-        .btn-submit { background: gold; color: black; padding: 12px 35px; border-radius: 25px; font-weight: bold; border: none; cursor: pointer; width: 100%; }
+        .airdrop-card { background: #1c2127; border: 2px solid gold; padding: 30px; border-radius: 15px; max-width: 500px; margin: 40px auto; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
+        .airdrop-input { width: 85%; padding: 12px; border-radius: 25px; border: 1px solid #474d57; background: #0b0e11; color: white; text-align: center; margin-bottom: 15px; font-size: 1rem; }
+        .btn-submit { background: gold; color: black; padding: 12px 35px; border-radius: 25px; font-weight: bold; border: none; cursor: pointer; width: 100%; max-width: 300px; }
 
         .footer { background: #1e2329; padding: 40px 20px; margin-top: 50px; border-top: 1px solid #2b3139; }
-        .social-links a { color: gold; text-decoration: none; font-size: 1.2rem; font-weight: bold; margin: 0 15px; }
+        .social-links { display: flex; justify-content: center; gap: 25px; margin: 20px 0; }
+        .social-links a { color: gold; text-decoration: none; font-size: 1.2rem; font-weight: bold; }
+        
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 1.8rem; }
+        }
     </style>
 </head>
 <body>
 
 <div class="nav">
     <a href="#" class="logo-text">ABSI GLOBAL</a>
-    <button id="install-btn">تثبيت التطبيق 📲</button>
+    <div style="display: flex; align-items: center;">
+        <button id="install-btn">تثبيت التطبيق 📲</button>
+        <span style="color: gold; font-weight: bold; margin-right: 10px;">BNB Chain</span>
+    </div>
 </div>
 
 <div class="hero">
@@ -53,7 +66,12 @@
     
     <div class="about-project">
         <h2>رؤية مشروع ABSI</h2>
-        <p>عملة <strong>ABSI</strong> هي المحرك الأساسي لمنظومة تداول لا مركزية تجمع بين السرعة والأمان. نحن نبني منصة دولية تهدف لتوسيع نطاق التمويل اللامركزي بضريبة 0% وضمان السيولة الدائمة للمستثمرين.</p>
+        <p>
+            عملة <strong>ABSI</strong> هي المحرك الأساسي لمنظومة تداول لا مركزية تجمع بين البساطة والقوة. نحن نبني جسراً مالياً آمناً على شبكة <strong>BNB Chain</strong> يهدف لتوفير أقصى درجات الشفافية والسرعة.
+        </p>
+        <p>
+            تعتمد رؤيتنا على توفير بيئة تداول عادلة بضريبة 0%، مع ضمان السيولة الدائمة للمستثمرين وجعل عمليات التبادل أسهل وأكثر أماناً من أي وقت مضى.
+        </p>
     </div>
 
     <div class="info-grid">
@@ -63,18 +81,20 @@
         <div class="info-card"><h4>الضريبة</h4><p>0% 🔥</p></div>
     </div>
 
-    <h3 style="color: gold; margin-top: 40px;">العد التنازلي للافتتاح</h3>
+    <h3 style="color: gold; margin-top: 40px;">العد التنازلي للافتتاح الرسمي</h3>
     <div class="timer-container">
         <div class="timer-box"><span id="days">20</span><label>يوم</label></div>
         <div class="timer-box"><span id="hours">00</span><label>ساعة</label></div>
         <div class="timer-box"><span id="minutes">00</span><label>دقيقة</label></div>
+        <div class="timer-box"><span id="seconds">00</span><label>ثانية</label></div>
     </div>
 
     <div class="airdrop-card">
         <h2>🎁 الإنزال الجوي (Airdrop)</h2>
-        <p>سجل عنوان محفظتك (BEP-20) لتكون من المؤهلين للحصول على الهدايا!</p>
+        <p>سجل عنوان محفظتك الآن للحصول على حصتك من الـ Airdrop عند الإطلاق</p>
         <input type="text" id="walletInput" class="airdrop-input" placeholder="0x... عنوان محفظتك">
-        <button class="btn-submit" onclick="alert('✅ تم تسجيل محفظتك بنجاح!')">سجل الآن</button>
+        <br>
+        <button class="btn-submit" onclick="alert('✅ تم تسجيل محفظتك بنجاح!')">سجل محفظتك</button>
     </div>
 </div>
 
@@ -83,31 +103,45 @@
         <a href="https://t.me/ABSI_USDT" target="_blank">✈️ Telegram</a>
         <a href="https://x.com/ABSIUSDT" target="_blank">🐦 Twitter</a>
     </div>
-    <p>© 2025 ABSI GLOBAL</p>
+    <p>© 2025 جميع الحقوق محفوظة لـ ABSI GLOBAL</p>
 </footer>
 
 <script>
-    const launchDate = new Date();
-    launchDate.setDate(launchDate.getDate() + 20);
+    // برمجة العداد
+    const countdownDate = new Date();
+    countdownDate.setDate(countdownDate.getDate() + 20);
 
     function updateTimer() {
         const now = new Date().getTime();
-        const diff = launchDate - now;
-        document.getElementById("days").innerHTML = Math.floor(diff / (1000 * 60 * 60 * 24));
-        document.getElementById("hours").innerHTML = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        document.getElementById("minutes").innerHTML = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const diff = countdownDate - now;
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        document.getElementById("days").innerHTML = d;
+        document.getElementById("hours").innerHTML = h < 10 ? "0"+h : h;
+        document.getElementById("minutes").innerHTML = m < 10 ? "0"+m : m;
+        document.getElementById("seconds").innerHTML = s < 10 ? "0"+s : s;
     }
     setInterval(updateTimer, 1000);
     updateTimer();
 
+    // خاصية تثبيت التطبيق
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
         document.getElementById('install-btn').style.display = 'block';
     });
+
     document.getElementById('install-btn').addEventListener('click', () => {
-        if (deferredPrompt) deferredPrompt.prompt();
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((result) => {
+                deferredPrompt = null;
+            });
+        }
     });
 </script>
 
