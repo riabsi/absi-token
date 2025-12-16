@@ -7,46 +7,63 @@
     <style>
         :root { --bg: #0b0e11; --card: #161a1e; --yellow: #fcd535; --green: #0ecb81; --red: #f6465d; --gray: #848e9c; }
         
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: white; font-family: sans-serif; overflow-x: hidden; }
-
-        /* الهيدر العلوي المثبت */
-        .app-header {
-            background: var(--card); padding: 8px 12px; display: flex; flex-direction: column; border-bottom: 1px solid #2b3139;
+        /* جعل الصفحة مرنة لتملأ كامل طول الشاشة */
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            background: var(--bg); color: white; 
+            font-family: sans-serif; overflow: hidden;
+            display: flex; flex-direction: column; 
         }
-        .top-nav { display: flex; justify-content: space-around; font-size: 0.8rem; color: var(--gray); margin-bottom: 8px; }
-        .top-nav span.active { color: white; border-bottom: 2px solid var(--yellow); padding-bottom: 2px; }
+
+        /* 1. الهيدر العلوي */
+        .app-header {
+            background: var(--card); padding: 5px 12px; border-bottom: 1px solid #2b3139;
+            flex-shrink: 0;
+        }
+        .top-nav { display: flex; justify-content: space-around; font-size: 0.75rem; color: var(--gray); padding-bottom: 5px; }
+        .top-nav span.active { color: white; border-bottom: 2px solid var(--yellow); }
         
-        .pair-bar { display: flex; justify-content: space-between; align-items: center; }
+        .pair-bar { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
         .pair-info { display: flex; align-items: center; gap: 8px; }
-        .logo-small { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--yellow); }
+        .logo-small { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--yellow); }
 
-        /* منطقة التداول الرئيسية */
-        .trade-section { display: grid; grid-template-columns: 1.2fr 0.8fr; background: var(--bg); border-bottom: 1px solid #2b3139; }
+        /* 2. منطقة التداول (الوسط) */
+        .trade-section { 
+            display: grid; grid-template-columns: 1.1fr 0.9fr; 
+            background: var(--bg); flex-shrink: 0; 
+        }
 
-        /* دفتر الطلبات (يسار) */
-        .order-book { padding: 5px; font-size: 0.7rem; border-left: 1px solid #2b3139; height: 220px; overflow: hidden; }
-        .ob-row { display: flex; justify-content: space-between; line-height: 1.4; }
-
-        /* لوحة الأوامر (يمين) - تم تصغيرها */
-        .order-panel { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-        .side-tabs { display: flex; border-radius: 4px; overflow: hidden; height: 30px; }
+        /* لوحة الأوامر (يمين) - تم ضبط الحجم */
+        .order-panel { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .side-tabs { display: flex; border-radius: 4px; overflow: hidden; height: 32px; }
         .side-tabs button { flex: 1; border: none; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
         .btn-buy { background: var(--green); color: white; }
         .btn-sell { background: #2b3139; color: var(--gray); }
 
-        .mini-input { background: #2b3139; border-radius: 4px; padding: 6px; font-size: 0.75rem; display: flex; justify-content: space-between; }
-        .execute-btn { background: var(--green); color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; margin-top: 5px; font-size: 0.85rem; }
+        .mini-input { background: #2b3139; border-radius: 4px; padding: 8px; font-size: 0.75rem; display: flex; justify-content: space-between; }
+        .execute-btn { background: var(--green); color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; margin-top: 5px; }
 
-        /* منطقة الشموع */
-        .chart-box { height: 250px; width: 100%; background: #000; }
+        /* دفتر الطلبات (يسار) */
+        .order-book { padding: 5px; font-size: 0.7rem; border-left: 1px solid #2b3139; height: 200px; overflow: hidden; }
+        .ob-row { display: flex; justify-content: space-between; line-height: 1.5; }
 
-        /* العداد السفلي المدمج */
-        .listing-footer { padding: 15px 10px; text-align: center; background: var(--card); }
-        .listing-footer h3 { margin: 0 0 10px 0; color: var(--yellow); font-size: 1.1rem; }
+        /* 3. منطقة الشموع (تتمدد لملء الفراغ) */
+        .chart-box { 
+            flex-grow: 1; /* تأخذ كل المساحة المتبقية */
+            width: 100%; background: #000; border-top: 2px solid #2b3139;
+        }
+
+        /* 4. العداد السفلي (ثابت في الأسفل) */
+        .listing-footer { 
+            padding: 15px 10px; text-align: center; 
+            background: var(--card); border-top: 1px solid gold;
+            flex-shrink: 0;
+        }
+        .listing-footer h3 { margin: 0 0 10px 0; color: var(--yellow); font-size: 1rem; }
         .timer-grid { display: flex; justify-content: center; gap: 8px; }
-        .t-unit { background: var(--yellow); color: black; padding: 8px; border-radius: 6px; min-width: 50px; font-weight: bold; }
-        .t-unit span { font-size: 1.2rem; display: block; }
-        .t-unit small { font-size: 0.6rem; }
+        .t-unit { background: var(--yellow); color: black; padding: 10px; border-radius: 6px; min-width: 55px; font-weight: bold; }
+        .t-unit span { font-size: 1.3rem; display: block; line-height: 1; }
+        .t-unit small { font-size: 0.65rem; }
     </style>
 </head>
 <body>
@@ -58,8 +75,8 @@
         <div class="pair-bar">
             <div class="pair-info">
                 <img src="Unnamed.jpg" class="logo-small">
-                <span style="font-weight:bold;">ABSI/USDT</span>
-                <span style="color:var(--green); font-size:0.75rem;">+12.5%</span>
+                <span style="font-weight:bold; font-size: 0.9rem;">ABSI/USDT</span>
+                <span style="color:var(--green); font-size:0.7rem;">+12.5%</span>
             </div>
             <span style="color:var(--gray)">☰</span>
         </div>
@@ -71,7 +88,6 @@
                 <button class="btn-buy">شراء</button>
                 <button class="btn-sell">بيع</button>
             </div>
-            <div style="font-size:0.7rem; color:var(--gray)">طلب حدي ▾</div>
             <div class="mini-input"><span>السعر</span><b>0.0025</b></div>
             <div class="mini-input"><span>المبلغ</span><span style="color:var(--gray)">ABSI</span></div>
             <button class="execute-btn">شراء ABSI</button>
@@ -88,36 +104,33 @@
     <footer class="listing-footer">
         <h3>ABSI LISTING COUNTDOWN</h3>
         <div class="timer-grid">
-            <div class="t-unit"><span id="d">19</span><small>يوم</small></div>
-            <div class="t-unit"><span id="h">00</span><small>ساعة</small></div>
-            <div class="t-unit"><span id="m">00</span><small>دقيقة</small></div>
-            <div class="t-unit"><span id="s">00</span><small>ثانية</small></div>
+            <div class="t-unit"><span id="d">18</span><small>يوم</small></div>
+            <div class="t-unit"><span id="h">23</span><small>ساعة</small></div>
+            <div class="t-unit"><span id="m">59</span><small>دقيقة</small></div>
+            <div class="t-unit"><span id="s">51</span><small>ثانية</small></div>
         </div>
-        <p style="font-size:0.7rem; color:var(--gray); margin-top:10px;">منصة ABSI الرسمية - تداول بأمان</p>
+        <p style="font-size:0.7rem; color:var(--gray); margin-top:8px;">منصة ABSI الرسمية - © 2025</p>
     </footer>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // الشارت
         new TradingView.widget({
             "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": "15", "theme": "dark", "style": "1", "locale": "ar", "container_id": "tv_chart", "hide_top_toolbar": true
         });
 
-        // محاكاة دفتر الطلبات
         function fillOB() {
             const ob = document.getElementById('ob');
             let h = '';
-            for(let i=0; i<5; i++) h += `<div class="ob-row"><span style="color:var(--red)">0.0025${i}</span><span>${(Math.random()*10).toFixed(1)}M</span></div>`;
-            h += `<div style="color:var(--green); font-weight:bold; padding:4px 0; font-size:0.8rem; text-align:center;">0.002514 ↑</div>`;
-            for(let i=0; i<5; i++) h += `<div class="ob-row"><span style="color:var(--green)">0.0024${i}</span><span>${(Math.random()*10).toFixed(1)}M</span></div>`;
+            for(let i=0; i<4; i++) h += `<div class="ob-row"><span style="color:var(--red)">0.0025${i}</span><span>${(Math.random()*10).toFixed(1)}M</span></div>`;
+            h += `<div style="color:var(--green); font-weight:bold; padding:5px 0; font-size:0.85rem; text-align:center;">0.002514 ↑</div>`;
+            for(let i=0; i<4; i++) h += `<div class="ob-row"><span style="color:var(--green)">0.0024${i}</span><span>${(Math.random()*10).toFixed(1)}M</span></div>`;
             ob.innerHTML = h;
         }
         setInterval(fillOB, 1000); fillOB();
 
-        // العداد
-        const end = new Date(); end.setDate(end.getDate() + 19);
+        const end = new Date(); end.setDate(end.getDate() + 18);
         function updateT() {
-            const now = new Date(); const diff = end - now;
+            const diff = end - new Date();
             document.getElementById('d').innerText = Math.floor(diff / (1000*60*60*24));
             document.getElementById('h').innerText = Math.floor((diff / (1000*60*60)) % 24);
             document.getElementById('m').innerText = Math.floor((diff / (1000*60)) % 60);
