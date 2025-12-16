@@ -65,10 +65,10 @@
             width: 100%;
         }
         
-        /* شريط القائمة العلوي - تم تقليل الحجم والخط لأقصى درجة */
+        /* شريط القائمة العلوي - أصبح ضيقاً وموجزاً */
         .nav { 
             background: #161a1e; 
-            padding: 4px 8px; /* تقليل الحشو الرأسي والأفقي جداً */
+            padding: 5px 8px; /* حشو ضيق جداً */
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
@@ -79,12 +79,13 @@
             color: #ffc107; 
             margin: 0;
             font-size: 14px; /* حجم خط صغير جداً */
+            white-space: nowrap; /* لمنع الكلمة من النزول سطر جديد */
         }
         /* حاوية المحتوى الرئيسية */
         .container { 
             display: flex; 
             flex-direction: column; 
-            gap: 4px; /* تقليل الفراغات */
+            gap: 4px; 
             padding: 4px; 
             max-width: none; 
             flex-grow: 1; 
@@ -95,12 +96,12 @@
             background: #2b3139; 
             color: #e0e0e0; 
             border: 1px solid #474d57; 
-            padding: 4px 8px; /* تصغير حجم القائمة المنسدلة */
+            padding: 3px 6px; 
             border-radius: 4px; 
             cursor: pointer; 
-            font-size: 12px; /* تصغير حجم خط القائمة المنسدلة */
+            font-size: 12px; 
         }
-        /* تخطيط الشبكة (Chart + Swap) على الأجهزة الكبيرة */
+        /* تخطيط الشبكة (Grid) - أصبح الآن للعرض الأفقي فقط (شاشات كبيرة) */
         .grid { 
             display: grid; 
             grid-template-columns: 75% 25%; 
@@ -112,41 +113,42 @@
             border: 1px solid #2b3139; 
             border-radius: 4px; 
             background: #161a1e; 
-            /* حساب الارتفاع للأجهزة الكبيرة */
-            height: calc(100vh - 45px); /* تم تعديل هذا الارتفاع ليتناسب مع شريط التنقل الأصغر */
+            height: calc(100vh - 45px); 
             min-height: 500px; 
             width: 100%;
         }
         
-        /* تصميم الأجهزة الصغيرة (هواتف) - المصحح النهائي لزيادة مساحة العرض */
+        /* تصميم الأجهزة الصغيرة (هواتف) - التنسيق الجديد المطلوب */
         @media (max-width: 1000px) { 
-            .nav { padding: 4px 6px; } /* حشو أصغر */
-            .nav h2 { font-size: 12px; } /* حجم خط أصغر */
-            select { padding: 3px 6px; font-size: 10px; } /* تصغير قائمة الاختيار */
-
+            
+            /* إلغاء تنسيق الشبكة لعرض المحتوى عمودياً فقط */
             .grid { 
                 grid-template-columns: 1fr; 
                 display: block; 
             } 
 
-            #tradingChart, #swapWidget {
-                height: 500px; 
-                margin-bottom: 4px; /* تقليل الفراغ */
-                min-height: 300px;
+            /* جعل الرسم البياني كبيراً بملء العرض */
+            #tradingChart {
+                height: 50vh; /* تحديد الارتفاع بنسبة 50% من شاشة الهاتف */
+                margin-bottom: 4px; 
                 width: 100%;
             }
             
-            /* توسيط المحفظة (Swap Container) مع تحديد عرض مناسب */
+            /* جعل المحفظة (Swap Widget) أسفل الرسم البياني ومركّزاً */
+            #swapWidget {
+                height: 400px; /* ارتفاع ثابت للمحفظة */
+                width: 100%; 
+            }
+
             #swapContainer {
-                max-width: 380px; 
-                margin: 0 auto; 
-                width: 100%;
+                max-width: 450px; /* عرض أقصى معقول للمحفظة */
+                margin: 0 auto 8px auto; /* توسيط المحفظة وترك مسافة أسفلها */
             }
 
             .container { 
-                overflow-y: scroll; 
+                overflow-y: scroll; /* السماح بالتمرير عمودياً */
                 height: calc(100vh - 40px); /* ارتفاع أكبر للمحتوى القابل للتمرير */
-                padding: 2px; /* تقليل الحشو لزيادة مساحة العرض */
+                padding: 4px; 
             } 
         }
     </style>
@@ -170,7 +172,7 @@
     <div class="nav">
         <h2>ABSI Exchange</h2>
         <div>
-            <label style="margin-right: 10px; color: #a0a0a0;">الزوج:</label>
+            <label style="margin-right: 10px; color: #a0a0a0; font-size: 12px;">الزوج:</label>
             <select id="tokenSelector" onchange="updateChart()">
                 <option value="0x6b744158428587d5b546304a0e980a3c2670e309">ABSI / USDT</option>
                 <option value="0x55d398326f99059ff775485246999027b3197955">USDT / BNB</option>
