@@ -2,78 +2,76 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ABSI EXCHANGE</title>
 
-    <link rel="icon" type="image/jpeg" href="Unnamed.jpg">
-    <link rel="apple-touch-icon" href="Unnamed.jpg">
+    <link rel="icon" type="image/jpeg" href="absi-logo.jpg">
+    <link rel="apple-touch-icon" href="absi-logo.jpg">
 
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; }
+        :root { --bg: #0b0e11; --card: #161a1e; --gold: #fcd535; --green: #0ecb81; --red: #f6465d; }
+        
+        html, body { height: 100%; margin: 0; padding: 0; background: var(--bg); color: white; font-family: sans-serif; overflow-x: hidden; }
+        
         body { 
-            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.85)), url('Unnamed.jpg');
-            background-size: cover; background-position: center; background-attachment: fixed;
-            color: white; font-family: 'Segoe UI', sans-serif; overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column; 
+            /* وضع الصورة كخلفية شفافة احترافية */
+            background-image: linear-gradient(rgba(11, 14, 17, 0.8), rgba(11, 14, 17, 0.9)), url('absi-logo.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
 
-        /* الهيدر العلوي */
         .trading-header {
-            padding: 15px; background: rgba(22, 26, 30, 0.9); 
+            padding: 15px; background: rgba(22, 26, 30, 0.95); 
             display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 2px solid gold; flex-shrink: 0;
+            border-bottom: 2px solid var(--gold); flex-shrink: 0;
         }
-        .brand-name { color: gold; font-weight: bold; font-size: 1.3rem; }
+        .brand-name { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
 
         /* منطقة الشموع */
-        .trading-container { height: 50vh; width: 100%; background: #000; flex-shrink: 0; }
-        #chart-area { height: 100%; width: 100%; }
+        .trading-container { 
+            flex: 1; 
+            min-height: 380px; 
+            width: 100%; background: #000; 
+        }
 
-        /* أزرار البيع والشراء في موقعها الجديد (تحت الشموع) */
+        /* أزرار البيع والشراء تحت الشموع مباشرة */
         .action-bar {
             background: rgba(30, 35, 41, 0.95); 
-            padding: 20px 15px; 
-            display: flex; justify-content: center; gap: 15px; 
-            border-top: 1px solid #444;
-            border-bottom: 1px solid #444;
+            padding: 15px; 
+            display: flex; justify-content: center; gap: 10px; 
+            border-top: 1px solid #2b3139;
             flex-shrink: 0;
         }
         .btn-quick {
-            flex: 1; padding: 18px; border-radius: 12px; border: none; 
-            font-weight: bold; cursor: pointer; font-size: 1.3rem;
-            text-transform: uppercase; transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            flex: 1; padding: 15px; border-radius: 10px; border: none; 
+            font-weight: bold; cursor: pointer; font-size: 1.1rem;
+            color: white; transition: 0.2s;
         }
-        .q-buy { background: #00c087; color: white; }
-        .q-sell { background: #f84960; color: white; }
-        .btn-quick:active { transform: scale(0.95); }
+        .q-buy { background: var(--green); }
+        .q-sell { background: var(--red); }
 
-        select { 
-            background: #2b3139; color: gold; border: 1px solid gold; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.9rem;
+        /* منطقة العداد والمعلومات */
+        .info-section { 
+            padding: 20px 10px; text-align: center; 
+            background: rgba(11, 14, 17, 0.8); flex-shrink: 0;
         }
-
-        /* منطقة المعلومات والعداد */
-        .info-section { padding: 30px 10px; text-align: center; flex-grow: 1; }
-        .pair-title { font-size: 2.5rem; color: gold; font-weight: bold; margin-bottom: 5px; }
+        .pair-title { font-size: 2.2rem; color: var(--gold); font-weight: bold; margin-bottom: 10px; }
         
-        .timer-container { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
-        .timer-box { background: gold; color: black; padding: 15px; border-radius: 12px; min-width: 80px; }
-        .timer-box span { font-size: 2.4rem; font-weight: 900; display: block; line-height: 1; }
-        .timer-box label { font-size: 1rem; font-weight: bold; }
+        .timer-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
+        .timer-box { background: var(--gold); color: black; padding: 10px; border-radius: 8px; min-width: 70px; }
+        .timer-box span { font-size: 2rem; font-weight: 900; display: block; line-height: 1; }
+        .timer-box label { font-size: 0.9rem; font-weight: bold; }
+        .timer-box.sec { background: #ffffff; }
 
         .about-box { 
-            font-size: 1.3rem; max-width: 850px; margin: 20px auto; background: rgba(0, 0, 0, 0.8); 
-            padding: 20px; border-radius: 15px; border: 1px solid gold; line-height: 1.6;
+            font-size: 1rem; max-width: 90%; margin: 0 auto 15px auto; 
+            background: rgba(0, 0, 0, 0.6); 
+            padding: 15px; border-radius: 10px; border: 1px solid var(--gold); line-height: 1.5;
         }
 
-        @media (max-width: 600px) {
-            .trading-container { height: 45vh; } /* تقليل ارتفاع الشارت قليلاً ليناسب الجوال */
-            .pair-title { font-size: 2.2rem; }
-            .timer-box { min-width: 70px; padding: 10px; }
-            .timer-box span { font-size: 2rem; }
-            .btn-quick { font-size: 1.1rem; padding: 15px; }
-        }
+        select { background: #2b3139; color: var(--gold); border: 1px solid var(--gold); padding: 5px 10px; border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -81,71 +79,78 @@
     <div class="trading-header">
         <div class="brand-name">ABSI EXCHANGE</div>
         <select id="pairSelector" onchange="changePair()">
-            <optgroup label="عملة المنصة">
-                <option value="BINANCE:ABSIUSDT">ABSI / USDT (Soon)</option>
-            </optgroup>
-            <optgroup label="العملات القيادية">
-                <option value="BINANCE:BTCUSDT" selected>BTC / USDT</option>
-                <option value="BINANCE:ETHUSDT">ETH / USDT</option>
-            </optgroup>
+            <option value="BINANCE:BTCUSDT">BTC / USDT</option>
+            <option value="BINANCE:ETHUSDT">ETH / USDT</option>
+            <option value="BINANCE:ABSIUSDT">ABSI / USDT (Soon)</option>
         </select>
     </div>
 
-    <div class="trading-container">
-        <div id="chart-area"><div id="tradingview_widget"></div></div>
-    </div>
+    <div class="trading-container" id="chart-area"></div>
 
     <div class="action-bar">
-        <button class="btn-quick q-buy" onclick="alert('جاري التوجيه لمحرك الشراء...')">BUY / شراء</button>
-        <button class="btn-quick q-sell" onclick="alert('جاري التوجيه لمحرك البيع...')">SELL / بيع</button>
+        <button class="btn-quick q-buy" onclick="alert('جاري الانتقال لصفحة الشراء...')">BUY / شراء</button>
+        <button class="btn-quick q-sell" onclick="alert('جاري الانتقال لصفحة البيع...')">SELL / بيع</button>
     </div>
 
     <div class="info-section">
-        <div class="pair-title">ABSI/USDT</div>
+        <div class="pair-title">ABSI/USDT LISTING</div>
         <div class="timer-container">
-            <div class="timer-box"><span id="days">19</span><label>يوم</label></div>
+            <div class="timer-box"><span id="days">00</span><label>يوم</label></div>
             <div class="timer-box"><span id="hours">00</span><label>ساعة</label></div>
             <div class="timer-box"><span id="minutes">00</span><label>دقيقة</label></div>
+            <div class="timer-box sec"><span id="seconds">00</span><label>ثانية</label></div>
         </div>
-        <div class="about-box">استعد لانطلاق التداول الرسمي لعملة <b>ABSI</b>. تابع الشارت الحي وراقب السعر لحظة بلحظة.</div>
-        <p style="color: gold; font-weight: bold; margin-bottom: 20px;">© 2025 ABSI GOLD - Professional Trading</p>
+        <div class="about-box">استعد للإدراج الكبير. منصة <b>ABSI EXCHANGE</b> توفر لك الآن أدوات تحليل احترافية لعملة ABSI وكافة العملات الرقمية.</div>
+        <p style="color: var(--gold); font-size: 0.9rem; font-weight: bold;">© 2025 ABSI GOLD - Professional Trading</p>
     </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script type="text/javascript">
         function loadChart(symbol) {
+            document.getElementById('chart-area').innerHTML = '<div id="tradingview_widget"></div>';
             new TradingView.widget({
-                "width": "100%", "height": "100%",
+                "autosize": true,
                 "symbol": symbol,
-                "interval": "60",
+                "interval": "15",
                 "theme": "dark",
                 "style": "1",
                 "locale": "ar",
-                "enable_publishing": false,
-                "allow_symbol_change": true,
                 "container_id": "tradingview_widget",
                 "overrides": {
-                    "scalesProperties.fontSize": 16 // تكبير أرقام الشارت كما طلبت
+                    "scalesProperties.fontSize": 18 // الأرقام بحجم 18 كما طلبت
                 }
             });
         }
 
-        loadChart("BINANCE:BTCUSDT");
+        window.onload = function() { loadChart("BINANCE:BTCUSDT"); };
 
         function changePair() {
             const selectedPair = document.getElementById("pairSelector").value;
             loadChart(selectedPair);
         }
 
-        const target = new Date(); target.setDate(target.getDate() + 19);
-        function timer() {
-            const diff = target - new Date();
-            if (diff <= 0) return;
-            document.getElementById("days").innerText = Math.floor(diff / (1000*60*60*24));
-            document.getElementById("hours").innerText = Math.floor((diff / (1000*60*60)) % 24);
-            document.getElementById("minutes").innerText = Math.floor((diff / (1000*60)) % 60);
+        // إعداد العداد التنازلي (تم ضبطه ليعمل بشكل تلقائي 100%)
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + 19); 
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const diff = targetDate - now;
+
+            if (diff > 0) {
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerText = d.toString().padStart(2, '0');
+                document.getElementById("hours").innerText = h.toString().padStart(2, '0');
+                document.getElementById("minutes").innerText = m.toString().padStart(2, '0');
+                document.getElementById("seconds").innerText = s.toString().padStart(2, '0');
+            }
         }
-        setInterval(timer, 1000); timer();
+        setInterval(updateTimer, 1000);
+        updateTimer();
     </script>
 </body>
 </html>
