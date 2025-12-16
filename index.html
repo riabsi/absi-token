@@ -58,6 +58,7 @@
             cursor: pointer;
             font-weight: bold;
         }
+        
         /* إخفاء المحتوى الرئيسي حتى يتم التحقق */
         #main-content {
             display: none; 
@@ -65,34 +66,34 @@
             width: 100%;
         }
         
-        /* شريط القائمة العلوي - تم إلغاء التباعد بين العناصر */
+        /* شريط القائمة العلوي */
         .nav { 
             background: #161a1e; 
             padding: 5px 8px; 
             display: flex; 
-            /* التعديل الأهم: جعل العناصر تترتب متجاورة من اليمين (اليسار في حالة RTL) */
-            justify-content: flex-start; /* لالغاء المسافات الفارغة */
-            gap: 10px; /* مسافة بسيطة بين اسم المنصة والزوج */
+            /* الحل للمساحة السوداء: استخدام justify-content: flex-start وتجميع المحتوى */
+            justify-content: flex-start;
             align-items: center; 
             flex-shrink: 0;
             border-bottom: 1px solid #2b3139;
+            /* للحفاظ على التصاق المحتوى بالزاوية اليمنى في وضع سطح المكتب */
+            width: fit-content; 
+            margin-left: auto; 
         }
+
+        .nav-content {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* مسافة جيدة بين اسم المنصة والزوج */
+        }
+
         .nav h2 {
             color: #ffc107; 
             margin: 0;
-            font-size: 14px; 
+            font-size: 16px; /* حجم الخط المطلوب */
             white-space: nowrap; 
         }
-        /* حاوية المحتوى الرئيسية */
-        .container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 4px; 
-            padding: 4px; 
-            max-width: none; 
-            flex-grow: 1; 
-            width: 100%;
-        }
+        
         /* قائمة اختيار العملة */
         select { 
             background: #2b3139; 
@@ -101,16 +102,16 @@
             padding: 3px 6px; 
             border-radius: 4px; 
             cursor: pointer; 
-            font-size: 12px; 
+            font-size: 13px; 
         }
-        /* تخطيط الشبكة (Grid) - للعرض الأفقي (شاشات كبيرة) */
+
+        /* تخطيط الأجهزة الكبيرة (لا تغيير) */
         .grid { 
             display: grid; 
             grid-template-columns: 75% 25%; 
             gap: 8px; 
             flex-grow: 1; 
         }
-        /* إطارات Iframes (الرسم البياني وواجهة التداول) */
         iframe { 
             border: 1px solid #2b3139; 
             border-radius: 4px; 
@@ -120,44 +121,48 @@
             width: 100%;
         }
         
-        /* تصميم الأجهزة الصغيرة (هواتف) - التنسيق الجديد المطلوب */
+        /* تصميم الأجهزة الصغيرة (هواتف) */
         @media (max-width: 1000px) { 
             
-            /* تجميع الشريط العلوي على اليسار (الزاوية اليمنى في RTL) */
-            .nav { 
-                justify-content: flex-start;
+            /* شريط التنقل على الهواتف */
+            .nav {
+                width: 100%; /* يجب أن يملأ العرض على الهواتف */
+                justify-content: flex-start; /* التجميع على اليمين */
                 padding: 4px 6px;
+                /* إلغاء الـ margin-left: auto للحفاظ على التجميع من اليمين في وضع الهاتف */
+                margin-left: 0; 
+            }
+
+            .nav-content {
+                 gap: 5px; 
+            }
+
+            /* ... (تنسيقات المحتوى الرئيسية) ... */
+
+            .container { 
+                overflow-y: scroll; 
+                height: calc(100vh - 40px); 
+                padding: 4px; 
             } 
             
-            /* إلغاء تنسيق الشبكة لعرض المحتوى عمودياً فقط */
-            .grid { 
-                grid-template-columns: 1fr; 
-                display: block; 
-            } 
-
-            /* جعل الرسم البياني كبيراً بملء العرض */
+             /* جعل الرسم البياني كبيراً بملء العرض */
             #tradingChart {
-                height: 50vh; /* تحديد الارتفاع بنسبة 50% من شاشة الهاتف */
+                height: 50vh; 
                 margin-bottom: 4px; 
                 width: 100%;
             }
             
             /* جعل المحفظة (Swap Widget) أسفل الرسم البياني ومركّزاً */
             #swapWidget {
-                height: 400px; /* ارتفاع ثابت للمحفظة */
+                height: 400px; 
                 width: 100%; 
             }
 
             #swapContainer {
-                max-width: 450px; /* عرض أقصى معقول للمحفظة */
-                margin: 0 auto 8px auto; /* توسيط المحفظة وترك مسافة أسفلها */
+                max-width: 450px; 
+                margin: 0 auto 8px auto; 
             }
-
-            .container { 
-                overflow-y: scroll; /* السماح بالتمرير عمودياً */
-                height: calc(100vh - 40px); /* ارتفاع أكبر للمحتوى القابل للتمرير */
-                padding: 4px; 
-            } 
+            
         }
     </style>
 </head>
@@ -178,25 +183,27 @@
 
 <div id="main-content">
     <div class="nav">
-        <h2>ABSI Exchange</h2>
-        <div>
-            <label style="margin-right: 5px; color: #a0a0a0; font-size: 12px;">الزوج:</label>
-            <select id="tokenSelector" onchange="updateChart()">
-                <option value="0x6b744158428587d5b546304a0e980a3c2670e309">ABSI / USDT</option>
-                <option value="0x55d398326f99059ff775485246999027b3197955">USDT / BNB</option>
-                <option value="0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c">BNB / BUSD</option>
-            </select>
+        <div class="nav-content">
+            <h2>ABSI Exchange</h2>
+            <div style="display: flex; align-items: center;">
+                <label style="margin-right: 5px; color: #a0a0a0; font-size: 12px;">الزوج:</label>
+                <select id="tokenSelector" onchange="updateChart()">
+                    <option value="0x55d398326f99059ff775485246999027b3197955">USDT / BNB</option>
+                    <option value="0x6b744158428587d5b546304a0e980a3c2670e309">ABSI / USDT</option>
+                    <option value="0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c">BNB / BUSD</option>
+                </select>
+            </div>
         </div>
     </div>
 
     <div class="container">
         <div class="grid">
             <div id="chartContainer">
-                <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x6b744158428587d5b546304a0e980a3c2670e309?embed=1" loading="lazy" width="100%" allowfullscreen></iframe>
+                <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x55d398326f99059ff775485246999027b3197955?embed=1" loading="lazy" width="100%" allowfullscreen></iframe>
             </div>
 
             <div id="swapContainer">
-                <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x6b744158428587d5b546304a0e980a3c2670e309" loading="lazy" width="100%" allowfullscreen></iframe>
+                <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x55d398326f99059ff775485246999027b3197955" loading="lazy" width="100%" allowfullscreen></iframe>
             </div>
         </div>
     </div>
