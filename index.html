@@ -2,17 +2,11 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABSI Token | Exchange</title>
     
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0c1015">
-    
-    <link rel="apple-touch-icon" href="images/unnamed.jpg">
     <link rel="icon" type="image/jpeg" href="images/unnamed.jpg">
+    <link rel="apple-touch-icon" href="images/unnamed.jpg">
 
     <style>
         body { 
@@ -20,65 +14,46 @@
             margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; 
         }
         .nav { 
-            background: #161a1e; padding: 10px 8px; display: flex; justify-content: space-between;
-            align-items: center; border-bottom: 1px solid #2b3139;
+            background: #161a1e; padding: 5px 8px; display: flex; justify-content: flex-start;
+            align-items: center; flex-shrink: 0; border-bottom: 1px solid #2b3139; width: 100%; 
         }
-        .install-btn {
-            background: #ffc107; color: #000; border: none; padding: 5px 10px;
-            border-radius: 5px; font-weight: bold; cursor: pointer; display: none; /* يظهر فقط عند الحاجة */
-        }
-        .container { 
-            display: flex; flex-direction: column; gap: 4px; padding: 4px; 
-            flex-grow: 1; overflow-y: auto; background-color: #0c1015;
-        }
-        iframe { border: 1px solid #2b3139; border-radius: 8px; width: 100%; }
-        #tradingChart { height: 40vh; }
-        #swapWidget { height: 580px; max-width: 450px; margin: 0 auto; }
+        .nav-content { display: flex; align-items: center; gap: 15px; }
+        .nav h2 { color: #ffc107; margin: 0; font-size: 16px; white-space: nowrap; }
+        select { background: #2b3139; color: #e0e0e0; border: 1px solid #474d57; padding: 3px 6px; border-radius: 4px; font-size: 13px; }
+        .container { display: flex; flex-direction: column; gap: 4px; padding: 4px; flex-grow: 1; width: 100%; overflow-y: scroll; height: calc(100vh - 40px); }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 4px; flex-grow: 1; }
+        iframe { border: 1px solid #2b3139; border-radius: 4px; background: #161a1e; width: 100%; }
+        #tradingChart { height: 50vh; margin-bottom: 4px; }
+        #swapWidget { height: 400px; max-width: 450px; margin: 0 auto 8px auto; }
     </style>
 </head>
 <body>
-
-<div class="nav">
-    <div style="display:flex; align-items:center; gap:10px;">
-        <h2 style="color:#ffc107; margin:0; font-size:16px;">ABSI</h2>
-        <select id="tokenSelector" onchange="updateChart()" style="background:#2b3139; color:#fff; border:1px solid #474d57; border-radius:4px;">
-            <option value="0x55d398326f99059ff775485246999027b3197955">USDT/BNB</option>
-            <option value="0x6b744158428587d5b546304a0e980a3c2670e309">ABSI/USDT</option>
-        </select>
+    <div class="nav">
+        <div class="nav-content">
+            <h2>ABSI Exchange</h2>
+            <div style="display: flex; align-items: center;">
+                <label style="margin-right: 5px; color: #a0a0a0; font-size: 12px;">الزوج:</label>
+                <select id="tokenSelector" onchange="updateChart()">
+                    <option value="0x55d398326f99059ff775485246999027b3197955">USDT / BNB</option>
+                    <option value="0x6b744158428587d5b546304a0e980a3c2670e309">ABSI / USDT</option>
+                </select>
+            </div>
+        </div>
     </div>
-    <button id="installBtn" class="install-btn">تثبيت التطبيق</button>
-</div>
 
-<div class="container">
-    <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x55d398326f99059ff775485246999027b3197955?embed=1"></iframe>
-    <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x55d398326f99059ff775485246999027b3197955&theme=dark"></iframe>
-</div>
+    <div class="container">
+        <div class="grid">
+            <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x55d398326f99059ff775485246999027b3197955?embed=1"></iframe>
+            <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x55d398326f99059ff775485246999027b3197955"></iframe>
+        </div>
+    </div>
 
-<script>
-    function updateChart() {
-        const addr = document.getElementById('tokenSelector').value;
-        document.getElementById('tradingChart').src = `https://www.geckoterminal.com/bsc/pools/${addr}?embed=1`;
-        document.getElementById('swapWidget').src = `https://pancakeswap.finance/swap?outputCurrency=${addr}&theme=dark`;
-    }
-
-    // كود زر التثبيت
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBtn.style.display = 'block'; // أظهر الزر للمستخدم
-    });
-
-    installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') installBtn.style.display = 'none';
-            deferredPrompt = null;
+    <script>
+        function updateChart() {
+            const addr = document.getElementById('tokenSelector').value;
+            document.getElementById('tradingChart').src = `https://www.geckoterminal.com/bsc/pools/${addr}?embed=1`;
+            document.getElementById('swapWidget').src = `https://pancakeswap.finance/swap?outputCurrency=${addr}`;
         }
-    });
-</script>
+    </script>
 </body>
 </html>
