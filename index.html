@@ -11,67 +11,55 @@
     <style>
         :root { --bg: #0b0e11; --card: #161a1e; --gold: #fcd535; --green: #0ecb81; --red: #f6465d; }
         
-        html, body { height: 100%; margin: 0; padding: 0; background: var(--bg); color: white; font-family: sans-serif; overflow-x: hidden; }
+        html, body { height: 100%; margin: 0; padding: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
         
         body { 
             display: flex; flex-direction: column; 
-            /* وضع الصورة كخلفية شفافة احترافية */
-            background-image: linear-gradient(rgba(11, 14, 17, 0.8), rgba(11, 14, 17, 0.9)), url('absi-logo.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-image: linear-gradient(rgba(11, 14, 17, 0.85), rgba(11, 14, 17, 0.95)), url('absi-logo.jpg');
+            background-size: cover; background-position: center;
         }
 
         .trading-header {
-            padding: 15px; background: rgba(22, 26, 30, 0.95); 
+            padding: 12px 15px; background: rgba(22, 26, 30, 0.95); 
             display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 2px solid var(--gold); flex-shrink: 0;
+            border-bottom: 1px solid var(--gold); flex-shrink: 0;
         }
-        .brand-name { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
+        .brand-name { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
 
-        /* منطقة الشموع */
+        /* زيادة مساحة الشموع لضمان عدم ضغطها */
         .trading-container { 
             flex: 1; 
-            min-height: 380px; 
             width: 100%; background: #000; 
+            border-bottom: 1px solid #2b3139;
         }
 
-        /* أزرار البيع والشراء تحت الشموع مباشرة */
         .action-bar {
             background: rgba(30, 35, 41, 0.95); 
-            padding: 15px; 
+            padding: 12px; 
             display: flex; justify-content: center; gap: 10px; 
-            border-top: 1px solid #2b3139;
             flex-shrink: 0;
         }
         .btn-quick {
-            flex: 1; padding: 15px; border-radius: 10px; border: none; 
-            font-weight: bold; cursor: pointer; font-size: 1.1rem;
-            color: white; transition: 0.2s;
+            flex: 1; padding: 14px; border-radius: 8px; border: none; 
+            font-weight: bold; cursor: pointer; font-size: 1rem;
+            color: white;
         }
         .q-buy { background: var(--green); }
         .q-sell { background: var(--red); }
 
-        /* منطقة العداد والمعلومات */
         .info-section { 
-            padding: 20px 10px; text-align: center; 
-            background: rgba(11, 14, 17, 0.8); flex-shrink: 0;
+            padding: 15px 10px 25px 10px; text-align: center; 
+            background: rgba(11, 14, 17, 0.9); flex-shrink: 0;
         }
-        .pair-title { font-size: 2.2rem; color: var(--gold); font-weight: bold; margin-bottom: 10px; }
+        .pair-title { font-size: 1.5rem; color: var(--gold); font-weight: bold; margin-bottom: 8px; }
         
-        .timer-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
-        .timer-box { background: var(--gold); color: black; padding: 10px; border-radius: 8px; min-width: 70px; }
-        .timer-box span { font-size: 2rem; font-weight: 900; display: block; line-height: 1; }
-        .timer-box label { font-size: 0.9rem; font-weight: bold; }
-        .timer-box.sec { background: #ffffff; }
+        .timer-container { display: flex; justify-content: center; gap: 6px; }
+        .timer-box { background: var(--gold); color: black; padding: 8px; border-radius: 6px; min-width: 60px; }
+        .timer-box span { font-size: 1.6rem; font-weight: 900; display: block; line-height: 1; }
+        .timer-box label { font-size: 0.75rem; font-weight: bold; }
+        .timer-box.sec { background: #ffffff; border: 1px solid var(--gold); }
 
-        .about-box { 
-            font-size: 1rem; max-width: 90%; margin: 0 auto 15px auto; 
-            background: rgba(0, 0, 0, 0.6); 
-            padding: 15px; border-radius: 10px; border: 1px solid var(--gold); line-height: 1.5;
-        }
-
-        select { background: #2b3139; color: var(--gold); border: 1px solid var(--gold); padding: 5px 10px; border-radius: 5px; font-weight: bold; }
+        select { background: #2b3139; color: var(--gold); border: 1px solid var(--gold); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -88,8 +76,8 @@
     <div class="trading-container" id="chart-area"></div>
 
     <div class="action-bar">
-        <button class="btn-quick q-buy" onclick="alert('جاري الانتقال لصفحة الشراء...')">BUY / شراء</button>
-        <button class="btn-quick q-sell" onclick="alert('جاري الانتقال لصفحة البيع...')">SELL / بيع</button>
+        <button class="btn-quick q-buy">BUY / شراء</button>
+        <button class="btn-quick q-sell">SELL / بيع</button>
     </div>
 
     <div class="info-section">
@@ -100,8 +88,6 @@
             <div class="timer-box"><span id="minutes">00</span><label>دقيقة</label></div>
             <div class="timer-box sec"><span id="seconds">00</span><label>ثانية</label></div>
         </div>
-        <div class="about-box">استعد للإدراج الكبير. منصة <b>ABSI EXCHANGE</b> توفر لك الآن أدوات تحليل احترافية لعملة ABSI وكافة العملات الرقمية.</div>
-        <p style="color: var(--gold); font-size: 0.9rem; font-weight: bold;">© 2025 ABSI GOLD - Professional Trading</p>
     </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -116,8 +102,9 @@
                 "style": "1",
                 "locale": "ar",
                 "container_id": "tradingview_widget",
+                "hide_top_toolbar": true, // إخفاء الشريط العلوي لتوفير مساحة للشموع
                 "overrides": {
-                    "scalesProperties.fontSize": 11 // الأرقام بحجم 11 كما طلبت
+                    "scalesProperties.fontSize": 14 // حجم متوازن للأرقام لكي لا تضغط الشموع
                 }
             });
         }
@@ -129,9 +116,9 @@
             loadChart(selectedPair);
         }
 
-        // إعداد العداد التنازلي (تم ضبطه ليعمل بشكل تلقائي 100%)
+        // إعداد العداد التنازلي للعمل تلقائياً
         const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + 19); 
+        targetDate.setDate(targetDate.getDate() + 18); 
 
         function updateTimer() {
             const now = new Date().getTime();
