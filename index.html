@@ -4,30 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABSI Token | Exchange</title>
-    
-    <link rel="icon" type="image/jpeg" href="images/unnamed.jpg">
-    <link rel="apple-touch-icon" href="images/unnamed.jpg">
+    <link rel="manifest" href="/manifest.json">
 
     <style>
+        /* الخلفية والخطوط الأساسية - Dark Mode */
         body { 
-            background-color: #0c1015; color: #e0e0e0; font-family: 'Arial', sans-serif; 
-            margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; 
+            background-color: #0c1015; 
+            color: #e0e0e0; 
+            font-family: 'Arial', sans-serif; 
+            margin: 0; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden; 
+            overflow-x: hidden; 
         }
+
+        /* شريط القائمة العلوي - الحل للمساحة السوداء والدمج */
         .nav { 
-            background: #161a1e; padding: 5px 8px; display: flex; justify-content: flex-start;
-            align-items: center; flex-shrink: 0; border-bottom: 1px solid #2b3139; width: 100%; 
+            background: #161a1e; 
+            padding: 5px 8px; /* شريط ضيق */
+            display: flex; 
+            /* التجميع على اليمين (RTL) وإلغاء المساحة الفارغة */
+            justify-content: flex-start;
+            align-items: center; 
+            flex-shrink: 0;
+            border-bottom: 1px solid #2b3139;
+            width: 100%; /* يجب أن يملأ العرض على الهواتف */
         }
-        .nav-content { display: flex; align-items: center; gap: 15px; }
-        .nav h2 { color: #ffc107; margin: 0; font-size: 16px; white-space: nowrap; }
-        select { background: #2b3139; color: #e0e0e0; border: 1px solid #474d57; padding: 3px 6px; border-radius: 4px; font-size: 13px; }
-        .container { display: flex; flex-direction: column; gap: 4px; padding: 4px; flex-grow: 1; width: 100%; overflow-y: scroll; height: calc(100vh - 40px); }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 4px; flex-grow: 1; }
-        iframe { border: 1px solid #2b3139; border-radius: 4px; background: #161a1e; width: 100%; }
-        #tradingChart { height: 50vh; margin-bottom: 4px; }
-        #swapWidget { height: 400px; max-width: 450px; margin: 0 auto 8px auto; }
+        
+        /* حاوية لتجميع الاسم والزوج معاً */
+        .nav-content {
+            display: flex;
+            align-items: center;
+            gap: 15px; 
+        }
+
+        .nav h2 {
+            color: #ffc107; 
+            margin: 0;
+            font-size: 16px; /* حجم الخط المطلوب */
+            white-space: nowrap; 
+        }
+        
+        /* قائمة اختيار العملة */
+        select { 
+            background: #2b3139; 
+            color: #e0e0e0; 
+            border: 1px solid #474d57; 
+            padding: 3px 6px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 13px; 
+        }
+
+        /* حاوية المحتوى الرئيسية */
+        .container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 4px; 
+            padding: 4px; 
+            max-width: none; 
+            flex-grow: 1; 
+            width: 100%;
+            /* للسماح بالتمرير على الهاتف */
+            overflow-y: scroll; 
+            height: calc(100vh - 40px); 
+        }
+        
+        /* تخطيط الشبكة (سطح المكتب - لن يتم رؤيته في وضع الهاتف) */
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr; /* دمج الأعمدة إلى عمود واحد دائمًا */
+            gap: 4px; 
+            flex-grow: 1; 
+        }
+        
+        /* إطارات Iframes (الرسم البياني وواجهة التداول) */
+        iframe { 
+            border: 1px solid #2b3139; 
+            border-radius: 4px; 
+            background: #161a1e; 
+            width: 100%;
+        }
+
+        /* تحديد ارتفاعات الإطارات لتبدو جيدة على الهاتف */
+        #tradingChart {
+            height: 50vh; /* الرسم البياني يأخذ نصف الشاشة المرئية */
+            margin-bottom: 4px; 
+        }
+        
+        #swapWidget {
+            height: 400px; /* المحفظة بارتفاع ثابت أسفل الرسم البياني */
+            /* جعلها تتركز في المنتصف إذا كان العرض ضيقاً جداً */
+            max-width: 450px; 
+            margin: 0 auto 8px auto; 
+        }
     </style>
 </head>
 <body>
+
+<div id="main-content">
     <div class="nav">
         <div class="nav-content">
             <h2>ABSI Exchange</h2>
@@ -36,6 +113,7 @@
                 <select id="tokenSelector" onchange="updateChart()">
                     <option value="0x55d398326f99059ff775485246999027b3197955">USDT / BNB</option>
                     <option value="0x6b744158428587d5b546304a0e980a3c2670e309">ABSI / USDT</option>
+                    <option value="0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c">BNB / BUSD</option>
                 </select>
             </div>
         </div>
@@ -43,17 +121,26 @@
 
     <div class="container">
         <div class="grid">
-            <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x55d398326f99059ff775485246999027b3197955?embed=1"></iframe>
-            <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x55d398326f99059ff775485246999027b3197955"></iframe>
+            <div id="chartContainer">
+                <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x55d398326f99059ff775485246999027b3197955?embed=1" loading="lazy" width="100%" allowfullscreen></iframe>
+            </div>
+
+            <div id="swapContainer">
+                <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x55d398326f99059ff775485246999027b3197955" loading="lazy" width="100%" allowfullscreen></iframe>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        function updateChart() {
-            const addr = document.getElementById('tokenSelector').value;
-            document.getElementById('tradingChart').src = `https://www.geckoterminal.com/bsc/pools/${addr}?embed=1`;
-            document.getElementById('swapWidget').src = `https://pancakeswap.finance/swap?outputCurrency=${addr}`;
-        }
-    </script>
+<script>
+    function updateChart() {
+        const tokenAddress = document.getElementById('tokenSelector').value;
+        // تحديث الرسم البياني
+        document.getElementById('tradingChart').src = `https://www.geckoterminal.com/bsc/pools/${tokenAddress}?embed=1`;
+        // تحديث واجهة الشراء والبيع (Swap)
+        document.getElementById('swapWidget').src = `https://pancakeswap.finance/swap?outputCurrency=${tokenAddress}`;
+    }
+</script>
+
 </body>
 </html>
