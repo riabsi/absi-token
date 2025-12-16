@@ -2,10 +2,15 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ABSI Token | Exchange</title>
     
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0c1015">
+    <link rel="apple-touch-icon" href="images/icon-192x192.png">
 
     <style>
         /* الخلفية والخطوط الأساسية - Dark Mode */
@@ -21,20 +26,18 @@
             overflow-x: hidden; 
         }
 
-        /* شريط القائمة العلوي - الحل للمساحة السوداء والدمج */
+        /* شريط القائمة العلوي */
         .nav { 
             background: #161a1e; 
-            padding: 5px 8px; /* شريط ضيق */
+            padding: 10px 8px; 
             display: flex; 
-            /* التجميع على اليمين (RTL) وإلغاء المساحة الفارغة */
             justify-content: flex-start;
             align-items: center; 
             flex-shrink: 0;
             border-bottom: 1px solid #2b3139;
-            width: 100%; /* يجب أن يملأ العرض على الهواتف */
+            width: 100%;
         }
         
-        /* حاوية لتجميع الاسم والزوج معاً */
         .nav-content {
             display: flex;
             align-items: center;
@@ -44,11 +47,10 @@
         .nav h2 {
             color: #ffc107; 
             margin: 0;
-            font-size: 16px; /* حجم الخط المطلوب */
+            font-size: 16px; 
             white-space: nowrap; 
         }
         
-        /* قائمة اختيار العملة */
         select { 
             background: #2b3139; 
             color: #e0e0e0; 
@@ -59,29 +61,17 @@
             font-size: 13px; 
         }
 
-        /* حاوية المحتوى الرئيسية */
         .container { 
             display: flex; 
             flex-direction: column; 
             gap: 4px; 
             padding: 4px; 
-            max-width: none; 
             flex-grow: 1; 
             width: 100%;
-            /* للسماح بالتمرير على الهاتف */
-            overflow-y: scroll; 
-            height: calc(100vh - 40px); /* يملأ المساحة المتبقية بعد الشريط العلوي */
+            overflow-y: auto; 
+            height: calc(100vh - 50px); 
         }
         
-        /* تخطيط الشبكة: عمود واحد دائمًا */
-        .grid { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 4px; 
-            flex-grow: 1; 
-        }
-        
-        /* إطارات Iframes (الرسم البياني وواجهة التداول) */
         iframe { 
             border: 1px solid #2b3139; 
             border-radius: 4px; 
@@ -89,17 +79,15 @@
             width: 100%;
         }
 
-        /* تحديد ارتفاعات الإطارات لتبدو جيدة على الهاتف */
         #tradingChart {
-            height: 50vh; /* الرسم البياني يأخذ نصف الشاشة المرئية */
+            height: 50vh; 
             margin-bottom: 4px; 
         }
         
         #swapWidget {
-            height: 400px; /* المحفظة بارتفاع ثابت أسفل الرسم البياني */
-            /* جعلها تتركز في المنتصف إذا كان العرض ضيقاً جداً */
+            height: 550px; 
             max-width: 450px; 
-            margin: 0 auto 8px auto; 
+            margin: 0 auto 20px auto; 
         }
     </style>
 </head>
@@ -121,24 +109,15 @@
     </div>
 
     <div class="container">
-        <div class="grid">
-            <div id="chartContainer">
-                <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x55d398326f99059ff775485246999027b3197955?embed=1" loading="lazy" width="100%" allowfullscreen></iframe>
-            </div>
-
-            <div id="swapContainer">
-                <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x55d398326f99059ff775485246999027b3197955" loading="lazy" width="100%" allowfullscreen></iframe>
-            </div>
-        </div>
+        <iframe id="tradingChart" src="https://www.geckoterminal.com/bsc/pools/0x55d398326f99059ff775485246999027b3197955?embed=1" loading="lazy" allowfullscreen></iframe>
+        <iframe id="swapWidget" src="https://pancakeswap.finance/swap?outputCurrency=0x55d398326f99059ff775485246999027b3197955" loading="lazy" allowfullscreen></iframe>
     </div>
 </div>
 
 <script>
     function updateChart() {
         const tokenAddress = document.getElementById('tokenSelector').value;
-        // تحديث الرسم البياني
         document.getElementById('tradingChart').src = `https://www.geckoterminal.com/bsc/pools/${tokenAddress}?embed=1`;
-        // تحديث واجهة الشراء والبيع (Swap)
         document.getElementById('swapWidget').src = `https://pancakeswap.finance/swap?outputCurrency=${tokenAddress}`;
     }
 </script>
