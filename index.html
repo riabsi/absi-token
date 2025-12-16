@@ -68,7 +68,7 @@
         /* شريط القائمة العلوي */
         .nav { 
             background: #161a1e; 
-            padding: 15px 20px; 
+            padding: 10px 15px; /* تقليل الحشو الرأسي */
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
@@ -78,7 +78,7 @@
         .nav h2 {
             color: #ffc107; 
             margin: 0;
-            font-size: 24px;
+            font-size: 18px; /* تقليل حجم الخط من 24px إلى 18px */
         }
         /* حاوية المحتوى الرئيسية */
         .container { 
@@ -89,7 +89,6 @@
             max-width: none; 
             flex-grow: 1; 
             width: 100%;
-            /* إزالة الـ overflow: hidden من هنا للسماح بالتمرير عند الحاجة */
         }
         /* قائمة اختيار العملة */
         select { 
@@ -114,28 +113,29 @@
             border-radius: 4px; 
             background: #161a1e; 
             /* حساب الارتفاع للأجهزة الكبيرة */
-            height: calc(100vh - 75px); 
+            height: calc(100vh - 65px); /* تم تعديل هذا الارتفاع ليتناسب مع شريط التنقل الأصغر */
             min-height: 500px; 
             width: 100%;
         }
         
-        /* تصميم الأجهزة الصغيرة (هواتف) - الحل لمشكلة التكبير */
+        /* تصميم الأجهزة الصغيرة (هواتف) - المصحح النهائي */
         @media (max-width: 1000px) { 
-            /* يجعل المخطط وواجهة التبادل يظهران عمودياً فوق بعضهما */
+            .nav { padding: 8px 10px; } /* تقليل الحشو أكثر للهواتف */
+
             .grid { 
                 grid-template-columns: 1fr; 
                 display: block; 
             } 
-            /* تحديد ارتفاع واضح لـ iframe ليظهر بالكامل */
+
             #tradingChart, #swapWidget {
                 height: 500px; 
                 margin-bottom: 8px;
-                /* إلغاء الـ min-height هنا */
                 min-height: 300px;
+                width: 100%; /* الحل: إجبار عرض الإطار الداخلي على أن يكون 100% */
             }
             .container { 
                 overflow-y: scroll; /* السماح بالتمرير داخل الحاوية */
-                height: calc(100vh - 70px); 
+                height: calc(100vh - 60px); /* تعديل ارتفاع الحاوية على الهواتف */
             } 
         }
     </style>
@@ -187,7 +187,6 @@
     const authMessage = document.getElementById('auth-message');
     const errorMsg = document.getElementById('error-message');
 
-    // تشغيل التحقق فور تحميل الصفحة
     document.addEventListener('DOMContentLoaded', initAuth);
 
     function getStoredPasscode() {
