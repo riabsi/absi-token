@@ -14,54 +14,69 @@
             background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.85)), url('Unnamed.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: white; font-family: 'Segoe UI', sans-serif; overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        .action-bar {
-            background: rgba(30, 35, 41, 0.95); padding: 15px; display: flex; justify-content: center; gap: 10px; border-bottom: 1px solid #444;
-        }
-        .btn-quick {
-            flex: 1; padding: 18px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem;
-            text-transform: uppercase; transition: 0.3s;
-        }
-        .q-buy { background: #00c087; color: white; }
-        .q-sell { background: #f84960; color: white; }
-
+        /* الهيدر العلوي */
         .trading-header {
-            padding: 15px; background: rgba(22, 26, 30, 0.9); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid gold;
+            padding: 15px; background: rgba(22, 26, 30, 0.9); 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid gold; flex-shrink: 0;
         }
         .brand-name { color: gold; font-weight: bold; font-size: 1.3rem; }
 
-        .trading-container { height: 60vh; width: 100%; background: #000; }
+        /* منطقة الشموع */
+        .trading-container { height: 50vh; width: 100%; background: #000; flex-shrink: 0; }
         #chart-area { height: 100%; width: 100%; }
+
+        /* أزرار البيع والشراء في موقعها الجديد (تحت الشموع) */
+        .action-bar {
+            background: rgba(30, 35, 41, 0.95); 
+            padding: 20px 15px; 
+            display: flex; justify-content: center; gap: 15px; 
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            flex-shrink: 0;
+        }
+        .btn-quick {
+            flex: 1; padding: 18px; border-radius: 12px; border: none; 
+            font-weight: bold; cursor: pointer; font-size: 1.3rem;
+            text-transform: uppercase; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .q-buy { background: #00c087; color: white; }
+        .q-sell { background: #f84960; color: white; }
+        .btn-quick:active { transform: scale(0.95); }
 
         select { 
             background: #2b3139; color: gold; border: 1px solid gold; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.9rem;
         }
 
-        .info-section { padding: 40px 10px; text-align: center; }
+        /* منطقة المعلومات والعداد */
+        .info-section { padding: 30px 10px; text-align: center; flex-grow: 1; }
         .pair-title { font-size: 2.5rem; color: gold; font-weight: bold; margin-bottom: 5px; }
         
-        .timer-container { display: flex; justify-content: center; gap: 10px; margin: 25px 0; }
-        .timer-box { background: gold; color: black; padding: 15px; border-radius: 12px; min-width: 75px; }
-        .timer-box span { font-size: 2.2rem; font-weight: bold; display: block; }
+        .timer-container { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
+        .timer-box { background: gold; color: black; padding: 15px; border-radius: 12px; min-width: 80px; }
+        .timer-box span { font-size: 2.4rem; font-weight: 900; display: block; line-height: 1; }
+        .timer-box label { font-size: 1rem; font-weight: bold; }
 
         .about-box { 
-            font-size: 1.3rem; max-width: 900px; margin: 20px auto; background: rgba(0, 0, 0, 0.8); 
-            padding: 25px; border-radius: 15px; border: 1px solid gold; line-height: 1.7;
+            font-size: 1.3rem; max-width: 850px; margin: 20px auto; background: rgba(0, 0, 0, 0.8); 
+            padding: 20px; border-radius: 15px; border: 1px solid gold; line-height: 1.6;
         }
 
         @media (max-width: 600px) {
-            .trading-container { height: 70vh; }
-            .pair-title { font-size: 2rem; }
+            .trading-container { height: 45vh; } /* تقليل ارتفاع الشارت قليلاً ليناسب الجوال */
+            .pair-title { font-size: 2.2rem; }
+            .timer-box { min-width: 70px; padding: 10px; }
+            .timer-box span { font-size: 2rem; }
+            .btn-quick { font-size: 1.1rem; padding: 15px; }
         }
     </style>
 </head>
 <body>
-
-    <div class="action-bar">
-        <button class="btn-quick q-buy" onclick="alert('جاري التوجيه لمحرك الشراء...')">BUY / شراء</button>
-        <button class="btn-quick q-sell" onclick="alert('جاري التوجيه لمحرك البيع...')">SELL / بيع</button>
-    </div>
 
     <div class="trading-header">
         <div class="brand-name">ABSI EXCHANGE</div>
@@ -72,22 +87,17 @@
             <optgroup label="العملات القيادية">
                 <option value="BINANCE:BTCUSDT" selected>BTC / USDT</option>
                 <option value="BINANCE:ETHUSDT">ETH / USDT</option>
-                <option value="BINANCE:SOLUSDT">SOL / USDT</option>
-            </optgroup>
-            <optgroup label="عملات الميم">
-                <option value="BINANCE:DOGEUSDT">DOGE / USDT</option>
-                <option value="BINANCE:PEPEUSDT">PEPE / USDT</option>
-                <option value="BINANCE:SHIBUSDT">SHIB / USDT</option>
-            </optgroup>
-            <optgroup label="عملات مستقرة">
-                <option value="BINANCE:USDCUSDT">USDC / USDT</option>
-                <option value="BINANCE:FDUSDUSDT">FDUSD / USDT</option>
             </optgroup>
         </select>
     </div>
 
     <div class="trading-container">
         <div id="chart-area"><div id="tradingview_widget"></div></div>
+    </div>
+
+    <div class="action-bar">
+        <button class="btn-quick q-buy" onclick="alert('جاري التوجيه لمحرك الشراء...')">BUY / شراء</button>
+        <button class="btn-quick q-sell" onclick="alert('جاري التوجيه لمحرك البيع...')">SELL / بيع</button>
     </div>
 
     <div class="info-section">
@@ -97,8 +107,8 @@
             <div class="timer-box"><span id="hours">00</span><label>ساعة</label></div>
             <div class="timer-box"><span id="minutes">00</span><label>دقيقة</label></div>
         </div>
-        <div class="about-box">استعد لانطلاق التداول الرسمي. منصة <b>ABSI EXCHANGE</b> توفر لك الآن الرسوم البيانية الحية لأكثر من 1000 زوج تداول عبر محرك البحث المدمج.</div>
-        <p style="color: gold; font-weight: bold;">© 2025 ABSI GOLD - Professional Trading View</p>
+        <div class="about-box">استعد لانطلاق التداول الرسمي لعملة <b>ABSI</b>. تابع الشارت الحي وراقب السعر لحظة بلحظة.</div>
+        <p style="color: gold; font-weight: bold; margin-bottom: 20px;">© 2025 ABSI GOLD - Professional Trading</p>
     </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -108,33 +118,11 @@
                 "width": "100%", "height": "100%",
                 "symbol": symbol,
                 "interval": "60",
-                "timezone": "Etc/UTC",
                 "theme": "dark",
                 "style": "1",
                 "locale": "ar",
-                "toolbar_bg": "#f1f3f6",
                 "enable_publishing": false,
-                "allow_symbol_change": true, // تفعيل أيقونة البحث
-                "hide_side_toolbar": false, // إظهار شريط الأدوات الجانبي للرسم
-                "container_id": "tradingview_widget"
-            });
-        }
-
-        loadChart("BINANCE:BTCUSDT");
-
-        function changePair() {
-            const selectedPair = document.getElementById("pairSelector").value;
-            loadChart(selectedPair);
-        }
-
-        const target = new Date(); target.setDate(target.getDate() + 19);
-        function timer() {
-            const diff = target - new Date();
-            document.getElementById("days").innerText = Math.floor(diff / (1000*60*60*24));
-            document.getElementById("hours").innerText = Math.floor((diff / (1000*60*60)) % 24);
-            document.getElementById("minutes").innerText = Math.floor((diff / (1000*60)) % 60);
-        }
-        setInterval(timer, 1000); timer();
-    </script>
-</body>
-</html>
+                "allow_symbol_change": true,
+                "container_id": "tradingview_widget",
+                "overrides": {
+                    "scalesProperties.fontSize": 16 // تكبير أرقام الشارت
