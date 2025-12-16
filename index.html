@@ -19,8 +19,132 @@
             overflow: hidden; 
             overflow-x: hidden; 
         }
+        
+        /* ... (تنسيقات شاشة القفل) ... */
 
-        /* شاشة التحقق/الإعداد (Auth Screen) */
+        #main-content {
+            display: none; 
+            flex-grow: 1;
+            width: 100%;
+        }
+        
+        /* شريط القائمة العلوي */
+        .nav { 
+            background: #161a1e; 
+            padding: 5px 8px; 
+            display: flex; 
+            justify-content: flex-start;
+            align-items: center; 
+            flex-shrink: 0;
+            border-bottom: 1px solid #2b3139;
+            
+            /* الحل للمساحة السوداء في وضع سطح المكتب (Desktop) */
+            width: fit-content; 
+            margin-left: auto; /* يدفع شريط التنقل إلى اليمين */
+        }
+
+        .nav-content {
+            display: flex;
+            align-items: center;
+            gap: 15px; 
+        }
+
+        .nav h2 {
+            color: #ffc107; 
+            margin: 0;
+            font-size: 16px; 
+            white-space: nowrap; 
+        }
+        
+        /* قائمة اختيار العملة */
+        select { 
+            background: #2b3139; 
+            color: #e0e0e0; 
+            border: 1px solid #474d57; 
+            padding: 3px 6px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 13px; 
+        }
+
+        /* حاوية المحتوى الرئيسية */
+        .container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 4px; 
+            padding: 4px; 
+            max-width: none; 
+            flex-grow: 1; 
+            width: 100%;
+        }
+        
+        /* إطارات Iframes (الرسم البياني وواجهة التداول) - تنسيق سطح المكتب */
+        .grid { 
+            display: grid; 
+            grid-template-columns: 75% 25%; 
+            gap: 8px; 
+            flex-grow: 1; 
+        }
+        iframe { 
+            border: 1px solid #2b3139; 
+            border-radius: 4px; 
+            background: #161a1e; 
+            height: calc(100vh - 45px); /* ارتفاع كافٍ لسطح المكتب */
+            min-height: 500px; 
+            width: 100%;
+        }
+        
+        /* تصميم الأجهزة الصغيرة (هواتف) - الإصلاح الأخير */
+        @media (max-width: 1000px) { 
+            
+            /* شريط التنقل على الهواتف - يجب أن يملأ العرض مع محاذاة لليمين */
+            .nav {
+                width: 100%; 
+                justify-content: flex-start; 
+                padding: 4px 6px;
+                margin-left: 0; /* إلغاء خاصية الدفع لليمين لسطح المكتب */
+            }
+
+            .nav-content {
+                 gap: 5px; 
+            }
+
+            /* إصلاح الـ Grid: جعلها عمودية بملء العرض */
+            .grid { 
+                grid-template-columns: 1fr; 
+                display: block; /* التغيير إلى عرض Block للسماح بالترتيب العمودي */
+            } 
+
+            /* حاوية التمرير */
+             .container { 
+                overflow-y: scroll; 
+                height: calc(100vh - 40px); /* ارتفاع كافٍ للتمرير */
+                padding: 4px; 
+            } 
+
+            /* إصلاح اختفاء الإطارات: تحديد ارتفاع واضح لكل عنصر */
+             #tradingChart {
+                /* ارتفاع الرسم البياني يمثل نصف مساحة العرض المرئية تقريباً */
+                height: 50vh; 
+                margin-bottom: 4px; 
+                width: 100%;
+            }
+            
+            #swapWidget {
+                /* ارتفاع المحفظة ثابت ومعقول */
+                height: 400px; 
+                width: 100%; 
+            }
+
+            #swapContainer {
+                /* توسيط المحفظة تحت الرسم البياني */
+                max-width: 450px; 
+                margin: 0 auto 8px auto; 
+            }
+            
+        }
+        
+        /* تنسيق شاشة القفل (للسهولة) */
         #auth-screen {
             position: fixed;
             top: 0;
@@ -57,112 +181,6 @@
             color: #0c1015;
             cursor: pointer;
             font-weight: bold;
-        }
-        
-        /* إخفاء المحتوى الرئيسي حتى يتم التحقق */
-        #main-content {
-            display: none; 
-            flex-grow: 1;
-            width: 100%;
-        }
-        
-        /* شريط القائمة العلوي */
-        .nav { 
-            background: #161a1e; 
-            padding: 5px 8px; 
-            display: flex; 
-            /* الحل للمساحة السوداء: استخدام justify-content: flex-start وتجميع المحتوى */
-            justify-content: flex-start;
-            align-items: center; 
-            flex-shrink: 0;
-            border-bottom: 1px solid #2b3139;
-            /* للحفاظ على التصاق المحتوى بالزاوية اليمنى في وضع سطح المكتب */
-            width: fit-content; 
-            margin-left: auto; 
-        }
-
-        .nav-content {
-            display: flex;
-            align-items: center;
-            gap: 15px; /* مسافة جيدة بين اسم المنصة والزوج */
-        }
-
-        .nav h2 {
-            color: #ffc107; 
-            margin: 0;
-            font-size: 16px; /* حجم الخط المطلوب */
-            white-space: nowrap; 
-        }
-        
-        /* قائمة اختيار العملة */
-        select { 
-            background: #2b3139; 
-            color: #e0e0e0; 
-            border: 1px solid #474d57; 
-            padding: 3px 6px; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-size: 13px; 
-        }
-
-        /* تخطيط الأجهزة الكبيرة (لا تغيير) */
-        .grid { 
-            display: grid; 
-            grid-template-columns: 75% 25%; 
-            gap: 8px; 
-            flex-grow: 1; 
-        }
-        iframe { 
-            border: 1px solid #2b3139; 
-            border-radius: 4px; 
-            background: #161a1e; 
-            height: calc(100vh - 45px); 
-            min-height: 500px; 
-            width: 100%;
-        }
-        
-        /* تصميم الأجهزة الصغيرة (هواتف) */
-        @media (max-width: 1000px) { 
-            
-            /* شريط التنقل على الهواتف */
-            .nav {
-                width: 100%; /* يجب أن يملأ العرض على الهواتف */
-                justify-content: flex-start; /* التجميع على اليمين */
-                padding: 4px 6px;
-                /* إلغاء الـ margin-left: auto للحفاظ على التجميع من اليمين في وضع الهاتف */
-                margin-left: 0; 
-            }
-
-            .nav-content {
-                 gap: 5px; 
-            }
-
-            /* ... (تنسيقات المحتوى الرئيسية) ... */
-
-            .container { 
-                overflow-y: scroll; 
-                height: calc(100vh - 40px); 
-                padding: 4px; 
-            } 
-            
-             /* جعل الرسم البياني كبيراً بملء العرض */
-            #tradingChart {
-                height: 50vh; 
-                margin-bottom: 4px; 
-                width: 100%;
-            }
-            
-            /* جعل المحفظة (Swap Widget) أسفل الرسم البياني ومركّزاً */
-            #swapWidget {
-                height: 400px; 
-                width: 100%; 
-            }
-
-            #swapContainer {
-                max-width: 450px; 
-                margin: 0 auto 8px auto; 
-            }
-            
         }
     </style>
 </head>
