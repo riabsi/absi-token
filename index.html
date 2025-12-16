@@ -17,9 +17,10 @@
             display: flex; 
             flex-direction: column;
             overflow: hidden; 
+            overflow-x: hidden; /* منع التمرير الأفقي بشكل قاطع */
         }
 
-        /* 4. شاشة التحقق/الإعداد (Auth Screen) */
+        /* شاشة التحقق/الإعداد (Auth Screen) */
         #auth-screen {
             position: fixed;
             top: 0;
@@ -88,6 +89,7 @@
             max-width: none; 
             flex-grow: 1; 
             width: 100%;
+            /* إزالة الـ overflow: hidden من هنا للسماح بالتمرير عند الحاجة */
         }
         /* قائمة اختيار العملة */
         select { 
@@ -99,7 +101,7 @@
             cursor: pointer; 
             font-size: 14px;
         }
-        /* تخطيط الشبكة (Chart + Swap) */
+        /* تخطيط الشبكة (Chart + Swap) على الأجهزة الكبيرة */
         .grid { 
             display: grid; 
             grid-template-columns: 75% 25%; 
@@ -111,19 +113,34 @@
             border: 1px solid #2b3139; 
             border-radius: 4px; 
             background: #161a1e; 
+            /* حساب الارتفاع للأجهزة الكبيرة */
             height: calc(100vh - 75px); 
             min-height: 500px; 
             width: 100%;
         }
-        /* تصميم الأجهزة الصغيرة (هواتف) */
+        
+        /* تصميم الأجهزة الصغيرة (هواتف) - الحل لمشكلة التكبير */
         @media (max-width: 1000px) { 
-            .grid { grid-template-columns: 1fr; } 
-            iframe { height: 500px; } 
-            .container { overflow-y: scroll; } 
+            /* يجعل المخطط وواجهة التبادل يظهران عمودياً فوق بعضهما */
+            .grid { 
+                grid-template-columns: 1fr; 
+                display: block; 
+            } 
+            /* تحديد ارتفاع واضح لـ iframe ليظهر بالكامل */
+            #tradingChart, #swapWidget {
+                height: 500px; 
+                margin-bottom: 8px;
+                /* إلغاء الـ min-height هنا */
+                min-height: 300px;
+            }
+            .container { 
+                overflow-y: scroll; /* السماح بالتمرير داخل الحاوية */
+                height: calc(100vh - 70px); 
+            } 
         }
     </style>
 </head>
-<body onload="initAuth()">
+<body>
 
 <div id="auth-screen">
     <h1>ABSI Exchange</h1>
@@ -170,12 +187,14 @@
     const authMessage = document.getElementById('auth-message');
     const errorMsg = document.getElementById('error-message');
 
+    // تشغيل التحقق فور تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', initAuth);
+
     function getStoredPasscode() {
         return localStorage.getItem(PASSCODE_KEY);
     }
 
     function showMainContent() {
-        // إخفاء شاشة التحقق وإظهار المحتوى الرئيسي
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('main-content').style.display = 'flex';
     }
