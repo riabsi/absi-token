@@ -26,33 +26,33 @@
             background: var(--panel-bg);
             padding: 40px;
             border-radius: 15px;
-            width: 100%;
-            max-width: 400px;
+            width: 90%;
+            max-width: 380px;
             border: 1px solid #333;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
         }
 
         .brand {
             color: var(--gold);
-            font-size: 2rem;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 30px;
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 10px;
         }
-
-        .form-group { margin-bottom: 20px; }
-
-        label { display: block; margin-bottom: 8px; color: #848e9c; }
 
         input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
+            margin: 10px 0;
             background: #2b3139;
             border: 1px solid #444;
             border-radius: 8px;
             color: white;
             box-sizing: border-box;
+            font-size: 1rem;
         }
+
+        input:focus { border-color: var(--gold); outline: none; }
 
         .btn-login {
             width: 100%;
@@ -62,61 +62,77 @@
             border: none;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 15px;
+            transition: 0.3s;
         }
 
-        .error-msg { color: #f6465d; font-size: 0.9rem; margin-top: 10px; text-align: center; display: none; }
+        .btn-login:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .error-msg { color: #f6465d; font-size: 0.9rem; margin-top: 15px; display: none; }
+        
+        .hint { color: #848e9c; font-size: 0.8rem; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <div class="brand">ABSI EXCHANGE</div>
-        <h2 style="text-align: center; margin-bottom: 20px;">تسجيل الدخول</h2>
+        <div class="brand">ABSI</div>
+        <h2 style="margin-bottom: 25px; font-weight: 500;">تسجيل الدخول</h2>
         
-        <div class="form-group">
-            <label>البريد الإلكتروني</label>
-            <input type="email" id="email" placeholder="example@mail.com">
-        </div>
+        <input type="email" id="email" placeholder="البريد الإلكتروني">
+        <input type="password" id="password" placeholder="كلمة المرور">
 
-        <div class="form-group">
-            <label>كلمة المرور</label>
-            <input type="password" id="password" placeholder="••••••••">
-        </div>
+        <button class="btn-login" onclick="handleLogin()">دخول للمنصة</button>
+        
+        <div id="error" class="error-msg">بيانات الدخول غير صحيحة!</div>
 
-        <button class="btn-login" onclick="handleLogin()">دخول</button>
-        <div id="error" class="error-msg">البريد الإلكتروني أو كلمة المرور غير صحيحة</div>
+        <div class="hint">
+            <p>للتجربة (حساب رقم 1):<br>user@absi.com / 123456</p>
+        </div>
     </div>
 
     <script>
-        async function handleLogin() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        // قاعدة بيانات تجريبية (سيتم استبدالها لاحقاً بقاعدة بيانات حقيقية)
+        const mockUsers = [
+            {
+                email: "user@absi.com",
+                password: "123456",
+                balance_usdt: 5000.00,
+                balance_absi: 150.5
+            },
+            {
+                email: "admin@absi.com",
+                password: "admin",
+                balance_usdt: 25000.00,
+                balance_absi: 1000.0
+            }
+        ];
+
+        function handleLogin() {
+            const emailInp = document.getElementById('email').value;
+            const passInp = document.getElementById('password').value;
             const errorDiv = document.getElementById('error');
 
-            // إرسال البيانات إلى الخادم (server.js) الذي أنشأته
-            try {
-                const response = await fetch('http://localhost:3000/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+            // البحث عن المستخدم في القاعدة التجريبية
+            const user = mockUsers.find(u => u.email === emailInp && u.password === passInp);
 
-                const data = await response.json();
-
-                if (data.success) {
-                    // حفظ بيانات المستخدم في المتصفح مؤقتاً
-                    localStorage.setItem('user', JSON.stringify(data.userData));
-                    // التوجه إلى صفحة التداول
-                    window.location.href = 'index.html';
-                } else {
-                    errorDiv.style.display = 'block';
-                }
-            } catch (err) {
-                alert("تأكد من تشغيل الخادم (server.js) أولاً!");
+            if (user) {
+                // حفظ بيانات المستخدم في ذاكرة المتصفح (مهم جداً للربط)
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                // التوجه لصفحة التداول
+                window.location.href = 'index.html';
+            } else {
+                errorDiv.style.display = 'block';
+                errorDiv.innerText = "خطأ في الإيميل أو كلمة المرور";
             }
+        }
+
+        // إذا كان المستخدم مسجلاً دخوله بالفعل، انقله للتداول مباشرة
+        if(localStorage.getItem('user')) {
+            window.location.href = 'index.html';
         }
     </script>
 </body>
