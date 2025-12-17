@@ -1,55 +1,24 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول | ABSI</title>
-    <style>
-        :root { --bg-color: #0b0e11; --panel-bg: #1e2329; --gold: #f0b90b; --text-dim: #848e9c; }
-        body { background-color: var(--bg-color); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: var(--panel-bg); padding: 30px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #333; }
-        .logo { color: var(--gold); font-size: 2rem; font-weight: bold; margin-bottom: 10px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; text-align: center; }
-        .btn { width: 100%; padding: 12px; background: var(--gold); color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
-        .footer-links { margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; }
-        .link { color: var(--gold); text-decoration: none; font-size: 0.9rem; font-weight: bold; }
-        .hint { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 5px; }
-    </style>
-</head>
-<body>
+function login() {
+    const emailInput = document.getElementById('email').value;
+    const passInput = document.getElementById('pass').value;
 
-    <div class="card">
-        <div class="logo">ABSI</div>
-        <h3 style="margin-top: 0;">تسجيل الدخول</h3>
-        
-        <input type="email" id="email" placeholder="البريد الإلكتروني">
-        <input type="password" id="pass" placeholder="كلمة المرور">
-        
-        <button class="btn" onclick="login()">دخول للمنصة</button>
+    // جلب البيانات التي خزنها المستخدم عند التسجيل
+    const savedData = localStorage.getItem('registeredUser');
 
-        <div class="footer-links">
-            <div class="hint">ليس لديك حساب؟</div>
-            <a href="signup.html" class="link">إنشاء حساب جديد الآن</a>
-        </div>
-    </div>
+    if (savedData) {
+        const user = JSON.parse(savedData);
 
-    <script>
-        function login() {
-            const emailInput = document.getElementById('email').value;
-            const passInput = document.getElementById('pass').value;
-            const savedData = localStorage.getItem('registeredUser');
-
-            if (savedData) {
-                const user = JSON.parse(savedData);
-                if (emailInput === user.email && passInput === user.password) {
-                    window.location.href = 'index.html';
-                } else {
-                    alert("خطأ في البريد الإلكتروني أو كلمة المرور");
-                }
-            } else {
-                alert("هذا الحساب غير موجود، يرجى إنشاء حساب أولاً");
-            }
+        // التأكد من تطابق الإيميل والباسورد
+        if (emailInput === user.email && passInput === user.password) {
+            alert("تم تسجيل الدخول بنجاح!");
+            
+            // إضافة كود عشوائي (?v=) لإجبار المتصفح على تحميل النسخة الجديدة من الشكل
+            const version = new Date().getTime();
+            window.location.href = 'index.html?v=' + version; 
+        } else {
+            alert("خطأ في الإيميل أو كلمة المرور!");
         }
-    </script>
-</body>
-</html>
+    } else {
+        alert("لا يوجد حساب مسجل بهذا الإيميل، يرجى إنشاء حساب أولاً.");
+    } 
+}
