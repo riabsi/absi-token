@@ -3,282 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | منصة التداول الاحترافية</title>
-    
+    <title>ABSI NEXUS - Full Access</title>
     <script src="https://s3.tradingview.com/tv.js"></script>
-    
     <style>
-        :root { 
-            --bg: #0b0e11; 
-            --panel: #1e2329; 
-            --gold: #f0b90b; 
-            --up: #0ecb81; 
-            --down: #f6465d; 
-            --text: #eaecef; 
-            --gray: #848e9c; 
-            --border: #2b3139;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --up: #0ecb81; --down: #f6465d; --text: #eaecef; --gray: #848e9c; --border: #2b3139; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        /* الهيدر مع أيقونة البروفايل */
+        header { padding: 12px 15px; background: var(--bg); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+        .profile-icon { width: 32px; height: 32px; background: #2b3139; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--gold); }
+        
+        /* شريط التبويب العلوي (فوري، عقود...) */
+        .sub-nav { display: flex; gap: 20px; padding: 10px 15px; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+        .sub-item { color: var(--gray); font-size: 0.9rem; white-space: nowrap; cursor: pointer; padding-bottom: 5px; }
+        .sub-item.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
 
-        /* الهيدر العلوي باسم المنصة */
-        header { 
-            padding: 12px 15px; 
-            background: var(--bg); 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            border-bottom: 1px solid var(--border);
-        }
+        main { flex-grow: 1; position: relative; overflow: hidden; }
+        .full-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; background: var(--bg); flex-direction: column; }
+        .full-page.active { display: flex; }
 
-        .brand-name { color: var(--gold); font-weight: bold; font-size: 1.2rem; letter-spacing: 1px; }
+        /* ستايل صفحة البروفايل (تظهر من الجانب) */
+        #profileOverlay { position: fixed; right: -100%; top: 0; width: 85%; height: 100%; background: var(--panel); z-index: 1000; transition: 0.3s; padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
+        #profileOverlay.open { right: 0; }
+        .overlay-close { font-size: 1.5rem; cursor: pointer; margin-bottom: 20px; display: block; }
 
-        .top-nav-tabs { 
-            display: flex; 
-            gap: 15px; 
-            overflow-x: auto; 
-            scrollbar-width: none; 
-            padding: 5px 15px;
-            background: var(--bg);
-        }
-
-        .tab-item { 
-            color: var(--gray); 
-            white-space: nowrap; 
-            font-size: 0.9rem; 
-            cursor: pointer; 
-            padding-bottom: 8px;
-            border-bottom: 2px solid transparent;
-        }
-
-        .tab-item.active { color: var(--text); border-bottom-color: var(--gold); font-weight: bold; }
-
-        /* منطقة المحتوى الرئيسي */
-        main { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
-        .page { display: none; height: 100%; flex-direction: column; }
-        .page.active { display: flex; }
-
-        /* صفحة التداول (الشارت) */
-        .price-bar { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 10px 15px; 
-            background: var(--panel); 
-        }
-
-        #tv_chart_container { flex-grow: 1; width: 100%; background: #000; }
-
-        .trade-actions { 
-            padding: 15px; 
-            background: var(--panel); 
-            border-radius: 20px 20px 0 0; 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
-        }
-
-        /* الأزرار الاحترافية */
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn { 
-            flex: 1; 
-            padding: 14px; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            font-size: 1rem; 
-            cursor: pointer; 
-        }
-        .btn-buy { background: var(--up); color: white; }
-        .btn-sell { background: var(--down); color: white; }
-
-        /* صفحة الأصول (المحفظة) */
-        .wallet-card { 
-            background: linear-gradient(135deg, var(--panel), #2b3139); 
-            margin: 15px; 
-            padding: 20px; 
-            border-radius: 16px; 
-            border: 1px solid var(--border);
-        }
-
-        .asset-item { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 16px 15px; 
-            border-bottom: 1px solid var(--border); 
-        }
-
-        /* شريط التنقل السفلي الاحترافي */
-        nav { 
-            height: 70px; 
-            background: var(--panel); 
-            display: flex; 
-            border-top: 1px solid var(--border); 
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .nav-link { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 0.75rem; 
-            color: var(--gray); 
-            cursor: pointer; 
-            transition: 0.3s;
-        }
-
+        /* شريط سفلي */
+        nav { height: 65px; background: var(--panel); display: flex; border-top: 1px solid var(--border); }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--gray); cursor: pointer; }
         .nav-link.active { color: var(--gold); }
-        .nav-link i { font-size: 1.5rem; margin-bottom: 4px; font-style: normal; }
 
-        input {
-            width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
+        .placeholder-text { padding: 40px; text-align: center; color: var(--gray); }
     </style>
 </head>
 <body>
 
+    <div id="profileOverlay">
+        <span class="overlay-close" onclick="toggleProfile()">× إغلاق</span>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 80px; height: 80px; background: var(--gold); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; color: black; font-size: 2rem;">👤</div>
+            <h3>ABSI NEXUS USER</h3>
+            <p style="color: var(--gold);">UID: 982734102 (Verified ✅)</p>
+        </div>
+        <div style="border-top: 1px solid var(--border); padding-top: 20px;">
+            <p>🔒 الأمان</p>
+            <p>💳 وسائل الدفع</p>
+            <p>🎧 الدعم الفني</p>
+            <p style="color: var(--down); margin-top: 50px;">تسجيل الخروج</p>
+        </div>
+    </div>
+
     <header>
-        <div style="font-size: 1.5rem;">👤</div>
-        <div class="brand-name">ABSI NEXUS</div>
-        <div style="font-size: 1.5rem;" onclick="alert('مركز التنبيهات')">🔔</div>
+        <div class="profile-icon" onclick="toggleProfile()">👤</div>
+        <div style="color: var(--gold); font-weight: bold;">ABSI NEXUS</div>
+        <div style="font-size: 1.3rem;">🔔</div>
     </header>
 
-    <div class="top-nav-tabs">
-        <div class="tab-item active" onclick="activateTopTab(this)">نظرة عامة</div>
-        <div class="tab-item" onclick="activateTopTab(this)">فورية</div>
-        <div class="tab-item" onclick="activateTopTab(this)">تمويل</div>
-        <div class="tab-item" onclick="activateTopTab(this)">العقود الآجلة</div>
-        <div class="tab-item" onclick="activateTopTab(this)">Alpha</div>
+    <div class="sub-nav">
+        <div class="sub-item active" onclick="switchSubMode('spot', this)">فوري (Spot)</div>
+        <div class="sub-item" onclick="switchSubMode('futures', this)">العقود الآجلة</div>
+        <div class="sub-item" onclick="switchSubMode('earn', this)">أرباح Earn</div>
     </div>
 
     <main>
-        <div id="marketsPage" class="page">
-            <div style="padding: 15px;">
-                <h2 style="font-size: 1.2rem;">قائمة الأسواق الحية</h2>
-                <div class="asset-item">
-                    <div><b>BTC/USDT</b><br><small style="color:var(--gray)">البيتكوين</small></div>
-                    <div class="up" id="market-btc-price">جاري التحميل...</div>
-                </div>
-                <div class="asset-item">
-                    <div><b>ETH/USDT</b><br><small style="color:var(--gray)">إيثيريوم</small></div>
-                    <div class="down">2,415.60$ -1.2%</div>
-                </div>
-                <div class="asset-item">
-                    <div><b>PEPE/USDT</b><br><small style="color:var(--gray)">بيبي</small></div>
-                    <div class="up">+5.40%</div>
-                </div>
+        <div id="tradePage" class="full-page active">
+            <div style="padding: 10px; display: flex; justify-content: space-between;">
+                <b id="mode-title">التداول الفوري: BTC/USDT</b>
+                <span class="up" id="price-ticker">...</span>
+            </div>
+            <div id="chart-area" style="flex-grow: 1; background: #000;"></div>
+            <div style="padding: 15px; background: var(--panel);">
+                <button style="width: 100%; padding: 15px; background: var(--up); color: white; border: none; border-radius: 8px; font-weight: bold;" id="action-btn">شراء فوري</button>
             </div>
         </div>
 
-        <div id="tradePage" class="page active">
-            <div class="price-bar">
-                <div>
-                    <span style="font-weight: bold; font-size: 1.1rem;">BTC/USDT</span>
-                    <span class="up" id="live-price-val" style="margin-right: 10px; font-weight: bold;">0.00$</span>
-                </div>
-                <div style="color: var(--gray); font-size: 0.8rem;">24h: +2.45%</div>
-            </div>
-
-            <div id="tv_chart_container"></div>
-
-            <div class="trade-actions">
-                <input type="number" placeholder="أدخل الكمية (USDT)">
-                <div class="btn-group">
-                    <button class="btn btn-buy" onclick="showTradeMsg('شراء')">شراء / صعود</button>
-                    <button class="btn btn-sell" onclick="showTradeMsg('بيع')">بيع / هبوط</button>
-                </div>
-            </div>
+        <div id="marketsPage" class="full-page">
+            <div class="placeholder-text">قائمة الأسواق الحية لـ ABSI NEXUS</div>
         </div>
 
-        <div id="walletPage" class="page">
-            <div class="wallet-card">
-                <div style="color: var(--gray); font-size: 0.85rem;">إجمالي الرصيد المقدر (ABSI NEXUS)</div>
-                <div style="font-size: 2rem; font-weight: bold; margin: 10px 0;">0.29403974 <small style="font-size: 1rem;">USDT</small></div>
-                <div class="btn-group">
-                    <button class="btn" style="background: var(--gold); color: black;">إيداع</button>
-                    <button class="btn" style="background: #333; color: white;">سحب</button>
-                </div>
-            </div>
-            
-            <div style="padding: 0 10px;">
-                <div class="asset-item"><span>رصيد Earn</span><span>0.2939 USDT</span></div>
-                <div class="asset-item"><span>رصيد Alpha</span><span>0.0001 USDT</span></div>
-                <div class="asset-item"><span>رصيد الفورية</span><span>0.00 USDT</span></div>
+        <div id="walletPage" class="full-page">
+            <div style="padding: 20px; background: var(--panel); margin: 15px; border-radius: 12px;">
+                <p>إجمالي الأصول</p>
+                <h2>0.29403974 USDT</h2>
             </div>
         </div>
     </main>
 
     <nav>
-        <div class="nav-link" onclick="switchMainPage('marketsPage', this)"><i>📊</i>الأسواق</div>
-        <div class="nav-link active" onclick="switchMainPage('tradePage', this)"><i>🔄</i>تداول</div>
-        <div class="nav-link" onclick="switchMainPage('walletPage', this)"><i>💰</i>الأصول</div>
+        <div class="nav-link" onclick="switchMainPage('marketsPage', this)">📊 الأسواق</div>
+        <div class="nav-link active" onclick="switchMainPage('tradePage', this)">🔄 تداول</div>
+        <div class="nav-link" onclick="switchMainPage('walletPage', this)">💰 الأصول</div>
     </nav>
 
     <script>
-        // 1. نظام التنقل بين الصفحات
-        function switchMainPage(pageId, element) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            element.classList.add('active');
-
-            if(pageId === 'tradePage') loadTradingView();
+        // تفعيل الملف الشخصي
+        function toggleProfile() {
+            document.getElementById('profileOverlay').classList.toggle('open');
         }
 
-        function activateTopTab(el) {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        // التنقل بين فوري وعقود
+        function switchSubMode(mode, el) {
+            document.querySelectorAll('.sub-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
+            
+            const title = document.getElementById('mode-title');
+            const btn = document.getElementById('action-btn');
+
+            if(mode === 'futures') {
+                title.innerText = "العقود الآجلة: BTC/USDT (X100)";
+                btn.innerText = "فتح صفقة (Long)";
+                btn.style.background = "#0ecb81";
+            } else {
+                title.innerText = "التداول الفوري: BTC/USDT";
+                btn.innerText = "شراء فوري";
+                btn.style.background = "#0ecb81";
+            }
+            loadChart(); // إعادة تحميل الشارت للمطابقة
         }
 
-        // 2. تشغيل الشارت الاحترافي
-        function loadTradingView() {
+        // التنقل بين الصفحات الرئيسية
+        function switchMainPage(pageId, el) {
+            document.querySelectorAll('.full-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+            if(pageId === 'tradePage') loadChart();
+        }
+
+        function loadChart() {
             new TradingView.widget({
                 "autosize": true,
                 "symbol": "BINANCE:BTCUSDT",
                 "interval": "1",
                 "theme": "dark",
-                "style": "1",
-                "locale": "ar",
-                "toolbar_bg": "#f1f3f6",
-                "enable_publishing": false,
-                "hide_side_toolbar": false,
-                "container_id": "tv_chart_container"
+                "container_id": "chart-area",
+                "locale": "ar"
             });
         }
 
-        // 3. ربط السعر الحي (WebSocket)
-        const socket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            const price = parseFloat(data.c).toFixed(2);
-            document.getElementById('live-price-val').innerText = price + " $";
-            document.getElementById('market-btc-price').innerText = price + " $";
+        // جلب السعر الحي
+        const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
+        ws.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            document.getElementById('price-ticker').innerText = parseFloat(data.c).toFixed(2) + " $";
         };
 
-        function showTradeMsg(type) {
-            alert(`منصة ABSI NEXUS: تم استلام طلب ${type} بنجاح. جاري التنفيذ...`);
-        }
-
-        // بدء التشغيل
-        window.onload = loadTradingView;
+        window.onload = loadChart;
     </script>
 </body>
 </html>
