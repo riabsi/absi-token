@@ -3,139 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0b0e11">
-    <title>ABSI NEXUS | User Center</title>
+    <title>ABSI NEXUS | Pro System</title>
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text-gray: #848e9c; }
         body { background-color: var(--bg); color: white; margin: 0; font-family: sans-serif; overflow-x: hidden; }
         
         header { padding: 12px 15px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100; }
-        .logo-text { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
-        .wallet-btn { background: var(--gold); color: black; padding: 6px 15px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; border: none; }
+        .wallet-btn { background: var(--gold); color: black; padding: 6px 15px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; }
 
-        /* قائمة User Center الجديدة */
-        .user-sidebar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 2000; transition: 0.4s; overflow-y: auto; padding-bottom: 50px; }
+        /* User Center - Bybit Style */
+        .user-sidebar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 2000; transition: 0.4s; overflow-y: auto; }
         .user-sidebar.active { right: 0; }
         .sidebar-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-        .user-hero { padding: 30px 20px; text-align: center; }
-        .avatar-circle { width: 80px; height: 80px; background: #2b3139; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; border: 2px solid #333; }
-        .user-email-top { font-size: 1.4rem; font-weight: bold; margin-bottom: 5px; }
-
+        .user-hero { padding: 20px; text-align: center; }
+        .avatar-box { width: 80px; height: 80px; background: #2b3139; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 2px solid #333; position: relative; cursor: pointer; }
+        
         .menu-list { padding: 0 15px; }
         .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #1e2329; cursor: pointer; }
+        .menu-item:active { background: #1e2329; }
         .menu-right { display: flex; align-items: center; gap: 12px; }
-        .menu-left { color: var(--text-gray); font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .icon-box { font-size: 1.2rem; }
+        .menu-left { color: var(--text-gray); font-size: 0.85rem; }
 
-        .logout-frame { padding: 30px 15px; }
-        .btn-logout { width: 100%; padding: 15px; background: #1e2329; color: var(--sell); border: 1px solid #333; border-radius: 12px; font-weight: bold; font-size: 1rem; }
+        /* Modals */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: var(--panel); width: 100%; max-width: 380px; border-radius: 20px; padding: 25px; border: 1px solid var(--gold); text-align: center; }
+        
+        .deposit-option { background: #2b3139; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; border: 1px solid transparent; }
+        .deposit-option:hover { border-color: var(--gold); }
 
-        /* باقي تنسيقات المنصة */
-        .content { padding: 10px; }
-        .chart-wrapper { height: 400px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; margin-bottom: 10px; }
-        .trade-box { background: var(--panel); padding: 15px; border-radius: 15px; border: 1px solid #333; }
-        input { width: 100%; padding: 12px; margin-bottom: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; text-align: center; }
+        .trade-box { background: var(--panel); padding: 15px; border-radius: 15px; border: 1px solid #333; margin: 10px; }
+        input { width: 100%; padding: 15px; margin-bottom: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 10px; text-align: center; font-size: 1.1rem; box-sizing: border-box; }
         .btn-group { display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; color: white; }
+        .btn-trade { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; color: white; font-size: 1rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="user-sidebar" id="userSidebar">
         <div class="sidebar-header">
-            <div style="font-size: 1.2rem; font-weight: bold;" onclick="toggleSidebar()"> ➔ User Center</div>
-            <div style="font-size: 1.5rem; color: var(--gold);">🌐</div>
+            <div style="font-size: 1.2rem; cursor:pointer;" onclick="toggleSidebar()"> ➔ User Center</div>
+            <div style="font-size: 1.3rem; color: var(--gold);">🌙</div>
         </div>
-
         <div class="user-hero">
-            <div class="avatar-circle">👤</div>
-            <div class="user-email-top" id="side-email">****@***top</div>
-            <div style="background:#1e2329; display:inline-block; padding:4px 12px; border-radius:15px; font-size:0.7rem; color:var(--text-gray);">Site: ABSI Global</div>
+            <div class="avatar-box" onclick="alert('جاري فتح الاستوديو...')">👤</div>
+            <div id="side-email" style="font-size: 1.2rem; font-weight: bold;">user@absi.top</div>
+            <div style="font-size:0.7rem; color:var(--text-gray); margin-top:5px;">Site: ABSI Global</div>
         </div>
-
         <div class="menu-list">
-            <div class="menu-item">
-                <div class="menu-right">
-                    <span class="icon-box">🆔</span>
-                    <span>UID</span>
-                </div>
-                <div class="menu-left">
-                    <span id="side-uid">510688194</span> 📋
-                </div>
+            <div class="menu-item" onclick="copyUID()">
+                <div class="menu-right"><span>🆔</span> UID</div>
+                <div class="menu-left"><span id="side-uid">572126139</span> 📋</div>
             </div>
-
-            <div class="menu-item">
-                <div class="menu-right">
-                    <span class="icon-box">👤</span>
-                    <span>الصورة الشخصية</span>
-                </div>
-                <div class="menu-left"> 👤 ➔ </div>
+            <div class="menu-item" onclick="alert('تغيير الصورة الشخصية متاح في النسخة القادمة')">
+                <div class="menu-right"><span>👤</span> الصورة الشخصية</div>
+                <div class="menu-left">➔</div>
             </div>
-
-            <div class="menu-item">
-                <div class="menu-right">
-                    <span class="icon-box">🏷️</span>
-                    <span>اللقب</span>
-                </div>
-                <div class="menu-left"> <span id="side-nickname">****@***top</span> ➔ </div>
+            <div class="menu-item" onclick="showSecurity()">
+                <div class="menu-right"><span>🛡️</span> الأمان</div>
+                <div class="menu-left">مرتفع ➔</div>
             </div>
-
-            <div class="menu-item">
-                <div class="menu-right">
-                    <span class="icon-box">📉</span>
-                    <span>معدل الرسوم الخاصة بي</span>
-                </div>
-                <div class="menu-left"> اكتمال المستوى 1 ➔ </div>
+            <div class="menu-item" onclick="window.open('https://t.me/your_support')">
+                <div class="menu-right"><span>🔗</span> ربط الحساب (تليجرام)</div>
+                <div class="menu-left">غير مرتبط ➔</div>
             </div>
-
-            <div class="menu-item">
-                <div class="menu-right">
-                    <span class="icon-box">🛡️</span>
-                    <span>الأمان</span>
-                </div>
-                <div class="menu-left"> ➔ </div>
-            </div>
-
-            <div class="menu-item">
-                <div class="menu-right">
-                    <span class="icon-box">💎</span>
-                    <span>مستوى عضوية VIP</span>
-                </div>
-                <div class="menu-left"> غير VIP ➔ </div>
+            <div class="menu-item" onclick="alert('انضم لمجتمعنا على تليجرام لآخر الأخبار')">
+                <div class="menu-right"><span>👥</span> انضم إلى مجتمعنا</div>
+                <div class="menu-left">➔</div>
             </div>
         </div>
-
-        <div class="logout-frame">
-            <button class="btn-logout" onclick="handleLogout()">خروج</button>
-        </div>
+        <button onclick="handleLogout()" style="width:90%; margin:20px 5%; padding:15px; background:#2b3139; color:var(--sell); border:none; border-radius:12px; font-weight:bold;">خروج</button>
     </div>
 
     <header>
         <div style="display:flex; align-items:center; gap:12px;">
-            <div onclick="toggleSidebar()" style="cursor:pointer; font-size:1.5rem;">👤</div>
-            <button class="wallet-btn">محفظتي</button>
+            <div onclick="toggleSidebar()" style="cursor:pointer; font-size:1.6rem;">👤</div>
+            <button class="wallet-btn" onclick="showDepositOptions()">محفظتي</button>
         </div>
-        <div class="logo-text">ABSI NEXUS</div>
+        <div style="color:var(--gold); font-weight:bold;">ABSI NEXUS</div>
     </header>
 
-    <div class="content">
-        <div class="chart-wrapper">
-            <div id="tv_chart" style="height: 100%; width: 100%;"></div>
+    <div style="padding:15px;">
+        <div style="background:#1e2329; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--gold); font-size:1.2rem; font-weight:bold;">$ 0.1500</span>
+            <span style="color:var(--text-gray);">ABSI / USDT ⭐</span>
         </div>
+    </div>
 
-        <div class="trade-box">
-            <input type="number" placeholder="أدخل الكمية USDT">
-            <div class="btn-group">
-                <button class="btn" style="background:var(--buy)">شراء</button>
-                <button class="btn" style="background:var(--sell)">بيع</button>
+    <div style="height:350px; background:#000; margin:10px; border-radius:12px; overflow:hidden;" id="tv_chart"></div>
+
+    <div class="trade-box">
+        <input type="number" id="tradeAmount" placeholder="100">
+        <div class="btn-group">
+            <button class="btn-trade" style="background:var(--buy)" onclick="checkBalance()">شراء</button>
+            <button class="btn-trade" style="background:var(--sell)" onclick="checkBalance()">بيع</button>
+        </div>
+    </div>
+
+    <div class="modal" id="noBalanceModal">
+        <div class="modal-content">
+            <h3 style="color:var(--gold);">ABSI NEXUS WALLET</h3>
+            <p style="margin:20px 0;">الرصيد غير كافٍ، يرجى الإيداع</p>
+            <button class="btn-trade" style="background:var(--gold); color:black; width:100%; margin-bottom:10px;" onclick="showDepositOptions()">إيداع الآن</button>
+            <button onclick="closeModals()" style="background:none; border:none; color:var(--text-gray); cursor:pointer;">إغلاق</button>
+        </div>
+    </div>
+
+    <div class="modal" id="depositModal">
+        <div class="modal-content">
+            <h3 style="color:var(--gold);">خيارات الإيداع</h3>
+            <div class="deposit-option" onclick="alert('جاري الربط مع Zain Cash...')">
+                <span>📱</span> <span>زين كاش (Zain Cash)</span>
             </div>
+            <div class="deposit-option" onclick="alert('تواصل مع الوكيل المعتمد لـ P2P')">
+                <span>🤝</span> <span>من شخص لشخص (P2P)</span>
+            </div>
+            <div class="deposit-option" onclick="alert('عنوان المحفظة: TRC20...')">
+                <span>🔗</span> <span>تحويل عملات رقمية (USDT)</span>
+            </div>
+            <button onclick="closeModals()" style="margin-top:15px; background:none; border:none; color:var(--text-gray);">إلغاء</button>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        function toggleSidebar() {
-            document.getElementById('userSidebar').classList.toggle('active');
+        function toggleSidebar() { document.getElementById('userSidebar').classList.toggle('active'); }
+        function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+        
+        function checkBalance() {
+            document.getElementById('noBalanceModal').style.display = 'flex';
+        }
+
+        function showDepositOptions() {
+            closeModals();
+            document.getElementById('depositModal').style.display = 'flex';
+        }
+
+        function copyUID() {
+            const uid = document.getElementById('side-uid').innerText;
+            navigator.clipboard.writeText(uid);
+            alert("تم نسخ الـ UID بنجاح: " + uid);
         }
 
         function handleLogout() {
@@ -143,26 +149,14 @@
             location.reload();
         }
 
-        // إنشاء UID عشوائي لكل مستخدم جديد وحفظه
-        function setupUserData() {
-            let email = localStorage.getItem('absi_user') || "user@absi.top";
-            let uid = localStorage.getItem('absi_uid');
-            
-            if (!uid) {
-                uid = Math.floor(100000000 + Math.random() * 900000000);
-                localStorage.setItem('absi_uid', uid);
-            }
-
-            document.getElementById('side-email').innerText = email;
-            document.getElementById('side-nickname').innerText = email;
-            document.getElementById('side-uid').innerText = uid;
-        }
-
         window.onload = () => {
-            setupUserData();
+            let uid = localStorage.getItem('absi_uid') || Math.floor(100000000 + Math.random() * 900000000);
+            localStorage.setItem('absi_uid', uid);
+            document.getElementById('side-uid').innerText = uid;
+
             new TradingView.widget({
                 "autosize": true, "symbol": "BINANCE:BTCUSDT",
-                "interval": "60", "theme": "dark", "container_id": "tv_chart"
+                "interval": "1", "theme": "dark", "container_id": "tv_chart"
             });
         };
     </script>
