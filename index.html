@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI EXCHANGE | PRO</title>
+    <title>ABSI PRO | Advanced Trading</title>
     <style>
         :root {
             --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b;
@@ -18,7 +18,6 @@
             border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100;
         }
 
-        /* شريط اختيار العملات */
         .pairs-bar {
             background: #2b3139; padding: 10px; overflow-x: auto;
             display: flex; gap: 15px; white-space: nowrap; border-bottom: 1px solid #333;
@@ -29,7 +28,20 @@
         }
         .pair-item.active { border-color: var(--gold); color: var(--gold); }
 
-        .content { padding: 10px; display: flex; flex-direction: column; gap: 15px; }
+        .content { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+
+        /* منطقة الرسم البياني المتطورة */
+        .chart-wrapper {
+            height: 500px; /* زيادة الطول لاستيعاب الأدوات */
+            background: #000; border-radius: 8px; 
+            overflow: hidden; border: 1px solid #333; position: relative;
+        }
+        
+        #absi-countdown {
+            position: absolute; inset: 0; background: #000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; text-align: center;
+        }
 
         .order-book { 
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
@@ -37,28 +49,16 @@
         }
         .price-row { display: flex; justify-content: space-between; font-family: monospace; font-size: 0.8rem; margin: 2px 0; }
 
-        /* منطقة الرسم البياني والعداد */
-        .chart-container { 
-            height: 350px; background: #000; border-radius: 10px; 
-            overflow: hidden; border: 1px solid #333; position: relative;
-        }
-        #absi-countdown {
-            position: absolute; inset: 0; background: #000;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 10; text-align: center;
-        }
-
         .trade-box { background: var(--panel); padding: 15px; border-radius: 15px; border: 1px solid #444; }
         input { 
-            width: 100%; padding: 15px; margin-bottom: 10px; 
+            width: 100%; padding: 12px; margin-bottom: 10px; 
             background: #2b3139; border: 1px solid #444; color: white; 
             border-radius: 8px; text-align: center; font-size: 1rem;
         }
         .btn-group { display: flex; gap: 10px; }
         .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; }
 
-        .timer-grid-small { display: flex; gap: 8px; margin-top: 10px; }
-        .t-small { background: var(--gold); color: black; padding: 5px; border-radius: 4px; min-width: 40px; font-size: 0.8rem; }
+        .t-small { background: var(--gold); color: black; padding: 8px; border-radius: 6px; min-width: 50px; font-size: 0.9rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -72,30 +72,29 @@
         <div class="pair-item active" onclick="switchPair('ABSI/USDT', this)">ABSI/USDT</div>
         <div class="pair-item" onclick="switchPair('BTC/USDT', this)">BTC/USDT</div>
         <div class="pair-item" onclick="switchPair('ETH/USDT', this)">ETH/USDT</div>
-        <div class="pair-item" onclick="switchPair('PEPE/USDT', this)">PEPE/USDT</div>
-        <div class="pair-item" onclick="switchPair('SHIB/USDT', this)">SHIB/USDT</div>
         <div class="pair-item" onclick="switchPair('SOL/USDT', this)">SOL/USDT</div>
+        <div class="pair-item" onclick="switchPair('PEPE/USDT', this)">PEPE/USDT</div>
     </div>
 
     <div class="content">
-        <div class="order-book">
-            <div id="sell-list"></div>
-            <div id="buy-list"></div>
-        </div>
-
-        <div class="chart-container">
+        <div class="chart-wrapper">
             <div id="tv_chart" style="height: 100%; width: 100%;"></div>
             
             <div id="absi-countdown">
-                <h2 style="color:var(--gold); margin:0;">قريباً ABSI / USDT</h2>
-                <p style="font-size: 0.8rem; color: #848e9c;">موعد الإدراج الرسمي</p>
-                <div class="timer-grid-small">
+                <h2 style="color:var(--gold); margin-bottom:10px;">ABSI / USDT</h2>
+                <p style="color: #848e9c;">قريباً الإدراج الرسمي والشموع الحية</p>
+                <div style="display:flex; gap:10px; margin-top:20px;">
                     <div class="t-small"><span id="cd-d">00</span><br>يوم</div>
-                    <div class="t-small"><span id="cd-h">00</span><br>سا</div>
-                    <div class="t-small"><span id="cd-m">00</span><br>د</div>
-                    <div class="t-small"><span id="cd-s">00</span><br>ث</div>
+                    <div class="t-small"><span id="cd-h">00</span><br>ساعة</div>
+                    <div class="t-small"><span id="cd-m">00</span><br>دقيقة</div>
+                    <div class="t-small"><span id="cd-s">00</span><br>ثانية</div>
                 </div>
             </div>
+        </div>
+
+        <div class="order-book">
+            <div id="sell-list"></div>
+            <div id="buy-list"></div>
         </div>
 
         <div class="trade-box">
@@ -115,23 +114,38 @@
 
         function logout() { localStorage.removeItem('registeredUser'); window.location.href = 'login.html'; }
 
-        let currentWidget = null;
-
         function loadChart(symbol) {
             const chartDiv = document.getElementById('tv_chart');
             const countdownDiv = document.getElementById('absi-countdown');
 
             if (symbol === 'ABSI/USDT') {
-                chartDiv.style.visibility = 'hidden';
+                chartDiv.style.display = 'none';
                 countdownDiv.style.display = 'flex';
             } else {
-                chartDiv.style.visibility = 'visible';
+                chartDiv.style.display = 'block';
                 countdownDiv.style.display = 'none';
                 
                 new TradingView.widget({
-                    "autosize": true, "symbol": "BINANCE:" + symbol.replace('/', ''),
-                    "interval": "1", "theme": "dark", "style": "1",
-                    "container_id": "tv_chart", "hide_top_toolbar": true
+                    "autosize": true,
+                    "symbol": "BINANCE:" + symbol.replace('/', ''),
+                    "interval": "60", // يبدأ افتراضياً على ساعة
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "ar",
+                    "toolbar_bg": "#1e2329",
+                    "enable_publishing": false,
+                    "withdateranges": true, // شريط التواريخ السفلي
+                    "hide_side_toolbar": false, // إظهار شريط الأدوات الجانبي (الرسم وفيبوناتشي)
+                    "allow_symbol_change": true,
+                    "details": true,
+                    "hotlist": true,
+                    "calendar": true,
+                    "show_popup_button": true,
+                    "popup_width": "1000",
+                    "popup_height": "650",
+                    "container_id": "tv_chart",
+                    "supported_resolutions": ["15", "60", "240", "D", "W"] // الإطارات المطلوبة
                 });
             }
         }
@@ -142,13 +156,12 @@
             loadChart(pair);
         }
 
-        // تشغيل افتراضي على ABSI
         window.onload = () => loadChart('ABSI/USDT');
 
         function handleTrade(type) {
             const amount = document.getElementById('trade-amount').value;
             if (!amount || amount <= 0) { alert("أدخل كمية صالحة"); return; }
-            alert("⚠️ عذراً! رصيدك غير كافٍ لإتمام عملية " + type);
+            alert("⚠️ رصيدك غير كافٍ لإتمام عملية الـ " + type);
         }
 
         // تحديث العداد والأسعار
@@ -161,11 +174,10 @@
             document.getElementById('cd-m').innerText = Math.floor((diff % (1000*60*60)) / (1000*60));
             document.getElementById('cd-s').innerText = Math.floor((diff % (1000*60)) / 1000);
 
-            // محاكاة أسعار عشوائية
             let s = '', b = '';
             for(let i=0; i<5; i++) {
-                s += `<div class="price-row" style="color:var(--sell)"><span>${(96000 + Math.random()*50).toFixed(1)}</span><span>${Math.random().toFixed(2)}</span></div>`;
-                b += `<div class="price-row" style="color:var(--buy)"><span>${(95950 - Math.random()*50).toFixed(1)}</span><span>${Math.random().toFixed(2)}</span></div>`;
+                s += `<div class="price-row" style="color:var(--sell)"><span>${(96000 + Math.random()*20).toFixed(1)}</span><span>${Math.random().toFixed(2)}</span></div>`;
+                b += `<div class="price-row" style="color:var(--buy)"><span>${(95980 - Math.random()*20).toFixed(1)}</span><span>${Math.random().toFixed(2)}</span></div>`;
             }
             document.getElementById('sell-list').innerHTML = s;
             document.getElementById('buy-list').innerHTML = b;
