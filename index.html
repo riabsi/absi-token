@@ -13,7 +13,7 @@
         
         body { 
             background-color: var(--bg); color: white; margin: 0;
-            font-family: sans-serif; overflow-y: auto; /* السماح بالتحرك لأسفل وأعلى */
+            font-family: sans-serif; overflow-y: auto;
         }
 
         header {
@@ -24,20 +24,17 @@
 
         .content { padding: 10px; display: flex; flex-direction: column; gap: 15px; }
 
-        /* منطقة الأسعار */
         .order-book { 
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
             background: var(--panel); padding: 10px; border-radius: 10px;
         }
         .price-row { display: flex; justify-content: space-between; font-family: monospace; font-size: 0.8rem; margin: 2px 0; }
 
-        /* الرسم البياني */
         .chart-container { 
             height: 350px; background: #000; border-radius: 10px; 
             overflow: hidden; border: 1px solid #333;
         }
 
-        /* لوحة التداول */
         .trade-box { background: var(--panel); padding: 15px; border-radius: 15px; border: 1px solid #444; }
         input { 
             width: 100%; padding: 15px; margin-bottom: 10px; 
@@ -45,13 +42,13 @@
             border-radius: 8px; text-align: center; font-size: 1rem;
         }
         .btn-group { display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; font-size: 1rem; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.95); opacity: 0.8; }
         
-        /* العداد التنازلي */
-        .timer-section { text-align: center; padding: 20px; background: rgba(240,185,11,0.05); border-radius: 10px; }
-        .timer-grid { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-        .t-box { background: var(--gold); color: black; padding: 10px; border-radius: 5px; min-width: 50px; }
-        .t-box span { display: block; font-weight: 900; font-size: 1.2rem; }
+        .timer-section { text-align: center; padding: 25px 10px; background: rgba(240,185,11,0.08); border-radius: 15px; border: 1px dashed var(--gold); }
+        .timer-grid { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+        .t-box { background: var(--gold); color: black; padding: 10px; border-radius: 8px; min-width: 55px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .t-box span { display: block; font-weight: 900; font-size: 1.3rem; }
     </style>
 </head>
 <body>
@@ -59,7 +56,7 @@
     <header>
         <div style="font-size: 0.7rem;">
             <span id="u-mail">جاري التحميل...</span><br>
-            <span onclick="location.href='login.html'" style="color:var(--sell)">[خروج]</span>
+            <span onclick="logout()" style="color:var(--sell); cursor:pointer;">[خروج]</span>
         </div>
         <div style="color:var(--gold); font-weight:bold; font-size:1.3rem;">ABSI PRO</div>
     </header>
@@ -67,11 +64,11 @@
     <div class="content">
         <div class="order-book">
             <div>
-                <div style="color:var(--sell); margin-bottom:5px; font-size:0.7rem;">طلبات البيع</div>
+                <div style="color:var(--sell); margin-bottom:5px; font-size:0.7rem; font-weight:bold;">طلبات البيع</div>
                 <div id="sell-list"></div>
             </div>
             <div>
-                <div style="color:var(--buy); margin-bottom:5px; font-size:0.7rem;">طلبات الشراء</div>
+                <div style="color:var(--buy); margin-bottom:5px; font-size:0.7rem; font-weight:bold;">طلبات الشراء</div>
                 <div id="buy-list"></div>
             </div>
         </div>
@@ -79,15 +76,17 @@
         <div class="chart-container" id="tv_chart"></div>
 
         <div class="trade-box">
-            <input type="number" placeholder="أدخل الكمية USDT">
+            <input type="number" id="trade-amount" placeholder="أدخل الكمية USDT">
             <div class="btn-group">
-                <button class="btn" style="background:var(--buy)">شراء</button>
-                <button class="btn" style="background:var(--sell)">بيع</button>
+                <button class="btn" style="background:var(--buy)" onclick="handleTrade('شراء')">BUY / شراء</button>
+                <button class="btn" style="background:var(--sell)" onclick="handleTrade('بيع')">SELL / بيع</button>
             </div>
         </div>
 
         <div class="timer-section">
-            <div style="color:var(--gold); font-weight:bold;">موعد الإدراج الرسمي</div>
+            <div style="color:var(--gold); font-weight:bold; font-size: 1.1rem;">
+                قريباً إدراج عملة <span style="color:white; background:#333; padding:2px 8px; border-radius:4px;">ABSI / USDT</span>
+            </div>
             <div class="timer-grid">
                 <div class="t-box"><span id="d">00</span><small>يوم</small></div>
                 <div class="t-box"><span id="h">00</span><small>ساعة</small></div>
@@ -99,10 +98,25 @@
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // التحقق من الدخول فوراً
+        // التحقق من الدخول
         const user = localStorage.getItem('registeredUser');
         if (!user) { window.location.href = 'login.html'; }
         else { document.getElementById('u-mail').innerText = JSON.parse(user).email; }
+
+        function logout() {
+            localStorage.removeItem('registeredUser');
+            window.location.href = 'login.html';
+        }
+
+        // تفعيل الأزرار
+        function handleTrade(type) {
+            const amount = document.getElementById('trade-amount').value;
+            if (!amount || amount <= 0) {
+                alert("يرجى إدخال كمية صالحة للتداول أولاً");
+                return;
+            }
+            alert("⚠️ عذراً!\nرصيدك الحالي 0.00 USDT.\nيرجى إيداع الرصيد في محفظتك أولاً لإتمام عملية الـ " + type);
+        }
 
         // تشغيل الرسم البياني
         new TradingView.widget({
