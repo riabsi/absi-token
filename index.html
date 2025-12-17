@@ -4,52 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0b0e11">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>ABSI NEXUS | Professional Hub</title>
+    <title>ABSI NEXUS | Multi-Asset Platform</title>
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; }
         body { background-color: var(--bg); color: white; margin: 0; font-family: sans-serif; overflow-x: hidden; }
-        
         header { padding: 12px 15px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
         .logo-text { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
-        
         .selector-container { background: #2b3139; padding: 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #333; }
-        select { background: #1e2329; color: var(--gold); border: 1px solid #444; padding: 8px; border-radius: 8px; width: 100%; outline: none; }
-
+        select { background: #1e2329; color: var(--gold); border: 1px solid #444; padding: 10px; border-radius: 8px; width: 100%; outline: none; font-size: 0.9rem; }
         .content { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .chart-wrapper { height: 400px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; position: relative; }
-        
         #absi-countdown { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; }
-
         .trade-box { background: var(--panel); padding: 15px; border-radius: 15px; border: 1px solid #333; }
         input { width: 100%; padding: 10px; margin-bottom: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; text-align: center; box-sizing: border-box; }
         .btn-group { display: flex; gap: 10px; }
         .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; }
-
-        /* نافذة التنبيه والمحفظة */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-card { background: var(--panel); width: 90%; max-width: 400px; border-radius: 20px; padding: 25px; border: 1px solid var(--gold); text-align: center; }
-        .dep-btn { background: var(--gold); color: black; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 15px; border: none; cursor: pointer; }
-        
+        .dep-btn { background: var(--gold); color: black; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 15px; border: none; }
         .p2p-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; display: none; }
-        .opt-item { background: #2b3139; padding: 15px; border-radius: 10px; border: 1px solid #444; font-size: 0.8rem; }
+        .opt-item { background: #2b3139; padding: 12px; border-radius: 10px; border: 1px solid #444; font-size: 0.75rem; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-size: 0.7rem; color: #848e9c;">
-            <span id="u-mail">user@nexus</span> <span onclick="logout()" style="color:var(--sell); cursor:pointer;">[خروج]</span>
-        </div>
+        <div style="font-size: 0.7rem; color: #848e9c;"><span id="u-mail">user@nexus</span> <span onclick="logout()" style="color:var(--sell); cursor:pointer;">[خروج]</span></div>
         <div class="logo-text">ABSI NEXUS</div>
     </header>
 
     <div class="selector-container">
         <select id="pairSelector" onchange="switchPair(this.value)">
-            <option value="ABSI/USDT">⭐ ABSI / USDT</option>
-            <option value="BTC/USDT">Bitcoin (BTC)</option>
-            <option value="ETH/USDT">Ethereum (ETH)</option>
-            <option value="SOL/USDT">Solana (SOL)</option>
+            <optgroup label="العملة الرئيسية">
+                <option value="ABSI/USDT">⭐ ABSI / USDT</option>
+            </optgroup>
+            <optgroup label="أهم العملات الرقمية">
+                <option value="BTC/USDT">Bitcoin (BTC)</option>
+                <option value="ETH/USDT">Ethereum (ETH)</option>
+                <option value="BNB/USDT">Binance Coin (BNB)</option>
+                <option value="SOL/USDT">Solana (SOL)</option>
+                <option value="XRP/USDT">Ripple (XRP)</option>
+                <option value="ADA/USDT">Cardano (ADA)</option>
+                <option value="AVAX/USDT">Avalanche (AVAX)</option>
+                <option value="DOGE/USDT">Dogecoin (DOGE)</option>
+                <option value="TRX/USDT">TRON (TRX)</option>
+                <option value="DOT/USDT">Polkadot (DOT)</option>
+                <option value="LINK/USDT">Chainlink (LINK)</option>
+                <option value="MATIC/USDT">Polygon (MATIC)</option>
+                <option value="LTC/USDT">Litecoin (LTC)</option>
+                <option value="SHIB/USDT">Shiba Inu (SHIB)</option>
+                <option value="BCH/USDT">Bitcoin Cash (BCH)</option>
+                <option value="UNI/USDT">Uniswap (UNI)</option>
+                <option value="NEAR/USDT">NEAR Protocol</option>
+                <option value="APT/USDT">Aptos (APT)</option>
+                <option value="ARB/USDT">Arbitrum (ARB)</option>
+                <option value="FIL/USDT">Filecoin (FIL)</option>
+                <option value="STX/USDT">Stacks (STX)</option>
+                <option value="OP/USDT">Optimism (OP)</option>
+                <option value="PEPE/USDT">PEPE</option>
+                <option value="ETC/USDT">Ethereum Classic</option>
+                <option value="RNDR/USDT">Render (RNDR)</option>
+                <option value="INJ/USDT">Injective (INJ)</option>
+                <option value="TIA/USDT">Celestia (TIA)</option>
+                <option value="SUI/USDT">SUI</option>
+                <option value="GALA/USDT">Gala</option>
+                <option value="LDO/USDT">Lido DAO</option>
+            </optgroup>
         </select>
     </div>
 
@@ -66,7 +86,7 @@
         </div>
 
         <div class="trade-box">
-            <input type="number" id="trade-amount" placeholder="أدخل الكمية USDT">
+            <input type="number" id="trade-amount" placeholder="الكمية USDT">
             <div class="btn-group">
                 <button class="btn" style="background:var(--buy)" onclick="checkBalance()">شراء</button>
                 <button class="btn" style="background:var(--sell)" onclick="checkBalance()">بيع</button>
@@ -75,41 +95,26 @@
     </div>
 
     <div class="modal-overlay" id="alertModal">
-        <div class="modal-card" id="modalContent">
+        <div class="modal-card">
             <h3 style="color:var(--sell); margin:0;">رصيد غير كافٍ!</h3>
-            <p style="color:#848e9c;">عذراً، ليس لديك رصيد كافٍ لتنفيذ هذه العملية.</p>
-            <button class="dep-btn" onclick="showDepositOptions()">➕ إضافة رصيد (شحن)</button>
-            
+            <p style="color:#848e9c;">يرجى شحن محفظتك للمتابعة.</p>
+            <button class="dep-btn" onclick="showDepositOptions()">➕ إيداع رصيد</button>
             <div id="p2pList" class="p2p-options">
-                <div class="opt-item" onclick="alert('جاري التحويل لـ Zain Cash...')">📱 Zain Cash</div>
-                <div class="opt-item" onclick="alert('فتح بوابة التحويل البنكي...')">🏦 تحويل بنكي</div>
-                <div class="opt-item" onclick="alert('البحث عن تجار P2P...')">🤝 P2P</div>
-                <div class="opt-item" onclick="alert('عنوان الإيداع: T9xR...7Vb2')">🔗 USDT (TRC20)</div>
+                <div class="opt-item" onclick="alert('Zain Cash')">📱 Zain Cash</div>
+                <div class="opt-item" onclick="alert('Bank')">🏦 تحويل بنكي</div>
+                <div class="opt-item" onclick="alert('P2P')">🤝 P2P</div>
+                <div class="opt-item" onclick="alert('T9xR...7Vb2')">🔗 TRC20</div>
             </div>
-
-            <div style="margin-top:20px; color:#848e9c; cursor:pointer; font-size:0.8rem;" onclick="closeModal()">إغلاق</div>
+            <div style="margin-top:20px; color:#848e9c; cursor:pointer;" onclick="closeModal()">إغلاق</div>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        function checkBalance() {
-            const amt = document.getElementById('trade-amount').value;
-            if(amt > 0) { document.getElementById('alertModal').style.display = 'flex'; }
-            else { alert('يرجى إدخال الكمية أولاً'); }
-        }
-
-        function showDepositOptions() {
-            document.getElementById('p2pList').style.display = 'grid';
-            document.querySelector('.dep-btn').style.display = 'none';
-        }
-
-        function closeModal() {
-            document.getElementById('alertModal').style.display = 'none';
-            document.getElementById('p2pList').style.display = 'none';
-            document.querySelector('.dep-btn').style.display = 'block';
-        }
-
+        function checkBalance() { document.getElementById('alertModal').style.display = 'flex'; }
+        function showDepositOptions() { document.getElementById('p2pList').style.display = 'grid'; document.querySelector('.dep-btn').style.display = 'none'; }
+        function closeModal() { document.getElementById('alertModal').style.display = 'none'; document.getElementById('p2pList').style.display = 'none'; document.querySelector('.dep-btn').style.display = 'block'; }
+        
         function loadChart(symbol) {
             const chartDiv = document.getElementById('tv_chart');
             const countdownDiv = document.getElementById('absi-countdown');
@@ -120,10 +125,8 @@
                 new TradingView.widget({ "autosize": true, "symbol": "BINANCE:" + symbol.replace('/', ''), "interval": "60", "theme": "dark", "hide_side_toolbar": false, "container_id": "tv_chart" });
             }
         }
-
         function switchPair(pair) { loadChart(pair); }
         window.onload = () => loadChart('ABSI/USDT');
-
         setInterval(() => {
             const diff = new Date("Jan 1, 2026 00:00:00").getTime() - new Date().getTime();
             document.getElementById('cd-d').innerText = Math.floor(diff / (1000*60*60*24));
