@@ -4,137 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0b0e11">
-    <title>ABSI NEXUS | Real-Time Trading</title>
+    <title>ABSI NEXUS | Hub & Wallet</title>
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; }
-        body { background-color: var(--bg); color: white; margin: 0; font-family: sans-serif; overflow-x: hidden; }
+        body { background-color: var(--bg); color: white; margin: 0; font-family: sans-serif; }
+        
         header { padding: 12px 15px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
         .logo-text { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
         
-        /* شريط العملات والسعر المباشر */
+        /* زر المحفظة الجديد */
+        .wallet-btn { background: var(--gold); color: black; padding: 5px 12px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; cursor: pointer; border: none; }
+
         .selector-container { background: #2b3139; padding: 10px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #333; }
-        .price-row { display: flex; justify-content: space-between; align-items: center; background: #1e2329; padding: 10px; border-radius: 8px; border: 1px solid #444; }
-        select { background: transparent; color: var(--gold); border: none; font-weight: bold; outline: none; font-size: 0.9rem; cursor: pointer; }
-        #live-price { color: var(--gold); font-family: monospace; font-size: 1.1rem; font-weight: bold; }
-
-        .content { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .chart-wrapper { height: 400px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; position: relative; }
-        #absi-countdown { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; }
+        .price-row { display: flex; justify-content: space-between; align-items: center; background: #1e2329; padding: 10px; border-radius: 8px; }
         
-        .trade-box { background: var(--panel); padding: 15px; border-radius: 15px; border: 1px solid #333; }
-        input { width: 100%; padding: 12px; margin-bottom: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; text-align: center; box-sizing: border-box; font-size: 1rem; }
-        .btn-group { display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { background: var(--panel); width: 90%; max-width: 400px; border-radius: 20px; padding: 25px; border: 1px solid var(--gold); text-align: center; }
+        .content { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .chart-wrapper { height: 380px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; position: relative; }
+        
+        /* نوافذ منبثقة */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box;}
+        .modal-card { background: var(--panel); width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; border: 1px solid var(--gold); text-align: center; }
+        
+        .profile-info { text-align: right; background: #2b3139; padding: 15px; border-radius: 10px; margin: 15px 0; font-size: 0.9rem; }
+        .security-tag { background: var(--buy); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-size: 0.7rem; color: #848e9c;"><span id="u-mail">user@nexus</span> <span onclick="logout()" style="color:var(--sell); cursor:pointer;">[خروج]</span></div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div onclick="showProfile()" style="cursor:pointer;">
+                <span style="font-size: 0.7rem; color: #848e9c;" id="display-user">جاري التحميل..</span>
+            </div>
+            <button class="wallet-btn" onclick="showWallet()">محفظتي</button>
+        </div>
         <div class="logo-text">ABSI NEXUS</div>
     </header>
 
     <div class="selector-container">
         <div class="price-row">
-            <select id="pairSelector" onchange="switchPair(this.value)">
+            <select id="pairSelector" onchange="switchPair(this.value)" style="background:transparent; color:var(--gold); border:none; font-weight:bold;">
                 <option value="ABSI/USDT">⭐ ABSI / USDT</option>
                 <option value="BTC/USDT">Bitcoin (BTC)</option>
                 <option value="ETH/USDT">Ethereum (ETH)</option>
-                <option value="SOL/USDT">Solana (SOL)</option>
-                <option value="BNB/USDT">Binance Coin (BNB)</option>
-                <option value="XRP/USDT">Ripple (XRP)</option>
             </select>
-            <div id="live-price">---</div>
+            <div id="live-price" style="color:var(--gold); font-weight:bold;">0.1500 $</div>
         </div>
     </div>
 
     <div class="content">
-        <div class="chart-wrapper">
+        <div class="chart-wrapper" id="main-chart-area">
             <div id="tv_chart" style="height: 100%; width: 100%;"></div>
-            <div id="absi-countdown">
-                <h2 style="color:var(--gold);">ABSI / USDT</h2>
-                <div style="display:flex; gap:10px;">
-                    <div style="background:var(--gold); color:black; padding:10px; border-radius:8px; font-weight:bold;"><span id="cd-d">00</span><br>يوم</div>
-                    <div style="background:var(--gold); color:black; padding:10px; border-radius:8px; font-weight:bold;"><span id="cd-h">00</span><br>ساعة</div>
-                </div>
-                <p style="margin-top:20px; color:#848e9c; font-size:0.8rem;">السعر الافتراضي: 0.15$</p>
-            </div>
         </div>
-
-        <div class="trade-box">
-            <input type="number" id="trade-amount" placeholder="الكمية USDT">
-            <div class="btn-group">
-                <button class="btn" style="background:var(--buy)" onclick="checkBalance()">شراء</button>
-                <button class="btn" style="background:var(--sell)" onclick="checkBalance()">بيع</button>
-            </div>
+        <div style="text-align: center;">
+            <button onclick="handleLogout()" style="background:none; border:none; color:var(--sell); font-size:0.8rem; cursor:pointer;">[ تسجيل الخروج ]</button>
         </div>
     </div>
 
-    <div class="modal-overlay" id="alertModal">
+    <div class="modal-overlay" id="profileModal">
         <div class="modal-card">
-            <h3 style="color:var(--sell); margin:0;">رصيد غير كافٍ!</h3>
-            <p style="color:#848e9c;">يرجى شحن محفظتك للمتابعة.</p>
-            <div style="margin-top:20px; color:var(--gold); cursor:pointer;" onclick="closeModal()">إغلاق</div>
+            <h3 style="color:var(--gold);">الملف الشخصي</h3>
+            <div class="profile-info">
+                <p>👤 اليوزر: <span id="p-username">..</span></p>
+                <p>🆔 المعرف (ID): <span id="p-id" style="color:var(--gold);">..</span></p>
+                <p>🛡️ الأمان: <span class="security-tag">نشط (SSL)</span></p>
+            </div>
+            <button onclick="closeModals()" style="width:100%; padding:10px; background:#2b3139; color:white; border:none; border-radius:8px;">إغلاق</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="walletModal">
+        <div class="modal-card">
+            <h3 style="color:var(--gold);">محفظة ABSI NEXUS</h3>
+            <div style="font-size: 2rem; margin: 20px 0;">0.00 <small>USDT</small></div>
+            <button class="wallet-btn" style="width:100%; padding:12px; margin-bottom:10px;">إيداع (Zain Cash)</button>
+            <button onclick="closeModals()" style="width:100%; padding:10px; background:none; color:#848e9c; border:none;">إغلاق</button>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        let priceSocket;
-        const priceEl = document.getElementById('live-price');
-
-        function connectPriceAPI(symbol) {
-            if (priceSocket) priceSocket.close();
-            if (symbol === 'ABSI/USDT') {
-                priceEl.innerText = "0.1500 $";
-                return;
+        // نظام المستخدمين الجديد
+        function initUser() {
+            let userEmail = localStorage.getItem('absi_user') || "Guest";
+            let userId = localStorage.getItem('absi_id');
+            
+            if(!userId) {
+                userId = "ABSI-" + Math.floor(1000 + Math.random() * 9000);
+                localStorage.setItem('absi_id', userId);
             }
 
-            const streamName = symbol.replace('/', '').toLowerCase() + '@ticker';
-            priceSocket = new WebSocket(`wss://stream.binance.com:9443/ws/${streamName}`);
+            document.getElementById('display-user').innerText = userEmail.split('@')[0];
+            document.getElementById('p-username').innerText = userEmail.split('@')[0];
+            document.getElementById('p-id').innerText = userId;
+        }
 
-            priceSocket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                const price = parseFloat(data.c).toFixed(2);
-                priceEl.innerText = price + " $";
-                priceEl.style.color = data.P > 0 ? '#0ecb81' : '#f6465d'; // تلوين السعر حسب الصعود والهبوط
-            };
+        // إصلاح زر تسجيل الخروج
+        function handleLogout() {
+            localStorage.removeItem('absi_logged_in');
+            localStorage.removeItem('absi_user');
+            alert("تم تسجيل الخروج بنجاح.");
+            location.reload(); // سيعيده لصفحة الدخول
+        }
+
+        function showProfile() { document.getElementById('profileModal').style.display = 'flex'; }
+        function showWallet() { document.getElementById('walletModal').style.display = 'flex'; }
+        function closeModals() { 
+            document.getElementById('profileModal').style.display = 'none'; 
+            document.getElementById('walletModal').style.display = 'none'; 
         }
 
         function loadChart(symbol) {
-            const chartDiv = document.getElementById('tv_chart');
-            const countdownDiv = document.getElementById('absi-countdown');
-            connectPriceAPI(symbol);
-
-            if (symbol === 'ABSI/USDT') {
-                chartDiv.style.display = 'none'; countdownDiv.style.display = 'flex';
-            } else {
-                chartDiv.style.display = 'block'; countdownDiv.style.display = 'none';
-                new TradingView.widget({
-                    "autosize": true,
-                    "symbol": "BINANCE:" + symbol.replace('/', ''),
-                    "interval": "60",
-                    "theme": "dark",
-                    "hide_side_toolbar": false,
-                    "container_id": "tv_chart"
-                });
-            }
+            new TradingView.widget({
+                "autosize": true, "symbol": "BINANCE:" + symbol.replace('/', ''),
+                "interval": "60", "theme": "dark", "container_id": "tv_chart"
+            });
         }
 
-        function switchPair(pair) { loadChart(pair); }
-        function checkBalance() { document.getElementById('alertModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('alertModal').style.display = 'none'; }
-
-        window.onload = () => loadChart('ABSI/USDT');
-
-        setInterval(() => {
-            const diff = new Date("Jan 1, 2026 00:00:00").getTime() - new Date().getTime();
-            document.getElementById('cd-d').innerText = Math.floor(diff / (1000*60*60*24));
-            document.getElementById('cd-h').innerText = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-        }, 1000);
+        window.onload = () => {
+            initUser();
+            loadChart('BTC/USDT');
+        };
     </script>
 </body>
 </html>
