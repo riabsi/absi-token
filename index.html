@@ -4,78 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0b0e11">
-    <title>ABSI Nexus | Next-Gen Trading Hub</title>
+    <title>ABSI NEXUS | Trading Hub</title>
     <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --nexus-blue: #00d2ff; }
-        body { background-color: var(--bg); color: white; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; overscroll-behavior-y: contain; }
+        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; }
+        body { background-color: var(--bg); color: white; margin: 0; font-family: sans-serif; overflow-x: hidden; }
         
-        header { padding: 12px 15px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--nexus-blue); position: sticky; top: 0; z-index: 100; }
-        .logo-text { color: var(--nexus-blue); font-weight: bold; font-size: 1.3rem; letter-spacing: 1px; }
+        header { padding: 12px 15px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
+        /* البند 1 و 2: اسم المنصة ذهبي وفي سطر واحد */
+        .logo-text { color: var(--gold); font-weight: bold; font-size: 1.2rem; letter-spacing: 1px; white-space: nowrap; }
         
-        .pairs-bar { background: #2b3139; padding: 10px; overflow-x: auto; display: flex; gap: 15px; white-space: nowrap; border-bottom: 1px solid #333; }
-        .pair-item { padding: 6px 15px; border-radius: 20px; background: #1e2329; font-size: 0.85rem; cursor: pointer; border: 1px solid #444; transition: 0.3s; }
-        .pair-item.active { border-color: var(--nexus-blue); color: var(--nexus-blue); background: rgba(0, 210, 255, 0.1); }
+        .pairs-bar { background: #2b3139; padding: 10px; overflow-x: auto; display: flex; gap: 10px; border-bottom: 1px solid #333; }
+        .pair-item { padding: 6px 12px; border-radius: 15px; background: #1e2329; font-size: 0.8rem; cursor: pointer; border: 1px solid #444; }
+        .pair-item.active { border-color: var(--gold); color: var(--gold); }
         
         .content { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .chart-wrapper { height: 400px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; position: relative; }
+        .chart-wrapper { height: 350px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; position: relative; }
         
-        #absi-countdown { position: absolute; inset: 0; background: radial-gradient(circle, #10141a 0%, #000 100%); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; }
+        #absi-countdown { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; }
 
-        .trade-box { background: var(--panel); padding: 20px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        input { width: 100%; padding: 14px; margin-bottom: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 10px; text-align: center; font-size: 1.1rem; outline: none; }
-        input:focus { border-color: var(--nexus-blue); }
-        .btn-group { display: flex; gap: 12px; }
-        .btn { flex: 1; padding: 16px; border: none; border-radius: 10px; font-weight: bold; color: white; cursor: pointer; font-size: 1rem; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); }
-
-        /* --- نافذة المحفظة --- */
-        .modal-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); display: none; justify-content: center; 
-            align-items: center; z-index: 1000; padding: 15px; backdrop-filter: blur(5px);
-        }
-        .modal-card { 
-            background: var(--panel); width: 100%; max-width: 420px; 
-            border-radius: 25px; padding: 25px; border: 1px solid var(--nexus-blue); text-align: center; 
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
-        }
-        .wallet-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .opt-btn { 
-            background: #2b3139; padding: 18px; border-radius: 15px; border: 1px solid #444; 
-            cursor: pointer; transition: 0.2s;
-        }
-        .opt-btn:hover { border-color: var(--nexus-blue); }
+        .trade-box { background: var(--panel); padding: 15px; border-radius: 15px; border: 1px solid #333; }
+        /* البند 4: تصغير مربع الإدخال قليلًا */
+        input { width: 100%; padding: 8px; margin-bottom: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; text-align: center; font-size: 1rem; box-sizing: border-box; }
         
-        .p2p-section { margin-top: 25px; padding: 15px; background: rgba(0, 210, 255, 0.05); border-radius: 15px; border: 1px dashed var(--nexus-blue); }
-        .close-btn { margin-top: 20px; color: #848e9c; cursor: pointer; font-size: 0.9rem; text-decoration: underline; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+        .modal-card { background: var(--panel); width: 100%; max-width: 400px; border-radius: 20px; padding: 20px; border: 1px solid var(--gold); text-align: center; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-size: 0.75rem; color: #848e9c;">
-            المستخدم: <span id="u-mail" style="color: white;">..</span>
-            <span onclick="logout()" style="color:var(--sell); cursor:pointer; margin-right:8px;">[خروج]</span>
+        <div style="font-size: 0.7rem; color: #848e9c;">
+            <span id="u-mail">..</span> <span onclick="logout()" style="color:var(--sell); cursor:pointer;">[خروج]</span>
         </div>
-        <div class="logo-text">ABSI Nexus</div>
+        <div class="logo-text">ABSI NEXUS</div>
     </header>
 
     <div class="pairs-bar">
-        <div class="pair-item active" onclick="switchPair('Nexus/USDT', this)">Nexus/USDT</div>
+        <div class="pair-item active" onclick="switchPair('ABSI/USDT', this)">ABSI/USDT</div>
         <div class="pair-item" onclick="switchPair('BTC/USDT', this)">BTC/USDT</div>
         <div class="pair-item" onclick="switchPair('ETH/USDT', this)">ETH/USDT</div>
-        <div class="pair-item" onclick="switchPair('SOL/USDT', this)">SOL/USDT</div>
     </div>
 
     <div class="content">
         <div class="chart-wrapper">
             <div id="tv_chart" style="height: 100%; width: 100%;"></div>
             <div id="absi-countdown">
-                <h2 style="color:var(--nexus-blue); margin-bottom:5px;">ABSI Nexus</h2>
-                <p style="color:#848e9c; margin-top:0;">إطلاق زوج التداول الرئيسي</p>
-                <div style="display:flex; gap:15px; margin-top:20px;">
-                    <div style="background:var(--nexus-blue); color:black; padding:12px 20px; border-radius:10px; font-weight:bold;"><span id="cd-d" style="font-size:1.5rem;">00</span><br>يوم</div>
-                    <div style="background:var(--nexus-blue); color:black; padding:12px 20px; border-radius:10px; font-weight:bold;"><span id="cd-h" style="font-size:1.5rem;">00</span><br>ساعة</div>
+                <h2 style="color:var(--gold); margin-bottom:10px;">ABSI / USDT</h2>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <div style="background:var(--gold); color:black; padding:8px 15px; border-radius:5px; font-weight:bold;"><span id="cd-d">00</span><br><small>يوم</small></div>
+                    <div style="background:var(--gold); color:black; padding:8px 15px; border-radius:5px; font-weight:bold;"><span id="cd-h">00</span><br><small>ساعة</small></div>
                 </div>
             </div>
         </div>
@@ -91,84 +71,37 @@
 
     <div class="modal-overlay" id="walletModal">
         <div class="modal-card">
-            <h3 style="margin: 0; color: var(--nexus-blue);">بوابة تمويل Nexus</h3>
-            <p style="color: #848e9c; font-size: 0.85rem;">اختر وسيلة الإيداع لبدء التداول</p>
-            
-            <div class="wallet-options">
-                <div class="opt-btn" onclick="alert('جاري الاتصال بـ Visa/MasterCard...')">
-                    💳 <span>بطاقة بنكية</span>
-                </div>
-                <div class="opt-btn" onclick="alert('عنوان إيداع ABSI Nexus (TRC20): \nT9xR...7Vb2')">
-                    💎 <span>إيداع كريبتو</span>
-                </div>
-            </div>
-
-            <div class="p2p-section">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span style="font-weight:bold;">Nexus P2P Trading</span>
-                    <span style="background:var(--nexus-blue); color:black; font-size:0.6rem; padding:2px 8px; border-radius:10px; font-weight:bold;">رسم 0%</span>
-                </div>
-                <div class="wallet-options" style="margin-top:10px;">
-                    <div class="opt-btn" style="background:#1e2329" onclick="alert('جاري توجيهك لوكلاء Zain Cash')">
-                        📱 <span>Zain Cash</span>
-                    </div>
-                    <div class="opt-btn" style="background:#1e2329" onclick="alert('فتح بوابة التحويل البنكي الآمن')">
-                        🏦 <span>تحويل بنكي</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="close-btn" onclick="closeWallet()">العودة لمنصة التداول</div>
+            <h3 style="color:var(--gold);">محفظة ABSI NEXUS</h3>
+            <p style="color:#848e9c; font-size:0.9rem;">يرجى شحن الرصيد للمتابعة</p>
+            <button class="btn" style="background:#2b3139; width:100%; margin-top:10px;" onclick="closeWallet()">إغلاق</button>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // التحقق من المستخدم
-        const user = localStorage.getItem('registeredUser');
-        if (!user) { 
-            // افتراضياً للتجربة سنعرض مستخدم تجريبي إذا لم يوجد تسجيل دخول
-            document.getElementById('u-mail').innerText = "Guest@Nexus";
-        } else { 
-            document.getElementById('u-mail').innerText = JSON.parse(user).email; 
-        }
-
         function showWallet() { document.getElementById('walletModal').style.display = 'flex'; }
         function closeWallet() { document.getElementById('walletModal').style.display = 'none'; }
-        function logout() { localStorage.removeItem('registeredUser'); window.location.href = 'login.html'; }
-
+        
         function loadChart(symbol) {
             const chartDiv = document.getElementById('tv_chart');
             const countdownDiv = document.getElementById('absi-countdown');
-            if (symbol === 'Nexus/USDT') {
+            if (symbol === 'ABSI/USDT') {
                 chartDiv.style.display = 'none'; countdownDiv.style.display = 'flex';
             } else {
                 chartDiv.style.display = 'block'; countdownDiv.style.display = 'none';
-                new TradingView.widget({ 
-                    "autosize": true, 
-                    "symbol": "BINANCE:" + symbol.replace('/', ''), 
-                    "interval": "60", 
-                    "theme": "dark", 
-                    "style": "1", 
-                    "locale": "ar", 
-                    "container_id": "tv_chart" 
-                });
+                new TradingView.widget({ "autosize": true, "symbol": "BINANCE:" + symbol.replace('/', ''), "interval": "60", "theme": "dark", "container_id": "tv_chart" });
             }
         }
 
         function switchPair(pair, element) {
             document.querySelectorAll('.pair-item').forEach(el => el.classList.remove('active'));
-            element.classList.add('active'); 
-            loadChart(pair);
+            element.classList.add('active'); loadChart(pair);
         }
 
-        window.onload = () => loadChart('Nexus/USDT');
-        
-        // عداد الإطلاق
+        window.onload = () => loadChart('ABSI/USDT');
+
         setInterval(() => {
-            const launchDate = new Date("Jan 1, 2026 00:00:00").getTime();
-            const now = new Date().getTime();
-            const diff = launchDate - now;
+            const diff = new Date("Jan 1, 2026 00:00:00").getTime() - new Date().getTime();
             if(diff > 0) {
                 document.getElementById('cd-d').innerText = Math.floor(diff / (1000*60*60*24));
                 document.getElementById('cd-h').innerText = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
