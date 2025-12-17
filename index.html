@@ -1,154 +1,61 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS - Full Access</title>
-    <script src="https://s3.tradingview.com/tv.js"></script>
-    <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --up: #0ecb81; --down: #f6465d; --text: #eaecef; --gray: #848e9c; --border: #2b3139; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+<div id="futuresPage" class="full-page">
+    <div style="display: flex; height: 100%;">
         
-        /* الهيدر مع أيقونة البروفايل */
-        header { padding: 12px 15px; background: var(--bg); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-        .profile-icon { width: 32px; height: 32px; background: #2b3139; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--gold); }
-        
-        /* شريط التبويب العلوي (فوري، عقود...) */
-        .sub-nav { display: flex; gap: 20px; padding: 10px 15px; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
-        .sub-item { color: var(--gray); font-size: 0.9rem; white-space: nowrap; cursor: pointer; padding-bottom: 5px; }
-        .sub-item.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
-
-        main { flex-grow: 1; position: relative; overflow: hidden; }
-        .full-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; background: var(--bg); flex-direction: column; }
-        .full-page.active { display: flex; }
-
-        /* ستايل صفحة البروفايل (تظهر من الجانب) */
-        #profileOverlay { position: fixed; right: -100%; top: 0; width: 85%; height: 100%; background: var(--panel); z-index: 1000; transition: 0.3s; padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
-        #profileOverlay.open { right: 0; }
-        .overlay-close { font-size: 1.5rem; cursor: pointer; margin-bottom: 20px; display: block; }
-
-        /* شريط سفلي */
-        nav { height: 65px; background: var(--panel); display: flex; border-top: 1px solid var(--border); }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--gray); cursor: pointer; }
-        .nav-link.active { color: var(--gold); }
-
-        .placeholder-text { padding: 40px; text-align: center; color: var(--gray); }
-    </style>
-</head>
-<body>
-
-    <div id="profileOverlay">
-        <span class="overlay-close" onclick="toggleProfile()">× إغلاق</span>
-        <div style="text-align: center; margin-bottom: 30px;">
-            <div style="width: 80px; height: 80px; background: var(--gold); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; color: black; font-size: 2rem;">👤</div>
-            <h3>ABSI NEXUS USER</h3>
-            <p style="color: var(--gold);">UID: 982734102 (Verified ✅)</p>
-        </div>
-        <div style="border-top: 1px solid var(--border); padding-top: 20px;">
-            <p>🔒 الأمان</p>
-            <p>💳 وسائل الدفع</p>
-            <p>🎧 الدعم الفني</p>
-            <p style="color: var(--down); margin-top: 50px;">تسجيل الخروج</p>
-        </div>
-    </div>
-
-    <header>
-        <div class="profile-icon" onclick="toggleProfile()">👤</div>
-        <div style="color: var(--gold); font-weight: bold;">ABSI NEXUS</div>
-        <div style="font-size: 1.3rem;">🔔</div>
-    </header>
-
-    <div class="sub-nav">
-        <div class="sub-item active" onclick="switchSubMode('spot', this)">فوري (Spot)</div>
-        <div class="sub-item" onclick="switchSubMode('futures', this)">العقود الآجلة</div>
-        <div class="sub-item" onclick="switchSubMode('earn', this)">أرباح Earn</div>
-    </div>
-
-    <main>
-        <div id="tradePage" class="full-page active">
-            <div style="padding: 10px; display: flex; justify-content: space-between;">
-                <b id="mode-title">التداول الفوري: BTC/USDT</b>
-                <span class="up" id="price-ticker">...</span>
+        <div style="width: 40%; background: var(--bg); font-size: 0.75rem; padding: 5px; border-left: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; color: var(--gray); margin-bottom: 5px;">
+                <span>السعر</span>
+                <span>المبلغ</span>
             </div>
-            <div id="chart-area" style="flex-grow: 1; background: #000;"></div>
-            <div style="padding: 15px; background: var(--panel);">
-                <button style="width: 100%; padding: 15px; background: var(--up); color: white; border: none; border-radius: 8px; font-weight: bold;" id="action-btn">شراء فوري</button>
+            <div id="sell-orders" style="color: var(--down);">
+                <div style="display:flex; justify-content:space-between;"><span>0.003520</span><span>41.4k</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>0.003519</span><span>40.7k</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>0.003517</span><span>9.8k</span></div>
+            </div>
+            <div style="text-align: center; padding: 10px 0; font-size: 1.1rem; font-weight: bold;" id="current-price-futures">0.003513</div>
+            <div id="buy-orders" style="color: var(--up);">
+                <div style="display:flex; justify-content:space-between;"><span>0.003510</span><span>21.7k</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>0.003509</span><span>459.8k</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>0.003508</span><span>30.7k</span></div>
             </div>
         </div>
 
-        <div id="marketsPage" class="full-page">
-            <div class="placeholder-text">قائمة الأسواق الحية لـ ABSI NEXUS</div>
-        </div>
-
-        <div id="walletPage" class="full-page">
-            <div style="padding: 20px; background: var(--panel); margin: 15px; border-radius: 12px;">
-                <p>إجمالي الأصول</p>
-                <h2>0.29403974 USDT</h2>
-            </div>
-        </div>
-    </main>
-
-    <nav>
-        <div class="nav-link" onclick="switchMainPage('marketsPage', this)">📊 الأسواق</div>
-        <div class="nav-link active" onclick="switchMainPage('tradePage', this)">🔄 تداول</div>
-        <div class="nav-link" onclick="switchMainPage('walletPage', this)">💰 الأصول</div>
-    </nav>
-
-    <script>
-        // تفعيل الملف الشخصي
-        function toggleProfile() {
-            document.getElementById('profileOverlay').classList.toggle('open');
-        }
-
-        // التنقل بين فوري وعقود
-        function switchSubMode(mode, el) {
-            document.querySelectorAll('.sub-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
+        <div style="width: 60%; padding: 10px; display: flex; flex-direction: column; gap: 10px;">
             
-            const title = document.getElementById('mode-title');
-            const btn = document.getElementById('action-btn');
+            <div style="display: flex; gap: 5px;">
+                <button style="flex: 1; background: #2b3139; border: none; color: white; padding: 5px; border-radius: 4px; font-size: 0.8rem;">المعزول</button>
+                <button style="flex: 1; background: #2b3139; border: none; color: white; padding: 5px; border-radius: 4px; font-size: 0.8rem;">8x</button>
+            </div>
 
-            if(mode === 'futures') {
-                title.innerText = "العقود الآجلة: BTC/USDT (X100)";
-                btn.innerText = "فتح صفقة (Long)";
-                btn.style.background = "#0ecb81";
-            } else {
-                title.innerText = "التداول الفوري: BTC/USDT";
-                btn.innerText = "شراء فوري";
-                btn.style.background = "#0ecb81";
-            }
-            loadChart(); // إعادة تحميل الشارت للمطابقة
-        }
+            <div style="display: flex; background: #2b3139; border-radius: 4px; overflow: hidden;">
+                <button style="flex: 1; padding: 8px; border: none; background: var(--up); color: white;">شراء</button>
+                <button style="flex: 1; padding: 8px; border: none; background: transparent; color: var(--gray);">بيع</button>
+            </div>
 
-        // التنقل بين الصفحات الرئيسية
-        function switchMainPage(pageId, el) {
-            document.querySelectorAll('.full-page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-            if(pageId === 'tradePage') loadChart();
-        }
+            <select style="width: 100%; background: #2b3139; color: white; border: none; padding: 8px; border-radius: 4px;">
+                <option>طلب حدي</option>
+                <option>طلب السوق</option>
+            </select>
 
-        function loadChart() {
-            new TradingView.widget({
-                "autosize": true,
-                "symbol": "BINANCE:BTCUSDT",
-                "interval": "1",
-                "theme": "dark",
-                "container_id": "chart-area",
-                "locale": "ar"
-            });
-        }
+            <div style="position: relative;">
+                <input type="number" placeholder="السعر (USDT)" style="width: 100%; padding: 10px; background: #2b3139; border: none; color: white; border-radius: 4px;">
+                <span style="position: absolute; left: 10px; top: 10px; font-size: 0.7rem; color: var(--gray);">BBO</span>
+            </div>
 
-        // جلب السعر الحي
-        const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
-        ws.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            document.getElementById('price-ticker').innerText = parseFloat(data.c).toFixed(2) + " $";
-        };
+            <input type="number" placeholder="المبلغ (USDT)" style="width: 100%; padding: 10px; background: #2b3139; border: none; color: white; border-radius: 4px;">
 
-        window.onload = loadChart;
-    </script>
-</body>
-</html>
+            <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                <div style="width: 8px; height: 8px; background: #444; transform: rotate(45deg);"></div>
+                <div style="width: 8px; height: 8px; background: #444; transform: rotate(45deg);"></div>
+                <div style="width: 8px; height: 8px; background: #444; transform: rotate(45deg);"></div>
+                <div style="width: 8px; height: 8px; background: #444; transform: rotate(45deg);"></div>
+            </div>
+
+            <div style="font-size: 0.8rem; display: flex; justify-content: space-between;">
+                <span style="color: var(--gray);">متاح</span>
+                <span>0.00 USDT</span>
+            </div>
+
+            <button class="trade-btn btn-buy" style="width: 100%; margin-top: auto;" onclick="openDepositModal('Futures')">صفقة شراء</button>
+        </div>
+    </div>
+</div>
