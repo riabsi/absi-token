@@ -7,43 +7,40 @@
     <style>
         :root { --bg-color: #0b0e11; --panel-bg: #1e2329; --gold: #f0b90b; }
         body { background-color: var(--bg-color); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: var(--panel-bg); padding: 40px; border-radius: 15px; width: 90%; max-width: 380px; border: 1px solid #333; text-align: center; }
-        input { width: 100%; padding: 14px; margin: 10px 0; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .link { color: var(--gold); text-decoration: none; font-size: 0.9rem; display: block; margin-top: 15px; }
+        .card { background: var(--panel-bg); padding: 30px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #333; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; }
+        .btn { width: 100%; padding: 12px; background: var(--gold); color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .link { color: var(--gold); text-decoration: none; font-size: 0.8rem; display: block; margin-top: 15px; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div style="color: var(--gold); font-size: 2rem; font-weight: bold; margin-bottom: 20px;">ABSI</div>
-        <h2>فتح حساب جديد</h2>
-        <input type="email" id="new-email" placeholder="البريد الإلكتروني">
-        <input type="password" id="new-pass" placeholder="كلمة مرور قوية">
-        <button class="btn" onclick="register()">إنشاء الحساب</button>
-        <a href="login.html" class="link">لديك حساب بالفعل؟ سجل دخولك</a>
+        <h2 style="color: var(--gold);">فتح حساب جديد</h2>
+        <input type="email" id="email" placeholder="البريد الإلكتروني">
+        <input type="password" id="pass" placeholder="كلمة المرور">
+        <button class="btn" onclick="saveUser()">إنشاء الحساب الآن</button>
+        <a href="login.html" class="link">لديك حساب؟ سجل دخولك</a>
     </div>
 
     <script>
-        function register() {
-            const email = document.getElementById('new-email').value;
-            const pass = document.getElementById('new-pass').value;
+        function saveUser() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
 
             if(email && pass) {
-                // إنشاء كائن المستخدم الجديد برصيد صفر
-                const newUser = {
+                // حفظ بيانات المستخدم في ذاكرة المتصفح
+                const userData = {
                     email: email,
                     password: pass,
                     balance_usdt: 0,
                     balance_absi: 0
                 };
+                localStorage.setItem('registeredUser', JSON.stringify(userData));
                 
-                // حفظ في ذاكرة المتصفح (مؤقتاً للتدريب)
-                localStorage.setItem('user', JSON.stringify(newUser));
-                
-                alert('تم إنشاء حسابك بنجاح! سيتم تحويلك للمنصة.');
-                window.location.href = 'index.html';
+                alert('تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول.');
+                window.location.href = 'login.html';
             } else {
-                alert('يرجى ملء كافة البيانات');
+                alert('الرجاء كتابة الإيميل والباسورد');
             }
         }
     </script>
