@@ -3,36 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | Fixed Edition</title>
+    <title>ABSI NEXUS | Gold Edition</title>
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* الهيدر */
-        header { height: 50px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; flex-shrink: 0; }
-        .wallet-btn { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        header { height: 55px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; flex-shrink: 0; }
+        .wallet-btn { background: var(--gold); color: black; border: none; padding: 6px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        /* منطقة الشارت - مرنة */
-        #chart-zone { flex-grow: 1; width: 100%; background: #000; position: relative; overflow: hidden; }
+        /* منطقة الشارت - أصبحت أصغر قليلاً لإفساح المجال للأزرار */
+        #chart-zone { flex-grow: 1; width: 100%; background: #000; position: relative; }
         #tv_chart { height: 100% !important; width: 100% !important; }
 
-        /* لوحة التداول - ثابتة وظاهرة */
-        .trade-zone { height: 140px; background: var(--panel); border-top: 1px solid #333; padding: 10px; box-sizing: border-box; flex-shrink: 0; z-index: 10; }
-        .amt-in { width: 100%; padding: 10px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 8px; text-align: center; }
-        .btn-row { display: flex; gap: 8px; height: 50px; }
-        .btn-act { flex: 1; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        /* لوحة التداول - تم رفعها وتكبيرها لتظهر بوضوح */
+        .trade-zone { height: 180px; background: var(--panel); border-top: 2px solid var(--gold); padding: 15px; box-sizing: border-box; flex-shrink: 0; z-index: 100; }
+        .amt-in { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 10px; margin-bottom: 12px; text-align: center; font-size: 1.1rem; }
+        .btn-row { display: flex; gap: 12px; height: 55px; }
+        .btn-act { flex: 1; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
 
-        /* الشاشات المنبثقة (الأمان والصور) */
+        /* الشاشات والمودالات */
         .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: none; flex-direction: column; }
-        .page-head { padding: 15px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 15px; }
-        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 20px; overflow-y: auto; }
-        .avatar-img { width: 65px; height: 65px; border-radius: 50%; border: 2px solid #333; cursor: pointer; }
-
-        /* المودالات الصغير (رصيد غير كافٍ) */
+        .page-head { padding: 15px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 15px; background: var(--panel); }
+        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px; overflow-y: auto; }
+        .avatar-img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333; cursor: pointer; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; }
-        .modal-box { background: var(--panel); border-radius: 15px; padding: 20px; width: 100%; max-width: 320px; border: 1px solid var(--gold); text-align: center; }
-        .dep-btn { background: #2b3139; padding: 12px; border-radius: 8px; margin-top: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-
+        .modal-box { background: var(--panel); border-radius: 20px; padding: 25px; width: 100%; max-width: 340px; border: 1px solid var(--gold); text-align: center; }
+        .dep-btn { background: #2b3139; padding: 15px; border-radius: 12px; margin-top: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; border: 1px solid #444; }
         .side-bar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 500; transition: 0.3s; }
         .side-bar.active { right: 0; }
     </style>
@@ -40,11 +36,11 @@
 <body>
 
     <header>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <div onclick="document.getElementById('sidebar').classList.add('active')" style="font-size:1.6rem; cursor:pointer;" id="user-p">👤</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div onclick="document.getElementById('sidebar').classList.add('active')" style="font-size:1.8rem; cursor:pointer;" id="user-p">👤</div>
             <button class="wallet-btn" onclick="openMod('depModal')">محفظتي</button>
         </div>
-        <div style="color:var(--gold); font-weight:bold;">ABSI NEXUS</div>
+        <div style="color:var(--gold); font-weight:bold; font-size:1.1rem;">ABSI NEXUS</div>
     </header>
 
     <div id="chart-zone">
@@ -60,50 +56,52 @@
     </div>
 
     <div class="side-bar" id="sidebar">
-        <div class="page-head"><div onclick="document.getElementById('sidebar').classList.remove('active')" style="cursor:pointer;">➔</div><b>مركز المستخدم</b></div>
-        <div style="text-align:center; padding:20px;">
-            <div id="p-avatar" style="width:80px; height:80px; border-radius:50%; background:#2b3139; margin:0 auto 10px; border:2px solid var(--gold); overflow:hidden; display:flex; align-items:center; justify-content:center;">👤</div>
-            <div id="p-mail" style="font-weight:bold;">user@absi.top</div>
+        <div class="page-head"><div onclick="document.getElementById('sidebar').classList.remove('active')" style="cursor:pointer; font-size:1.5rem;">➔</div><b>مركز المستخدم</b></div>
+        <div style="text-align:center; padding:30px;">
+            <div id="p-avatar" style="width:100px; height:100px; border-radius:50%; background:#2b3139; margin:0 auto 15px; border:3px solid var(--gold); overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:3rem;">👤</div>
+            <div id="p-mail" style="font-weight:bold; font-size:1.2rem;">user@absi.top</div>
         </div>
-        <div style="padding:15px;">
-            <div onclick="openPage('imgPage')" style="padding:15px; border-bottom:1px solid #222;">الصورة الشخصية ➔</div>
-            <div onclick="openPage('secPage')" style="padding:15px; border-bottom:1px solid #222;">الأمان والباسورد ➔</div>
-            <div style="padding:15px; color:var(--gold);">UID: <span id="uid-v">510688194</span></div>
+        <div style="padding:10px;">
+            <div onclick="openPage('imgPage')" style="padding:20px; border-bottom:1px solid #222; display:flex; justify-content:space-between;"><span>الصورة الشخصية</span> <span>➔</span></div>
+            <div onclick="openPage('secPage')" style="padding:20px; border-bottom:1px solid #222; display:flex; justify-content:space-between;"><span>الأمان والباسورد</span> <span>➔</span></div>
+            <div style="padding:20px; color:var(--gold); display:flex; justify-content:space-between;"><span>UID</span> <span id="uid-v">510688194</span></div>
         </div>
-        <button onclick="localStorage.clear(); location.reload();" style="width:90%; margin:20px 5%; padding:15px; background:var(--panel); color:var(--sell); border:1px solid #444; border-radius:10px;">خروج</button>
+        <button onclick="localStorage.clear(); location.reload();" style="width:90%; margin:40px 5% 0; padding:15px; background:#1e2329; color:var(--sell); border:1px solid #444; border-radius:12px; font-weight:bold;">خروج</button>
     </div>
 
     <div class="full-page" id="imgPage">
-        <div class="page-head"><div onclick="closePages()">➔</div><b>اختر صورتك</b></div>
+        <div class="page-head"><div onclick="closePages()" style="cursor:pointer; font-size:1.5rem;">➔</div><b>اختر صورتك</b></div>
         <div class="avatar-grid" id="avatarBox"></div>
-        <button onclick="closePages()" style="width:90%; margin:20px 5%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:bold;">تأكيد</button>
+        <button onclick="closePages()" style="width:90%; margin:20px 5%; padding:15px; background:var(--gold); border:none; border-radius:12px; font-weight:bold; color:black;">تأكيد وحفظ</button>
     </div>
 
     <div class="full-page" id="secPage">
-        <div class="page-head"><div onclick="closePages()">➔</div><b>مركز الأمان</b></div>
-        <div style="padding:20px;">
-            <input type="password" class="amt-in" placeholder="كلمة المرور الحالية">
+        <div class="page-head"><div onclick="closePages()" style="cursor:pointer; font-size:1.5rem;">➔</div><b>إعدادات الأمان</b></div>
+        <div style="padding:30px;">
+            <label style="display:block; margin-bottom:10px; color:var(--text-gray);">تغيير كلمة المرور</label>
+            <input type="password" class="amt-in" placeholder="كلمة المرور القديمة">
             <input type="password" class="amt-in" placeholder="كلمة المرور الجديدة">
-            <button onclick="alert('تم التغيير بنجاح!')" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:bold;">تحديث</button>
+            <button onclick="alert('تم تحديث كلمة المرور بنجاح!')" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:12px; font-weight:bold; color:black;">تحديث الآن</button>
         </div>
     </div>
 
     <div class="modal" id="depModal">
         <div class="modal-box">
-            <h3 style="color:var(--gold);">خيارات الإيداع</h3>
-            <div class="dep-btn" onclick="alert('زين كاش')">📱 زين كاش (Zain Cash)</div>
-            <div class="dep-btn" onclick="alert('P2P')">🤝 من شخص لشخص (P2P)</div>
-            <div class="dep-btn" onclick="alert('Crypto')">🔗 بلوكشين (USDT)</div>
-            <button onclick="closeMods()" style="margin-top:15px; background:none; border:none; color:var(--text-gray);">إغلاق</button>
+            <h3 style="color:var(--gold); margin-bottom:20px;">وسائل الإيداع المتاحة</h3>
+            <div class="dep-btn" onclick="alert('سيتم توجيهك لزين كاش')"><span>📱</span> زين كاش (Zain Cash)</div>
+            <div class="dep-btn" onclick="alert('تواصل مع الوكيل المعتمد')"><span>🤝</span> من شخص لشخص (P2P)</div>
+            <div class="dep-btn" onclick="alert('عنوان الإيداع: TRC20...')"><span>🔗</span> إيداع رقمي (USDT)</div>
+            <button onclick="closeMods()" style="margin-top:20px; background:none; border:none; color:var(--text-gray); cursor:pointer;">إغلاق النافذة</button>
         </div>
     </div>
 
     <div class="modal" id="balModal">
         <div class="modal-box">
-            <div style="font-size:2.5rem;">⚠️</div>
-            <h3>الرصيد غير كافٍ</h3>
-            <button onclick="openMod('depModal')" style="width:100%; padding:12px; background:var(--gold); border:none; border-radius:8px; font-weight:bold;">إيداع الآن</button>
-            <button onclick="closeMods()" style="margin-top:10px; background:none; border:none; color:var(--text-gray);">إلغاء</button>
+            <div style="font-size:3rem; margin-bottom:10px;">⚠️</div>
+            <h3 style="margin-bottom:10px;">فشل العملية</h3>
+            <p style="color:var(--text-gray); margin-bottom:20px;">رصيدك الحالي لا يسمح بإتمام هذه الصفقة.</p>
+            <button onclick="openMod('depModal')" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:bold; color:black;">إيداع الآن</button>
+            <button onclick="closeMods()" style="margin-top:15px; background:none; border:none; color:var(--text-gray); cursor:pointer;">إلغاء</button>
         </div>
     </div>
 
@@ -120,24 +118,25 @@
                 "interval": "1", "theme": "dark", "hide_side_toolbar": false, "container_id": "tv_chart"
             });
 
-            // توليد الصور
             const box = document.getElementById('avatarBox');
             for(let i=1; i<=20; i++) {
                 let img = document.createElement('img');
-                let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+10}`;
+                let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+25}`;
                 img.src = url; img.className = 'avatar-img';
                 img.onclick = () => {
                     localStorage.setItem('u_img', url);
-                    document.getElementById('p-avatar').innerHTML = `<img src="${url}" style="width:100%; height:100%;">`;
-                    document.getElementById('user-p').innerHTML = `<img src="${url}" style="width:30px; height:30px; border-radius:50%;">`;
+                    updateAvatar(url);
+                    alert("تم اختيار الصورة!");
                 };
                 box.appendChild(img);
             }
 
             const saved = localStorage.getItem('u_img');
-            if(saved) {
-                document.getElementById('p-avatar').innerHTML = `<img src="${saved}" style="width:100%; height:100%;">`;
-                document.getElementById('user-p').innerHTML = `<img src="${saved}" style="width:30px; height:30px; border-radius:50%;">`;
+            if(saved) updateAvatar(saved);
+
+            function updateAvatar(url) {
+                document.getElementById('p-avatar').innerHTML = `<img src="${url}" style="width:100%; height:100%;">`;
+                document.getElementById('user-p').innerHTML = `<img src="${url}" style="width:35px; height:35px; border-radius:50%;">`;
             }
 
             let uid = localStorage.getItem('absi_uid') || Math.floor(100000000 + Math.random() * 900000000);
