@@ -4,126 +4,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0b0e11">
-    <title>ABSI NEXUS | Hub & Wallet</title>
+    <title>ABSI NEXUS | User Center</title>
     <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; }
-        body { background-color: var(--bg); color: white; margin: 0; font-family: sans-serif; }
+        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text-gray: #848e9c; }
+        body { background-color: var(--bg); color: white; margin: 0; font-family: sans-serif; overflow-x: hidden; }
         
-        header { padding: 12px 15px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
+        header { padding: 12px 15px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100; }
         .logo-text { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
-        
-        /* زر المحفظة الجديد */
-        .wallet-btn { background: var(--gold); color: black; padding: 5px 12px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; cursor: pointer; border: none; }
+        .wallet-btn { background: var(--gold); color: black; padding: 6px 15px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; border: none; }
 
-        .selector-container { background: #2b3139; padding: 10px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #333; }
-        .price-row { display: flex; justify-content: space-between; align-items: center; background: #1e2329; padding: 10px; border-radius: 8px; }
-        
-        .content { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .chart-wrapper { height: 380px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; position: relative; }
-        
-        /* نوافذ منبثقة */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box;}
-        .modal-card { background: var(--panel); width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; border: 1px solid var(--gold); text-align: center; }
-        
-        .profile-info { text-align: right; background: #2b3139; padding: 15px; border-radius: 10px; margin: 15px 0; font-size: 0.9rem; }
-        .security-tag { background: var(--buy); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
+        /* قائمة User Center الجديدة */
+        .user-sidebar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 2000; transition: 0.4s; overflow-y: auto; padding-bottom: 50px; }
+        .user-sidebar.active { right: 0; }
+        .sidebar-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .user-hero { padding: 30px 20px; text-align: center; }
+        .avatar-circle { width: 80px; height: 80px; background: #2b3139; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; border: 2px solid #333; }
+        .user-email-top { font-size: 1.4rem; font-weight: bold; margin-bottom: 5px; }
+
+        .menu-list { padding: 0 15px; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #1e2329; cursor: pointer; }
+        .menu-right { display: flex; align-items: center; gap: 12px; }
+        .menu-left { color: var(--text-gray); font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+        .icon-box { font-size: 1.2rem; }
+
+        .logout-frame { padding: 30px 15px; }
+        .btn-logout { width: 100%; padding: 15px; background: #1e2329; color: var(--sell); border: 1px solid #333; border-radius: 12px; font-weight: bold; font-size: 1rem; }
+
+        /* باقي تنسيقات المنصة */
+        .content { padding: 10px; }
+        .chart-wrapper { height: 400px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; margin-bottom: 10px; }
+        .trade-box { background: var(--panel); padding: 15px; border-radius: 15px; border: 1px solid #333; }
+        input { width: 100%; padding: 12px; margin-bottom: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; text-align: center; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; color: white; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <div onclick="showProfile()" style="cursor:pointer;">
-                <span style="font-size: 0.7rem; color: #848e9c;" id="display-user">جاري التحميل..</span>
+    <div class="user-sidebar" id="userSidebar">
+        <div class="sidebar-header">
+            <div style="font-size: 1.2rem; font-weight: bold;" onclick="toggleSidebar()"> ➔ User Center</div>
+            <div style="font-size: 1.5rem; color: var(--gold);">🌐</div>
+        </div>
+
+        <div class="user-hero">
+            <div class="avatar-circle">👤</div>
+            <div class="user-email-top" id="side-email">****@***top</div>
+            <div style="background:#1e2329; display:inline-block; padding:4px 12px; border-radius:15px; font-size:0.7rem; color:var(--text-gray);">Site: ABSI Global</div>
+        </div>
+
+        <div class="menu-list">
+            <div class="menu-item">
+                <div class="menu-right">
+                    <span class="icon-box">🆔</span>
+                    <span>UID</span>
+                </div>
+                <div class="menu-left">
+                    <span id="side-uid">510688194</span> 📋
+                </div>
             </div>
-            <button class="wallet-btn" onclick="showWallet()">محفظتي</button>
+
+            <div class="menu-item">
+                <div class="menu-right">
+                    <span class="icon-box">👤</span>
+                    <span>الصورة الشخصية</span>
+                </div>
+                <div class="menu-left"> 👤 ➔ </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-right">
+                    <span class="icon-box">🏷️</span>
+                    <span>اللقب</span>
+                </div>
+                <div class="menu-left"> <span id="side-nickname">****@***top</span> ➔ </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-right">
+                    <span class="icon-box">📉</span>
+                    <span>معدل الرسوم الخاصة بي</span>
+                </div>
+                <div class="menu-left"> اكتمال المستوى 1 ➔ </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-right">
+                    <span class="icon-box">🛡️</span>
+                    <span>الأمان</span>
+                </div>
+                <div class="menu-left"> ➔ </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-right">
+                    <span class="icon-box">💎</span>
+                    <span>مستوى عضوية VIP</span>
+                </div>
+                <div class="menu-left"> غير VIP ➔ </div>
+            </div>
+        </div>
+
+        <div class="logout-frame">
+            <button class="btn-logout" onclick="handleLogout()">خروج</button>
+        </div>
+    </div>
+
+    <header>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div onclick="toggleSidebar()" style="cursor:pointer; font-size:1.5rem;">👤</div>
+            <button class="wallet-btn">محفظتي</button>
         </div>
         <div class="logo-text">ABSI NEXUS</div>
     </header>
 
-    <div class="selector-container">
-        <div class="price-row">
-            <select id="pairSelector" onchange="switchPair(this.value)" style="background:transparent; color:var(--gold); border:none; font-weight:bold;">
-                <option value="ABSI/USDT">⭐ ABSI / USDT</option>
-                <option value="BTC/USDT">Bitcoin (BTC)</option>
-                <option value="ETH/USDT">Ethereum (ETH)</option>
-            </select>
-            <div id="live-price" style="color:var(--gold); font-weight:bold;">0.1500 $</div>
-        </div>
-    </div>
-
     <div class="content">
-        <div class="chart-wrapper" id="main-chart-area">
+        <div class="chart-wrapper">
             <div id="tv_chart" style="height: 100%; width: 100%;"></div>
         </div>
-        <div style="text-align: center;">
-            <button onclick="handleLogout()" style="background:none; border:none; color:var(--sell); font-size:0.8rem; cursor:pointer;">[ تسجيل الخروج ]</button>
-        </div>
-    </div>
 
-    <div class="modal-overlay" id="profileModal">
-        <div class="modal-card">
-            <h3 style="color:var(--gold);">الملف الشخصي</h3>
-            <div class="profile-info">
-                <p>👤 اليوزر: <span id="p-username">..</span></p>
-                <p>🆔 المعرف (ID): <span id="p-id" style="color:var(--gold);">..</span></p>
-                <p>🛡️ الأمان: <span class="security-tag">نشط (SSL)</span></p>
+        <div class="trade-box">
+            <input type="number" placeholder="أدخل الكمية USDT">
+            <div class="btn-group">
+                <button class="btn" style="background:var(--buy)">شراء</button>
+                <button class="btn" style="background:var(--sell)">بيع</button>
             </div>
-            <button onclick="closeModals()" style="width:100%; padding:10px; background:#2b3139; color:white; border:none; border-radius:8px;">إغلاق</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="walletModal">
-        <div class="modal-card">
-            <h3 style="color:var(--gold);">محفظة ABSI NEXUS</h3>
-            <div style="font-size: 2rem; margin: 20px 0;">0.00 <small>USDT</small></div>
-            <button class="wallet-btn" style="width:100%; padding:12px; margin-bottom:10px;">إيداع (Zain Cash)</button>
-            <button onclick="closeModals()" style="width:100%; padding:10px; background:none; color:#848e9c; border:none;">إغلاق</button>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // نظام المستخدمين الجديد
-        function initUser() {
-            let userEmail = localStorage.getItem('absi_user') || "Guest";
-            let userId = localStorage.getItem('absi_id');
+        function toggleSidebar() {
+            document.getElementById('userSidebar').classList.toggle('active');
+        }
+
+        function handleLogout() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        // إنشاء UID عشوائي لكل مستخدم جديد وحفظه
+        function setupUserData() {
+            let email = localStorage.getItem('absi_user') || "user@absi.top";
+            let uid = localStorage.getItem('absi_uid');
             
-            if(!userId) {
-                userId = "ABSI-" + Math.floor(1000 + Math.random() * 9000);
-                localStorage.setItem('absi_id', userId);
+            if (!uid) {
+                uid = Math.floor(100000000 + Math.random() * 900000000);
+                localStorage.setItem('absi_uid', uid);
             }
 
-            document.getElementById('display-user').innerText = userEmail.split('@')[0];
-            document.getElementById('p-username').innerText = userEmail.split('@')[0];
-            document.getElementById('p-id').innerText = userId;
-        }
-
-        // إصلاح زر تسجيل الخروج
-        function handleLogout() {
-            localStorage.removeItem('absi_logged_in');
-            localStorage.removeItem('absi_user');
-            alert("تم تسجيل الخروج بنجاح.");
-            location.reload(); // سيعيده لصفحة الدخول
-        }
-
-        function showProfile() { document.getElementById('profileModal').style.display = 'flex'; }
-        function showWallet() { document.getElementById('walletModal').style.display = 'flex'; }
-        function closeModals() { 
-            document.getElementById('profileModal').style.display = 'none'; 
-            document.getElementById('walletModal').style.display = 'none'; 
-        }
-
-        function loadChart(symbol) {
-            new TradingView.widget({
-                "autosize": true, "symbol": "BINANCE:" + symbol.replace('/', ''),
-                "interval": "60", "theme": "dark", "container_id": "tv_chart"
-            });
+            document.getElementById('side-email').innerText = email;
+            document.getElementById('side-nickname').innerText = email;
+            document.getElementById('side-uid').innerText = uid;
         }
 
         window.onload = () => {
-            initUser();
-            loadChart('BTC/USDT');
+            setupUserData();
+            new TradingView.widget({
+                "autosize": true, "symbol": "BINANCE:BTCUSDT",
+                "interval": "60", "theme": "dark", "container_id": "tv_chart"
+            });
         };
     </script>
 </body>
