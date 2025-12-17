@@ -2,153 +2,99 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0b0e11">
-    <title>ABSI PRO | Advanced P2P & Trading</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABSI PRO | منصة التداول الاحترافية</title>
     <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; }
-        body { background-color: var(--bg); color: white; margin: 0; font-family: sans-serif; overflow-x: hidden; overscroll-behavior-y: contain; }
-        
-        header { padding: 10px 15px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
-        .pairs-bar { background: #2b3139; padding: 10px; overflow-x: auto; display: flex; gap: 15px; white-space: nowrap; border-bottom: 1px solid #333; }
-        .pair-item { padding: 5px 12px; border-radius: 15px; background: #1e2329; font-size: 0.85rem; cursor: pointer; border: 1px solid #444; }
-        .pair-item.active { border-color: var(--gold); color: var(--gold); }
-        
-        .content { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .chart-wrapper { height: 400px; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #333; position: relative; }
-        
-        #absi-countdown { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; }
+        /* تصميم الواجهة السوداء */
+        body {
+            background-color: #0b0e11;
+            color: #eaecef;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-        .trade-box { background: var(--panel); padding: 15px; border-radius: 15px; border: 1px solid #444; }
-        input { width: 100%; padding: 12px; margin-bottom: 10px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; text-align: center; font-size: 1rem; }
-        .btn-group { display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; }
+        /* حل مشكلة صورة الغلاف - وضعنا رابطاً يعمل فوراً */
+        .hero-section {
+            width: 100%;
+            height: 250px;
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                              url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 2px solid #f3ba2f; /* لون الذهب الخاص بالكريبتو */
+        }
 
-        /* --- تصميم نافذة المحفظة المتطورة --- */
-        .modal-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); display: none; justify-content: center; 
-            align-items: center; z-index: 1000; padding: 15px;
+        .container { padding: 20px; text-align: center; }
+
+        .card {
+            background-color: #1e2329;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #30363d;
         }
-        .modal-card { 
-            background: var(--panel); width: 100%; max-width: 420px; 
-            border-radius: 25px; padding: 20px; border: 1px solid #333; text-align: center; 
-            max-height: 90vh; overflow-y: auto;
+
+        .btn-action {
+            background-color: #f3ba2f;
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
         }
-        .wallet-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .opt-btn { 
-            background: #2b3139; padding: 15px; border-radius: 15px; border: 1px solid #444; 
-            cursor: pointer; transition: 0.2s; position: relative;
-        }
-        .opt-btn:active { transform: scale(0.95); border-color: var(--gold); }
-        .opt-btn span { display: block; font-size: 0.9rem; margin-top: 8px; font-weight: bold; }
-        .badge { position: absolute; top: -5px; right: -5px; background: var(--gold); color: black; font-size: 0.6rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
-        
-        .p2p-section { margin-top: 20px; padding: 15px; background: rgba(240,185,11,0.05); border-radius: 15px; border: 1px dashed var(--gold); }
-        .close-btn { margin-top: 20px; color: #848e9c; cursor: pointer; display: inline-block; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div style="font-size: 0.7rem;"><span id="u-mail">..</span><br><span onclick="logout()" style="color:var(--sell); cursor:pointer;">[خروج]</span></div>
-        <div style="color:var(--gold); font-weight:bold; font-size:1.2rem;">ABSI PRO</div>
-    </header>
-
-    <div class="pairs-bar">
-        <div class="pair-item active" onclick="switchPair('ABSI/USDT', this)">ABSI/USDT</div>
-        <div class="pair-item" onclick="switchPair('BTC/USDT', this)">BTC/USDT</div>
-        <div class="pair-item" onclick="switchPair('ETH/USDT', this)">ETH/USDT</div>
+    <div class="hero-section">
+        <h1 style="color: #f3ba2f; margin: 0;">ABSI PRO</h1>
+        <p>مرحباً بك في لوحة تحكم الإدارة</p>
     </div>
 
-    <div class="content">
-        <div class="chart-wrapper">
-            <div id="tv_chart" style="height: 100%; width: 100%;"></div>
-            <div id="absi-countdown">
-                <h2 style="color:var(--gold); margin-bottom:10px;">ABSI / USDT</h2>
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <div style="background:var(--gold); color:black; padding:10px; border-radius:5px;"><span id="cd-d">00</span><br>يوم</div>
-                    <div style="background:var(--gold); color:black; padding:10px; border-radius:5px;"><span id="cd-h">00</span><br>سا</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="trade-box">
-            <input type="number" id="trade-amount" placeholder="أدخل الكمية USDT">
-            <div class="btn-group">
-                <button class="btn" style="background:var(--buy)" onclick="showWallet()">شراء</button>
-                <button class="btn" style="background:var(--sell)" onclick="showWallet()">بيع</button>
-            </div>
+    <div class="container">
+        <div class="card">
+            <h3>نظام التنبيهات الفوري</h3>
+            <p>بمجرد قيام العميل بطلب، ستصلك رسالة بالعربي على بوتك @Absipro_bot</p>
+            <button class="btn-action" onclick="testNotification()">إرسال تجربة إيداع بالعربي</button>
         </div>
     </div>
 
-    <div class="modal-overlay" id="walletModal">
-        <div class="modal-card">
-            <h3 style="margin: 0; color: var(--gold);">مركز التمويل والمحفظة</h3>
-            <p style="color: #848e9c; font-size: 0.8rem;">يرجى اختيار وسيلة لزيادة رصيدك</p>
-            
-            <div class="wallet-options">
-                <div class="opt-btn" onclick="alert('جاري تجهيز بوابة دفع Visa / MasterCard')">
-                    💰 <span>بطاقة بنكية</span>
-                </div>
-                <div class="opt-btn" onclick="alert('عنوان الإيداع الموحد (TRC20): \nT9xR...7Vb2')">
-                    🔗 <span>إيداع كريبتو</span>
-                </div>
-            </div>
-
-            <div class="p2p-section">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span style="font-weight:bold;">تداول P2P (شخص لشخص)</span>
-                    <span class="badge">عمولة 0%</span>
-                </div>
-                <div class="wallet-options" style="margin-top:10px;">
-                    <div class="opt-btn" style="background:#1e2329" onclick="alert('سيتم تحويلك لقائمة تجار زين كاش المعتمدين')">
-                        📱 <span>Zain Cash</span>
-                    </div>
-                    <div class="opt-btn" style="background:#1e2329" onclick="alert('سيتم فتح واجهة التحويل البنكي المباشر')">
-                        🏦 <span>تحويل بنكي</span>
-                    </div>
-                </div>
-                <p style="font-size: 0.7rem; color: #848e9c; margin-top:10px;">* يتم حجز العملات في وسيط آمن حتى تأكيد التحويل</p>
-            </div>
-            
-            <div class="close-btn" onclick="closeWallet()">إغلاق والعودة للتداول</div>
-        </div>
-    </div>
-
-    <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        const user = localStorage.getItem('registeredUser');
-        if (!user) { window.location.href = 'login.html'; }
-        else { document.getElementById('u-mail').innerText = JSON.parse(user).email; }
-
-        function showWallet() { document.getElementById('walletModal').style.display = 'flex'; }
-        function closeWallet() { document.getElementById('walletModal').style.display = 'none'; }
-        function logout() { localStorage.removeItem('registeredUser'); window.location.href = 'login.html'; }
-
-        function loadChart(symbol) {
-            const chartDiv = document.getElementById('tv_chart');
-            const countdownDiv = document.getElementById('absi-countdown');
-            if (symbol === 'ABSI/USDT') {
-                chartDiv.style.display = 'none'; countdownDiv.style.display = 'flex';
-            } else {
-                chartDiv.style.display = 'block'; countdownDiv.style.display = 'none';
-                new TradingView.widget({ "autosize": true, "symbol": "BINANCE:" + symbol.replace('/', ''), "interval": "60", "theme": "dark", "style": "1", "locale": "ar", "hide_side_toolbar": false, "container_id": "tv_chart", "supported_resolutions": ["15", "60", "D"] });
-            }
-        }
-
-        function switchPair(pair, element) {
-            document.querySelectorAll('.pair-item').forEach(el => el.classList.remove('active'));
-            element.classList.add('active'); loadChart(pair);
-        }
-
-        window.onload = () => loadChart('ABSI/USDT');
+        // بياناتك الرسمية المستخرجة من الصور
+        const TOKEN = '8435054492:AAGfA8v83_wwN8edeStXUDBd3m7sVs-GDUI';
         
-        setInterval(() => {
-            const diff = new Date("Jan 1, 2026 00:00:00").getTime() - new Date().getTime();
-            document.getElementById('cd-d').innerText = Math.floor(diff / (1000*60*60*24));
-            document.getElementById('cd-h').innerText = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-        }, 1000);
+        // ملاحظة: اترك هذا الرقم كما هو مؤقتاً حتى يرسل لك البوت الرقم الحقيقي
+        // بمجرد حصولك على الـ ID، استبدل الأصفار بالرقم
+        const MY_CHAT_ID = '0000000000'; 
+
+        function testNotification() {
+            if(MY_CHAT_ID === '0000000000') {
+                alert("⚠️ تنبيه: صورة الغلاف تعمل، ولكن يجب وضع رقم الـ ID في الكود لتصلك الرسائل على تلجرام.");
+                return;
+            }
+
+            const message = "🔔 تنبيه جديد: شخص ما قام بطلب إيداع عبر منصة ABSI PRO!";
+            const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(message)}`;
+
+            fetch(url)
+                .then(res => {
+                    if(res.ok) alert("✅ نجحت التجربة! تفقد هاتفك الآن.");
+                    else alert("❌ فشل الإرسال، تأكد من رقم الـ ID.");
+                });
+        }
+
+        // إشعار دخول تلقائي للمدير
+        window.onload = () => {
+            console.log("المنصة جاهزة للعمل.");
+        };
     </script>
 </body>
 </html>
