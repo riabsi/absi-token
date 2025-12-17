@@ -1,61 +1,106 @@
-<div id="futuresPage" class="full-page">
-    <div style="display: flex; height: 100%;">
-        
-        <div style="width: 40%; background: var(--bg); font-size: 0.75rem; padding: 5px; border-left: 1px solid var(--border);">
-            <div style="display: flex; justify-content: space-between; color: var(--gray); margin-bottom: 5px;">
-                <span>السعر</span>
-                <span>المبلغ</span>
-            </div>
-            <div id="sell-orders" style="color: var(--down);">
-                <div style="display:flex; justify-content:space-between;"><span>0.003520</span><span>41.4k</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>0.003519</span><span>40.7k</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>0.003517</span><span>9.8k</span></div>
-            </div>
-            <div style="text-align: center; padding: 10px 0; font-size: 1.1rem; font-weight: bold;" id="current-price-futures">0.003513</div>
-            <div id="buy-orders" style="color: var(--up);">
-                <div style="display:flex; justify-content:space-between;"><span>0.003510</span><span>21.7k</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>0.003509</span><span>459.8k</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>0.003508</span><span>30.7k</span></div>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ABSI NEXUS - Futures</title>
+</head>
+<body style="margin:0; padding:0; background:#0b0e11; color:#eaecef; font-family:sans-serif; height:100vh; overflow:hidden; display:flex; flex-direction:column;">
 
-        <div style="width: 60%; padding: 10px; display: flex; flex-direction: column; gap: 10px;">
-            
-            <div style="display: flex; gap: 5px;">
-                <button style="flex: 1; background: #2b3139; border: none; color: white; padding: 5px; border-radius: 4px; font-size: 0.8rem;">المعزول</button>
-                <button style="flex: 1; background: #2b3139; border: none; color: white; padding: 5px; border-radius: 4px; font-size: 0.8rem;">8x</button>
-            </div>
+    <header style="padding:10px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #2b3139; background:#0b0e11;">
+        <div style="font-size:1.2rem;">👤</div>
+        <div style="color:#f0b90b; font-weight:bold; font-size:1.1rem;">ABSI NEXUS</div>
+        <div style="font-size:1.2rem;">🔔</div>
+    </header>
 
-            <div style="display: flex; background: #2b3139; border-radius: 4px; overflow: hidden;">
-                <button style="flex: 1; padding: 8px; border: none; background: var(--up); color: white;">شراء</button>
-                <button style="flex: 1; padding: 8px; border: none; background: transparent; color: var(--gray);">بيع</button>
-            </div>
-
-            <select style="width: 100%; background: #2b3139; color: white; border: none; padding: 8px; border-radius: 4px;">
-                <option>طلب حدي</option>
-                <option>طلب السوق</option>
-            </select>
-
-            <div style="position: relative;">
-                <input type="number" placeholder="السعر (USDT)" style="width: 100%; padding: 10px; background: #2b3139; border: none; color: white; border-radius: 4px;">
-                <span style="position: absolute; left: 10px; top: 10px; font-size: 0.7rem; color: var(--gray);">BBO</span>
-            </div>
-
-            <input type="number" placeholder="المبلغ (USDT)" style="width: 100%; padding: 10px; background: #2b3139; border: none; color: white; border-radius: 4px;">
-
-            <div style="display: flex; justify-content: space-between; padding: 5px 0;">
-                <div style="width: 8px; height: 8px; background: #444; transform: rotate(45deg);"></div>
-                <div style="width: 8px; height: 8px; background: #444; transform: rotate(45deg);"></div>
-                <div style="width: 8px; height: 8px; background: #444; transform: rotate(45deg);"></div>
-                <div style="width: 8px; height: 8px; background: #444; transform: rotate(45deg);"></div>
-            </div>
-
-            <div style="font-size: 0.8rem; display: flex; justify-content: space-between;">
-                <span style="color: var(--gray);">متاح</span>
-                <span>0.00 USDT</span>
-            </div>
-
-            <button class="trade-btn btn-buy" style="width: 100%; margin-top: auto;" onclick="openDepositModal('Futures')">صفقة شراء</button>
-        </div>
+    <div style="display:flex; gap:20px; padding:10px 15px; background:#0b0e11; border-bottom:1px solid #2b3139; overflow-x:auto;">
+        <span style="color:#f0b90b; border-bottom:2px solid #f0b90b; padding-bottom:5px; font-size:0.9rem; white-space:nowrap;">USDⓈ-M</span>
+        <span style="color:#848e9c; font-size:0.9rem; white-space:nowrap;">COIN-M</span>
+        <span style="color:#848e9c; font-size:0.9rem; white-space:nowrap;">الخيارات</span>
     </div>
-</div>
+
+    <main style="flex:1; display:flex; flex-direction:column;">
+        
+        <div style="padding:10px 15px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-weight:bold; font-size:1.2rem;">RVVUSDT</span>
+                <span style="color:#0ecb81; font-size:0.8rem;">+9.00%</span>
+            </div>
+            <div style="display:flex; gap:15px; font-size:1.1rem;">📊 ⏳ ⋮</div>
+        </div>
+
+        <div style="display:flex; flex:1; overflow:hidden;">
+            <div style="width:45%; padding:5px; border-left:1px solid #2b3139; display:flex; flex-direction:column;">
+                <div style="display:flex; justify-content:space-between; color:#848e9c; font-size:0.65rem; margin-bottom:8px;">
+                    <span>السعر</span>
+                    <span>المبلغ</span>
+                </div>
+                <div style="color:#f6465d; font-size:0.8rem; line-height:1.8;">
+                    <div style="display:flex; justify-content:space-between;"><span>0.003520</span><span>41.4k</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>0.003519</span><span>40.7k</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>0.003517</span><span>9.8k</span></div>
+                </div>
+                <div style="padding:15px 0; text-align:center;">
+                    <div style="color:#f6465d; font-size:1.3rem; font-weight:bold;">0.003513</div>
+                    <div style="color:#848e9c; font-size:0.75rem;">$0.003513</div>
+                </div>
+                <div style="color:#0ecb81; font-size:0.8rem; line-height:1.8;">
+                    <div style="display:flex; justify-content:space-between;"><span>0.003510</span><span>21.7k</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>0.003509</span><span>459k</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>0.003508</span><span>30.7k</span></div>
+                </div>
+            </div>
+
+            <div style="width:55%; padding:10px; display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; gap:5px;">
+                    <div style="flex:1; background:#2b3139; padding:8px; border-radius:4px; text-align:center; font-size:0.8rem;">المعزول</div>
+                    <div style="flex:1; background:#2b3139; padding:8px; border-radius:4px; text-align:center; font-size:0.8rem;">8x</div>
+                </div>
+
+                <div style="display:flex; background:#2b3139; border-radius:4px; overflow:hidden;">
+                    <div style="flex:1; background:#0ecb81; padding:8px; text-align:center; font-weight:bold;">شراء</div>
+                    <div style="flex:1; padding:8px; text-align:center; color:#848e9c;">بيع</div>
+                </div>
+
+                <div style="background:#2b3139; padding:10px; border-radius:4px; display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>طلب حدي</span>
+                    <span>▼</span>
+                </div>
+
+                <div style="background:#2b3139; display:flex; align-items:center; border-radius:4px; padding:0 10px;">
+                    <span style="color:#848e9c; font-size:0.7rem;">BBO</span>
+                    <input type="text" value="0.003394" style="flex:1; background:transparent; border:none; color:white; padding:10px; text-align:center;">
+                </div>
+
+                <div style="background:#2b3139; display:flex; align-items:center; border-radius:4px; padding:0 10px;">
+                    <input type="text" placeholder="المبلغ" style="flex:1; background:transparent; border:none; color:white; padding:10px; text-align:center;">
+                    <span style="color:#848e9c; font-size:0.8rem;">USDT</span>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0;">
+                    <div style="width:10px; height:10px; border:1px solid #444; transform:rotate(45deg);"></div>
+                    <div style="width:10px; height:10px; border:1px solid #444; transform:rotate(45deg);"></div>
+                    <div style="width:10px; height:10px; border:1px solid #444; transform:rotate(45deg);"></div>
+                    <div style="width:10px; height:10px; border:1px solid #444; transform:rotate(45deg);"></div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#848e9c;">
+                    <span>متاح</span>
+                    <span>0.00 USDT</span>
+                </div>
+
+                <button style="width:100%; background:#0ecb81; color:white; border:none; padding:15px; border-radius:8px; font-weight:bold; margin-top:10px;">صفقة شراء</button>
+            </div>
+        </div>
+    </main>
+
+    <footer style="height:65px; background:#1e2329; display:flex; border-top:1px solid #2b3139;">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.7rem; color:#848e9c;">🏠<br>الرئيسية</div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.7rem; color:#848e9c;">📊<br>الأسواق</div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.7rem; color:#848e9c;">🔄<br>تداول</div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.7rem; color:#f0b90b;">📝<br>العقود الآجلة</div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.7rem; color:#848e9c;">💰<br>الأصول</div>
+    </footer>
+
+</body>
+</html>
