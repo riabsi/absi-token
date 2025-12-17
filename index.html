@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI PRO | منصة التداول الاحترافية</title>
+    <title>ABSI PRO | الصفحة الرئيسية</title>
     <style>
-        /* تصميم الواجهة السوداء */
+        /* تصميم الواجهة السوداء الفخمة */
         body {
             background-color: #0b0e11;
             color: #eaecef;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* حل مشكلة صورة الغلاف - وضعنا رابطاً يعمل فوراً */
+        /* صورة الغلاف - تعمل الآن بشكل دائم */
         .hero-section {
             width: 100%;
             height: 250px;
@@ -26,75 +29,52 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            border-bottom: 2px solid #f3ba2f; /* لون الذهب الخاص بالكريبتو */
+            border-bottom: 2px solid #f3ba2f;
         }
 
-        .container { padding: 20px; text-align: center; }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            margin-top: 20px;
+        }
 
         .card {
             background-color: #1e2329;
             border-radius: 12px;
-            padding: 20px;
-            margin: 15px 0;
+            padding: 25px;
+            text-align: center;
             border: 1px solid #30363d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        .btn-action {
-            background-color: #f3ba2f;
-            color: #000;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
+        h1 { color: #f3ba2f; margin: 0; font-size: 28px; }
+        p { color: #848e9c; line-height: 1.6; }
+
+        .status-badge {
+            background-color: #2ebd85;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
 
     <div class="hero-section">
-        <h1 style="color: #f3ba2f; margin: 0;">ABSI PRO</h1>
-        <p>مرحباً بك في لوحة تحكم الإدارة</p>
+        <h1>ABSI PRO</h1>
+        <p>مرحباً بك في منصتك الخاصة</p>
     </div>
 
     <div class="container">
         <div class="card">
-            <h3>نظام التنبيهات الفوري</h3>
-            <p>بمجرد قيام العميل بطلب، ستصلك رسالة بالعربي على بوتك @Absipro_bot</p>
-            <button class="btn-action" onclick="testNotification()">إرسال تجربة إيداع بالعربي</button>
+            <div class="status-badge">المنصة تعمل بنجاح</div>
+            <h3>واجهة التحكم</h3>
+            <p>تم إيقاف أنظمة التنبيه مؤقتاً. الموقع الآن يعمل كواجهة عرض احترافية.</p>
         </div>
     </div>
 
-    <script>
-        // بياناتك الرسمية المستخرجة من الصور
-        const TOKEN = '8435054492:AAGfA8v83_wwN8edeStXUDBd3m7sVs-GDUI';
-        
-        // ملاحظة: اترك هذا الرقم كما هو مؤقتاً حتى يرسل لك البوت الرقم الحقيقي
-        // بمجرد حصولك على الـ ID، استبدل الأصفار بالرقم
-        const MY_CHAT_ID = '0000000000'; 
-
-        function testNotification() {
-            if(MY_CHAT_ID === '0000000000') {
-                alert("⚠️ تنبيه: صورة الغلاف تعمل، ولكن يجب وضع رقم الـ ID في الكود لتصلك الرسائل على تلجرام.");
-                return;
-            }
-
-            const message = "🔔 تنبيه جديد: شخص ما قام بطلب إيداع عبر منصة ABSI PRO!";
-            const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(message)}`;
-
-            fetch(url)
-                .then(res => {
-                    if(res.ok) alert("✅ نجحت التجربة! تفقد هاتفك الآن.");
-                    else alert("❌ فشل الإرسال، تأكد من رقم الـ ID.");
-                });
-        }
-
-        // إشعار دخول تلقائي للمدير
-        window.onload = () => {
-            console.log("المنصة جاهزة للعمل.");
-        };
-    </script>
 </body>
 </html>
