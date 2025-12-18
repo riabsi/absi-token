@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | لوحة التحكم</title>
+    <title>ABSI NEXUS | التداول المباشر</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -13,111 +13,108 @@
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        header { height: 60px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; position: relative; }
+        header { height: 60px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; }
         .brand-center { position: absolute; left: 50%; transform: translateX(-50%); color: var(--gold); font-weight: bold; font-size: 1.2rem; }
         
-        .news-ticker { background: #181a20; height: 28px; overflow: hidden; border-bottom: 1px solid #333; }
-        .ticker-text { white-space: nowrap; animation: scroll 20s linear infinite; color: var(--gold); font-size: 0.8rem; display: inline-block; padding-right: 100%; padding-top: 5px; }
-        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        
-        #chart-zone { height: 45vh; background: #000; }
-        .trade-zone { flex: 1; background: var(--panel); padding: 15px; border-top: 2px solid var(--gold); overflow-y: auto; }
+        #chart-zone { height: 50vh; background: #000; }
+        .trade-zone { flex: 1; background: var(--panel); padding: 15px; border-top: 2px solid var(--gold); }
         
         .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; color: white; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; color: white; transition: 0.2s; }
+        .btn:active { transform: scale(0.95); }
         .btn-buy { background: #0ecb81; }
         .btn-sell { background: #f6465d; }
         
-        input { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; text-align: center; font-size: 1.1rem; }
+        input { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; text-align: center; font-size: 1.1rem; }
+        
+        /* تصميم الرسالة المنبثقة السريعة */
+        .toast { position: fixed; top: 20%; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 10px 25px; border-radius: 30px; font-weight: bold; z-index: 10000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
+    <div id="toast" class="toast">تم فتح الصفقة بنجاح</div>
+
     <header>
-        <div style="display:flex; gap:10px; align-items:center;">
-            <div style="display:flex; background:#000; border-radius:12px; padding:2px; border:1px solid #444;">
-                <button id="rBtn" onclick="switchMode('REAL')" style="background:none; border:none; color:#848e9c; font-size:0.65rem; padding:5px 10px; cursor:pointer;">حقيقي</button>
-                <button id="dBtn" onclick="switchMode('DEMO')" style="background:#2d83ff; border:none; color:white; font-size:0.65rem; padding:5px 10px; border-radius:10px; cursor:pointer;">تجريبي</button>
-            </div>
+        <div style="display:flex; background:#000; border-radius:12px; padding:2px; border:1px solid #444;">
+            <button id="rBtn" onclick="switchMode('REAL')" style="background:none; border:none; color:#848e9c; font-size:0.65rem; padding:5px 10px; cursor:pointer;">حقيقي</button>
+            <button id="dBtn" onclick="switchMode('DEMO')" style="background:#2d83ff; border:none; color:white; font-size:0.65rem; padding:5px 10px; border-radius:10px; cursor:pointer;">تجريبي</button>
         </div>
         <div class="brand-center">ABSI NEXUS</div>
         <div style="text-align:left;">
-            <div id="accLabel" style="font-size:0.6rem; color:#2d83ff;">رصيدك الحالي</div>
-            <div id="headBal" style="font-size:1rem; font-weight:bold; color:white;">0.00$</div>
+            <div id="accLabel" style="font-size:0.6rem; color:#2d83ff;">محفظة التجريبي</div>
+            <div id="headBal" style="font-size:1rem; font-weight:bold;">0.00$</div>
         </div>
     </header>
 
-    <div class="news-ticker">
-        <div class="ticker-text">أهلاً بك في منصة ABSI NEXUS المطورة.. تداول بذكاء.. راقب الأسواق العالمية لحظة بلحظة..</div>
-    </div>
-
-    <div id="chart-zone">
-        <div id="tv_chart" style="height:100%;"></div>
-    </div>
+    <div id="chart-zone"><div id="tv_chart" style="height:100%;"></div></div>
 
     <div class="trade-zone">
-        <p style="margin: 0 0 10px 0; font-size: 0.8rem; color: #848e9c;">أدخل الكمية للتداول (USDT):</p>
+        <p style="margin: 0 0 10px 0; font-size: 0.8rem; color: #848e9c;">مبلغ التداول (USDT):</p>
         <input type="number" id="tradeAmt" value="100">
         <div class="btn-group">
-            <button class="btn btn-buy" onclick="processTrade('شراء')">شراء / Long</button>
-            <button class="btn btn-sell" onclick="processTrade('بيع')">بيع / Short</button>
+            <button class="btn btn-buy" onclick="executeTrade('شراء')">شراء / Long</button>
+            <button class="btn btn-sell" onclick="executeTrade('بيع')">بيع / Short</button>
         </div>
-        <p style="text-align: center; margin-top: 15px; font-size: 0.7rem; color: #848e9c; cursor: pointer;" onclick="location.href='index.html'">تسجيل الخروج من الحساب</p>
     </div>
 
     <script>
-        // --- 1. إعدادات Firebase ---
         const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- 2. جلب المستخدم من الرابط ---
         const urlParams = new URLSearchParams(window.location.search);
         const currentUser = urlParams.get('user');
+        let currentMode = 'DEMO';
+        let currentBalance = 0;
 
-        // إذا لم يوجد مستخدم (دخول غير قانوني) يعيده لصفحة index
-        if (!currentUser) {
-            window.location.href = "index.html";
-        }
+        if (!currentUser) { window.location.href = "index.html"; }
 
-        // --- 3. تشغيل الرسم البياني فوراً ---
         window.onload = function() {
             new TradingView.widget({
-                "autosize": true,
-                "symbol": "BINANCE:BTCUSDT",
-                "interval": "1",
-                "theme": "dark",
-                "container_id": "tv_chart",
-                "locale": "ar"
+                "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": "1",
+                "theme": "dark", "container_id": "tv_chart", "locale": "ar"
             });
-            switchMode('DEMO'); // افتراضياً يبدأ بالتجريبي
+            switchMode('DEMO');
         };
 
-        // --- 4. نظام تبديل الحساب (حقيقي/تجريبي) ---
         function switchMode(mode) {
-            const rBtn = document.getElementById('rBtn');
-            const dBtn = document.getElementById('dBtn');
-            const accLabel = document.getElementById('accLabel');
-
-            if(mode === 'REAL') {
-                rBtn.style.background = "#f0b90b"; rBtn.style.color = "black";
-                dBtn.style.background = "none"; dBtn.style.color = "#848e9c";
-                accLabel.style.color = "#f0b90b";
-            } else {
-                dBtn.style.background = "#2d83ff"; dBtn.style.color = "white";
-                rBtn.style.background = "none"; rBtn.style.color = "#848e9c";
-                accLabel.style.color = "#2d83ff";
-            }
-
+            currentMode = mode;
             const path = mode === 'REAL' ? '/balance_real' : '/balance_demo';
+            
+            // تحديث الألوان
+            document.getElementById('rBtn').style.background = mode === 'REAL' ? "#f0b90b" : "none";
+            document.getElementById('rBtn').style.color = mode === 'REAL' ? "black" : "#848e9c";
+            document.getElementById('dBtn').style.background = mode === 'DEMO' ? "#2d83ff" : "none";
+            document.getElementById('accLabel').innerText = mode === 'REAL' ? "رصيدك الحقيقي" : "محفظة التجريبي";
+
             db.ref('users/' + currentUser + path).on('value', s => {
-                document.getElementById('headBal').innerText = (s.val() || 0).toFixed(2) + "$";
+                currentBalance = s.val() || 0;
+                document.getElementById('headBal').innerText = currentBalance.toFixed(2) + "$";
             });
         }
 
-        function processTrade(type) {
-            const amt = document.getElementById('tradeAmt').value;
-            alert(`تم استلام طلب ${type} بمبلغ ${amt}$.. يتم المعالجة الآن.`);
+        function executeTrade(type) {
+            const amt = parseFloat(document.getElementById('tradeAmt').value);
+            
+            if (amt > currentBalance) {
+                showToast("الرصيد غير كافٍ!");
+                return;
+            }
+
+            const newBalance = currentBalance - amt;
+            const path = currentMode === 'REAL' ? 'balance_real' : 'balance_demo';
+
+            db.ref('users/' + currentUser).update({ [path]: newBalance }).then(() => {
+                showToast(`تم فتح صفقة ${type} بـ ${amt}$`);
+            });
+        }
+
+        function showToast(text) {
+            const t = document.getElementById('toast');
+            t.innerText = text;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 1500);
         }
     </script>
 </body>
