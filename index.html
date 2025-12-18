@@ -15,18 +15,19 @@
         .price-bar { background: #181a20; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; flex-shrink: 0; }
         #live-price { color: var(--gold); font-family: monospace; font-weight: bold; font-size: 1.1rem; }
         
-        /* ضبط ارتفاع الشارت لترك مساحة للسجل المرفوع */
-        #chart-zone { flex: 1; min-height: 150px; width: 100%; background: #000; }
+        /* إعادة الشارت لحجمه الطبيعي والمريح */
+        #chart-zone { flex: 1; width: 100%; background: #000; }
         #tv_chart { height: 100% !important; width: 100% !important; }
 
-        /* منطقة التداول مع مساحة أمان سفلية كبيرة لرفع السجل */
-        .trade-zone { background: var(--panel); padding: 15px; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; flex-shrink: 0; padding-bottom: 45px; }
-        .amt-in { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 10px; margin-bottom: 10px; text-align: center; font-size: 1.1rem; }
-        .btn-row { display: flex; gap: 10px; height: 50px; margin-bottom: 15px; }
-        .btn-act { flex: 1; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        /* منطقة التداول - جعلناها أنحف ومنظمة */
+        .trade-zone { background: var(--panel); padding: 10px 15px; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; flex-shrink: 0; }
+        .amt-in { width: 100%; padding: 10px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 8px; text-align: center; font-size: 1.1rem; }
+        .btn-row { display: flex; gap: 10px; height: 45px; margin-bottom: 10px; }
+        .btn-act { flex: 1; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
 
-        .log-box { background: #121418; border-radius: 10px; padding: 10px; height: 100px; overflow-y: auto; font-size: 0.8rem; border: 1px solid #333; }
-        .log-entry { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #222; }
+        /* سجل الصفقات - حجم صغير (ثلث الحجم السابق) وفي الأسفل تماماً */
+        .log-box { background: #121418; border-radius: 8px; padding: 5px 10px; height: 55px; overflow-y: auto; font-size: 0.75rem; border: 1px solid #333; }
+        .log-entry { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #222; }
 
         .side-bar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 1500; transition: 0.3s; }
         .side-bar.active { right: 0; }
@@ -37,7 +38,7 @@
 <body>
 
     <header>
-        <div onclick="document.getElementById('sidebar').classList.add('active')" style="cursor:pointer;" id="user-p">👤</div>
+        <div onclick="document.getElementById('sidebar').classList.add('active')" style="cursor:pointer; font-size: 1.5rem;" id="user-p">👤</div>
         <div class="logo">ABSI NEXUS</div>
         <button onclick="openMod('depModal')" style="background:var(--gold); border:none; padding:5px 12px; border-radius:5px; font-weight:bold;">محفظتي</button>
     </header>
@@ -60,24 +61,19 @@
             <button class="btn-act" style="background:var(--sell)" onclick="handleSecureTrade('sell')">بيع</button>
         </div>
         <div id="orders-log" class="log-box">
-            <div style="color: #848e9c; text-align: center; padding-top: 30px;">سجل النشاط المباشر</div>
+            <div style="color: #848e9c; text-align: center; padding-top: 15px;">سجل النشاط</div>
         </div>
     </div>
 
     <div class="side-bar" id="sidebar">
         <div style="padding:15px; border-bottom:1px solid #333;" onclick="this.parentElement.classList.remove('active')">➔ العودة</div>
         <div style="text-align:center; padding:20px;">
-            <div id="p-avatar" style="width:80px; height:80px; border-radius:50%; background:#2b3139; margin:0 auto 10px; border:2px solid var(--gold); overflow:hidden;">👤</div>
+            <div style="width:80px; height:80px; border-radius:50%; background:#2b3139; margin:0 auto 10px; border:2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">👤</div>
             <div style="font-weight:bold;">user@absi.top</div>
             <div id="uid-v" style="color:var(--gold); font-size:0.8rem; margin-top:5px;"></div>
         </div>
-        <div style="padding:15px; border-top:1px solid #222;" onclick="openPage('imgPage')">تغيير الصورة الشخصية ➔</div>
+        <div style="padding:15px; border-top:1px solid #222; color: #848e9c;">الإعدادات (قريباً)</div>
         <button onclick="localStorage.clear(); location.reload();" style="width:90%; margin:5%; padding:15px; background:none; border:1px solid var(--sell); color:var(--sell); border-radius:10px;">تسجيل خروج</button>
-    </div>
-
-    <div class="full-page" id="imgPage">
-        <div style="padding:15px; background:var(--panel);" onclick="closePages()">➔ اختيار الأفاتار</div>
-        <div class="avatar-grid" id="avatarBox" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:20px; overflow-y:auto;"></div>
     </div>
 
     <div class="modal" id="depModal">
@@ -99,12 +95,10 @@
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
-    <script src="security.js?v=4"></script>
+    <script src="security.js?v=5"></script>
 
     <script>
         let ws;
-        function openPage(id) { closePages(); document.getElementById(id).style.display = 'flex'; }
-        function closePages() { document.querySelectorAll('.full-page').forEach(p => p.style.display='none'); }
         function openMod(id) { closeMods(); document.getElementById(id).style.display = 'flex'; }
         function closeMods() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
 
@@ -114,7 +108,6 @@
             if(!amt || amt <= 0) { alert("أدخل الكمية أولاً"); return; }
             
             if(typeof AbsiSecurity !== 'undefined' && AbsiSecurity.verifyProcess()) {
-                // تسجيل الحالة كـ "فاشلة" لأننا نعلم أنه لا يوجد رصيد حالياً
                 addToLog(type, pair, amt, "فشلت (نقص رصيد)");
                 openMod('balModal'); 
             }
@@ -125,21 +118,15 @@
             const time = new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'});
             const color = type === 'buy' ? 'var(--buy)' : 'var(--sell)';
             
-            const entry = `
-                <div class="log-entry">
-                    <span style="color:${color}; font-weight:bold;">${type === 'buy' ? 'شراء' : 'بيع'} ${pair}</span>
-                    <span style="font-family:monospace;">${amt} USDT</span>
-                    <span style="color:#f6465d; font-size:0.65rem;">${status}</span>
-                    <span style="color:#848e9c; font-size:0.6rem;">${time}</span>
-                </div>`;
+            const entry = `<div class="log-entry">
+                <span style="color:${color}; font-weight:bold;">${type === 'buy' ? 'شراء' : 'بيع'}</span>
+                <span>${amt} USDT</span>
+                <span style="color:#f6465d; font-size:0.65rem;">${status}</span>
+                <span style="color:#848e9c; font-size:0.6rem;">${time}</span>
+            </div>`;
             
             if(logContainer.innerText.includes("سجل النشاط")) logContainer.innerHTML = '';
             logContainer.innerHTML = entry + logContainer.innerHTML;
-        }
-
-        function updateAvatar(url) {
-            document.getElementById('p-avatar').innerHTML = `<img src="${url}" style="width:100%; height:100%;">`;
-            document.getElementById('user-p').innerHTML = `<img src="${url}" style="width:30px; height:30px; border-radius:50%; border:1px solid var(--gold);">`;
         }
 
         function changePair(pair) {
@@ -151,17 +138,6 @@
 
         window.onload = () => {
             changePair("BTCUSDT");
-            const box = document.getElementById('avatarBox');
-            for(let i=1; i<=20; i++) {
-                let img = document.createElement('img');
-                let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+100}`;
-                img.src = url; img.style.width="100%"; img.style.borderRadius="50%";
-                img.onclick = () => { localStorage.setItem('u_img', url); updateAvatar(url); closePages(); };
-                box.appendChild(img);
-            }
-            const saved = localStorage.getItem('u_img');
-            if(saved) updateAvatar(saved);
-            
             let uid = localStorage.getItem('absi_uid') || Math.floor(100000000 + Math.random() * 900000000);
             localStorage.setItem('absi_uid', uid);
             document.getElementById('uid-v').innerText = "UID: " + uid;
