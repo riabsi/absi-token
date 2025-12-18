@@ -4,18 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ABSI NEXUS | Trading</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --text: #eaecef; }
+        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --blue: #2d83ff; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* شاشة الدخول */
         #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .auth-box { background: var(--panel); padding: 25px; border-radius: 15px; border: 1px solid var(--gold); width: 100%; max-width: 320px; text-align: center; }
         .auth-input { width: 100%; padding: 12px; margin: 6px 0; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; text-align: center; }
         .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; color: black; }
-        header { height: 60px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; }
+
+        /* الهيدر */
+        header { height: 60px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; position: relative; }
+        .brand-center { position: absolute; left: 50%; transform: translateX(-50%); color: var(--gold); font-weight: bold; }
+        
+        /* أزرار التبديل */
+        .mode-container { display: flex; background: #000; border-radius: 12px; padding: 2px; border: 1px solid #444; }
+        .mode-btn { background: none; border: none; color: #848e9c; font-size: 0.65rem; padding: 5px 10px; cursor: pointer; border-radius: 10px; transition: 0.3s; }
+        .mode-btn.active-demo { background: var(--blue); color: white; }
+        .mode-btn.active-real { background: var(--gold); color: black; font-weight: bold; }
+
         #chart-zone { height: 45vh; background: #000; }
-        .trade-zone { flex: 1; background: var(--panel); padding: 10px; border-top: 2px solid var(--gold); }
+        .trade-zone { flex: 1; background: var(--panel); padding: 10px; overflow-y: auto; border-top: 2px solid var(--gold); }
     </style>
 </head>
 <body>
@@ -25,69 +37,90 @@
             <h2 style="color:var(--gold);">ABSI NEXUS</h2>
             <input type="text" id="username" class="auth-input" placeholder="اسم المستخدم">
             <input type="password" id="password" class="auth-input" placeholder="كلمة المرور">
+            <input type="email" id="user-email" class="auth-input" placeholder="الإيميل (للتسجيل الجديد)">
             <button class="auth-btn" onclick="handleAuth()">دخول للمنصة</button>
-            <p style="font-size: 0.7rem; color: #848e9c; margin-top: 10px;">سيتم إنشاء حساب تلقائياً إذا كان أول دخول</p>
         </div>
     </div>
 
     <header>
-        <div style="color: var(--gold); font-weight: bold;">ABSI NEXUS</div>
+        <div class="mode-container">
+            <button id="rBtn" class="mode-btn" onclick="switchMode('REAL')">حقيقي</button>
+            <button id="dBtn" class="mode-btn active-demo" onclick="switchMode('DEMO')">تجريبي</button>
+        </div>
+        <div class="brand-center">ABSI NEXUS</div>
         <div style="text-align: left;">
-            <div style="font-size: 0.6rem; color: #2d83ff;">رصيد التجريبي</div>
-            <div id="headBal" style="font-weight: bold;">0.00$</div>
+            <div id="accLabel" style="font-size: 0.55rem; color: var(--blue);">محفظة التجريبي</div>
+            <div id="headBal" style="font-size: 1rem; font-weight: bold; color: white;">0.00$</div>
         </div>
     </header>
 
     <div id="chart-zone"><div id="tv_chart" style="height:100%;"></div></div>
 
     <div class="trade-zone">
-        <input type="number" id="tradeAmt" style="width:100%; padding:12px; background:#2b3139; border:1px solid #444; border-radius:8px; color:white; margin-bottom:10px;" placeholder="المبلغ USDT">
+        <input type="number" id="tradeAmt" style="width:100%; padding:14px; background:#2b3139; border:1px solid #444; border-radius:8px; color:white; margin-bottom:10px; box-sizing:border-box;" placeholder="مبلغ التداول USDT">
         <div style="display:flex; gap:10px;">
-            <button style="flex:1; background:#0ecb81; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">شراء</button>
-            <button style="flex:1; background:#f6465d; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">بيع</button>
+            <button onclick="alert('جاري تنفيذ صفقة شراء...')" style="flex:1; background:#0ecb81; color:white; padding:15px; border:none; border-radius:8px; font-weight:bold;">شراء</button>
+            <button onclick="alert('جاري تنفيذ صفقة بيع...')" style="flex:1; background:#f6465d; color:white; padding:15px; border:none; border-radius:8px; font-weight:bold;">بيع</button>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // تحديث الرابط للقاعدة الصحيحة
-        const firebaseConfig = { databaseURL: "https://riabsi-default-rtdb.firebaseio.com" };
+        const firebaseConfig = { databaseURL: "https://riabsi-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        let currentUser = "";
+        let currentMode = "DEMO";
+
         function handleAuth() {
-            const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value.trim();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            const email = document.getElementById('user-email').value.trim();
 
-            if(!u || !p) return alert("أدخل البيانات");
+            if(!user || !pass) return alert("أدخل البيانات");
 
-            // البحث في القاعدة الصحيحة
-            db.ref('users/' + u).once('value', s => {
+            db.ref('users/' + user).once('value', s => {
                 const data = s.val();
                 if(data) {
-                    if(data.password === p) startApp(u, data);
+                    if(data.password === pass) login(user);
                     else alert("كلمة المرور خطأ");
                 } else {
-                    // إنشاء حساب جديد بسيط
-                    db.ref('users/' + u).set({ password: p, balance_demo: 1000 }).then(() => startApp(u, {balance_demo: 1000}));
+                    if(!email) return alert("يرجى إدخال الإيميل للتسجيل");
+                    db.ref('users/' + user).set({ password: pass, email: email, balance_demo: 1000, balance_real: 0 }).then(() => login(user));
                 }
             });
         }
 
-        function startApp(u, data) {
+        function login(user) {
+            currentUser = user;
             document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('headBal').innerText = (data.balance_demo || 0).toFixed(2) + "$";
-            
-            // تشغيل الشارت فوراً
-            new TradingView.widget({
-                "autosize": true,
-                "symbol": "BINANCE:BTCUSDT",
-                "interval": "1",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1",
-                "locale": "ar",
-                "container_id": "tv_chart"
+            switchMode('DEMO'); // الدخول افتراضياً على التجريبي
+            new TradingView.widget({ "autosize": true, "symbol": "BINANCE:BTCUSDT", "theme": "dark", "container_id": "tv_chart", "locale": "ar" });
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            const rBtn = document.getElementById('rBtn');
+            const dBtn = document.getElementById('dBtn');
+            const label = document.getElementById('accLabel');
+
+            if(mode === 'REAL') {
+                rBtn.className = 'mode-btn active-real';
+                dBtn.className = 'mode-btn';
+                label.innerText = "محفظة الحقيقي";
+                label.style.color = "var(--gold)";
+            } else {
+                dBtn.className = 'mode-btn active-demo';
+                rBtn.className = 'mode-btn';
+                label.innerText = "محفظة التجريبي";
+                label.style.color = "var(--blue)";
+            }
+
+            // ربط جلب الرصيد من السحابة بناءً على الوضع المختار
+            const path = mode === 'REAL' ? '/balance_real' : '/balance_demo';
+            db.ref('users/' + currentUser + path).on('value', s => {
+                document.getElementById('headBal').innerText = (s.val() || 0).toFixed(2) + "$";
             });
         }
     </script>
