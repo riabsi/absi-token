@@ -3,42 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | Professional Trading</title>
+    <title>ABSI NEXUS | Professional</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; --demo: #2d83ff; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        /* الهيدر */
-        header { height: 60px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 10px; border-bottom: 1px solid #333; z-index: 100; }
-        .brand { color: var(--gold); font-weight: bold; font-size: 1rem; position: absolute; left: 50%; transform: translateX(-50%); }
+        /* الهيدر المنظم */
+        header { 
+            height: 65px; 
+            background: var(--panel); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 15px; 
+            border-bottom: 1px solid #333;
+            position: relative;
+        }
 
-        /* شريط الأخبار المتحرك */
-        .news-ticker { background: #181a20; height: 30px; overflow: hidden; border-bottom: 1px solid #333; display: flex; align-items: center; }
-        .ticker-wrap { display: inline-block; white-space: nowrap; animation: ticker 20s linear infinite; color: var(--gold); font-size: 0.8rem; }
-        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .header-left { display: flex; align-items: center; text-align: left; cursor: pointer; background: rgba(240, 185, 11, 0.1); padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(240, 185, 11, 0.3); }
 
-        /* الأقسام الأساسية */
-        #chart-zone { height: 35vh; width: 100%; }
+        .brand-center { 
+            position: absolute; 
+            left: 50%; 
+            top: 50%;
+            transform: translate(-50%, -50%); 
+            color: var(--gold); 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+        }
+
+        /* شريط الأخبار */
+        .ticker-bar { background: #181a20; height: 28px; overflow: hidden; display: flex; align-items: center; border-bottom: 1px solid #333; }
+        .ticker-text { white-space: nowrap; animation: scroll 20s linear infinite; color: var(--gold); font-size: 0.8rem; padding-right: 100%; }
+        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        /* الأزرار والمودال */
+        .notif-icon { font-size: 1.4rem; position: relative; cursor: pointer; }
+        .badge { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 5px; font-size: 0.6rem; }
+        
+        #chart-zone { height: 40vh; width: 100%; background: #000; }
         .trade-zone { flex: 1; background: var(--panel); padding: 10px; overflow-y: auto; border-top: 2px solid var(--gold); }
-        
-        /* مودال الإشعارات */
-        .notif-badge { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 5px; font-size: 0.6rem; display: none; }
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
-        .modal-box { background: var(--panel); padding: 20px; border-radius: 15px; width: 90%; max-width: 350px; border: 1px solid var(--gold); }
+        .modal-box { background: var(--panel); padding: 20px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; border: 1px solid var(--gold); }
         
-        /* أزرار الحساب */
-        .mode-sw { display: flex; background: #000; border-radius: 20px; padding: 2px; border: 1px solid #444; }
-        .m-btn { padding: 4px 10px; border-radius: 15px; font-size: 0.65rem; border: none; cursor: pointer; background: none; color: #848e9c; }
-        .active-r { background: var(--gold); color: black; font-weight: bold; }
-        .active-d { background: var(--demo); color: white; font-weight: bold; }
+        #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" style="position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; justify-content:center; align-items:center;">
-        <div style="background:var(--panel); padding:30px; border-radius:15px; border:1px solid var(--gold); text-align:center; width:280px;">
+    <div id="auth-screen">
+        <div style="background:var(--panel); padding:30px; border-radius:15px; border:1px solid var(--gold); width:280px; text-align:center;">
             <h2 style="color:var(--gold)">ABSI NEXUS</h2>
             <input type="text" id="username" style="width:100%; padding:10px; margin:5px 0; background:#2b3139; border:1px solid #444; color:white; border-radius:5px;" placeholder="اسم المستخدم">
             <input type="password" id="password" style="width:100%; padding:10px; margin:5px 0; background:#2b3139; border:1px solid #444; color:white; border-radius:5px;" placeholder="كلمة المرور">
@@ -47,63 +64,69 @@
     </div>
 
     <header>
-        <div class="mode-sw">
-            <button id="rBtn" class="m-btn" onclick="switchMode('REAL')">حقيقي</button>
-            <button id="dBtn" class="m-btn active-d" onclick="switchMode('DEMO')">تجريبي</button>
+        <div class="header-right">
+            <div class="notif-icon" onclick="openModal('notifModal')">
+                🔔<span id="notifBadge" class="badge" style="display:none;">0</span>
+            </div>
+            <div style="display:flex; background:#000; padding:2px; border-radius:15px; border:1px solid #444;">
+                <button id="rBtn" onclick="switchMode('REAL')" style="background:none; border:none; color:#848e9c; font-size:0.6rem; padding:4px 8px; cursor:pointer; border-radius:12px;">حقيقي</button>
+                <button id="dBtn" onclick="switchMode('DEMO')" style="background:var(--demo); border:none; color:white; font-size:0.6rem; padding:4px 8px; cursor:pointer; border-radius:12px;">تجريبي</button>
+            </div>
         </div>
-        <div class="brand">ABSI NEXUS</div>
-        <div style="position:relative; cursor:pointer;" onclick="openModal('notifModal')">
-            <span style="font-size:1.5rem;">🔔</span>
-            <span id="notif-count" class="notif-badge">0</span>
+
+        <div class="brand-center">ABSI NEXUS</div>
+
+        <div class="header-left" onclick="openModal('walletModal')">
+            <div style="margin-left:8px;">
+                <div id="accLabel" style="font-size:0.55rem; color:var(--demo); font-weight:bold;">محفظة التجريبي</div>
+                <div id="headBal" style="font-size:0.9rem; font-weight:bold; color:white;">0.00$</div>
+            </div>
+            <span style="font-size:1rem;">💰</span>
         </div>
     </header>
 
-    <div class="news-ticker">
-        <div class="ticker-wrap" id="news-text">
-            جاري جلب آخر أخبار السوق... منصة ABSI NEXUS ترحب بكم... صعود البتكوين فوق مستويات الـ 90 ألف دولار...
-        </div>
+    <div class="ticker-bar">
+        <div class="ticker-text" id="newsTicker">أهلاً بكم في منصة ABSI NEXUS.. تداول بذكاء وأمان.. تابعونا لمعرفة أحدث العملات المضافة..</div>
     </div>
 
-    <div style="background:#181a20; padding:8px 15px; display:flex; justify-content:space-between; font-size:0.9rem;">
-        <select id="pairSelector" onchange="changePair(this.value)" style="background:none; border:none; color:var(--gold); font-weight:bold;">
+    <div style="background:#181a20; padding:10px 15px; display:flex; justify-content:space-between; border-bottom:1px solid #333;">
+        <select id="pairSelect" onchange="changePair(this.value)" style="background:none; border:none; color:var(--gold); font-weight:bold;">
             <option value="BTCUSDT">BTC/USDT</option>
             <option value="ETHUSDT">ETH/USDT</option>
+            <option value="SOLUSDT">SOL/USDT</option>
         </select>
-        <div onclick="openModal('walletModal')" style="cursor:pointer; text-align:left;">
-            <span id="header-bal" style="font-weight:bold; color:var(--gold);">0.00$</span>
-        </div>
+        <span id="livePrice" style="color:var(--gold); font-weight:bold; font-family:monospace;">0.00$</span>
     </div>
 
     <div id="chart-zone"><div id="tv_chart" style="height:100%;"></div></div>
 
     <div class="trade-zone">
-        <input type="number" id="trade-amt" style="width:100%; padding:12px; background:#2b3139; border:1px solid #444; border-radius:8px; color:white; margin-bottom:10px;" placeholder="المبلغ USDT">
+        <input type="number" id="tradeAmt" style="width:100%; padding:14px; background:#2b3139; border:1px solid #444; border-radius:8px; color:white; margin-bottom:10px; box-sizing:border-box;" placeholder="مبلغ التداول USDT">
         <div style="display:flex; gap:10px;">
-            <button onclick="openTrade('BUY')" style="flex:1; background:var(--buy); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">شراء</button>
-            <button onclick="openTrade('SELL')" style="flex:1; background:var(--sell); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">بيع</button>
+            <button onclick="openTrade('BUY')" style="flex:1; background:var(--buy); color:white; padding:14px; border:none; border-radius:8px; font-weight:bold;">شراء</button>
+            <button onclick="openTrade('SELL')" style="flex:1; background:var(--sell); color:white; padding:14px; border:none; border-radius:8px; font-weight:bold;">بيع</button>
         </div>
-        <div id="orders-container" style="margin-top:15px;"></div>
+        <div id="tradeList" style="margin-top:15px;"></div>
+    </div>
+
+    <div class="modal" id="walletModal">
+        <div class="modal-box">
+            <h3 id="wTitle" style="color:var(--gold)">المحفظة</h3>
+            <div style="font-size:1.8rem; font-weight:bold;" id="modalBal">0.00$</div>
+            <div id="realSection" style="display:none; margin-top:15px;">
+                <p style="font-size:0.7rem; color:#848e9c;">عنوان الإيداع (TRC20):</p>
+                <div style="background:#000; padding:10px; border:1px dashed var(--gold); font-size:0.65rem; color:var(--gold); word-break:break-all;">TSWkiKSK8iuC3MMuz5ZwqGdyWkRe9vZkDb</div>
+                <button onclick="confirmDeposit()" style="width:100%; background:var(--buy); color:white; border:none; padding:10px; border-radius:5px; margin-top:10px; font-weight:bold;">تأكيد التحويل</button>
+            </div>
+            <button onclick="closeModal('walletModal')" style="background:none; border:none; color:#848e9c; margin-top:15px;">إغلاق</button>
+        </div>
     </div>
 
     <div class="modal" id="notifModal">
         <div class="modal-box">
-            <h3 style="color:var(--gold); margin-top:0;">الإشعارات</h3>
-            <div id="notif-list" style="max-height:200px; overflow-y:auto; font-size:0.8rem; text-align:right;">
-                <p style="color:#848e9c;">لا توجد إشعارات جديدة حالياً.</p>
-            </div>
+            <h3 style="color:var(--gold)">الإشعارات</h3>
+            <div id="notifList" style="text-align:right; max-height:200px; overflow-y:auto; font-size:0.8rem;"></div>
             <button onclick="closeModal('notifModal')" style="width:100%; margin-top:15px; background:#333; color:white; border:none; padding:10px; border-radius:5px;">إغلاق</button>
-        </div>
-    </div>
-
-    <div class="modal" id="walletModal">
-        <div class="modal-box" style="text-align:center;">
-            <h3 style="color:var(--gold)" id="w-title">المحفظة</h3>
-            <div style="font-size:1.5rem; font-weight:bold;" id="w-bal">0.00$</div>
-            <hr style="border:0.1px solid #333;">
-            <p style="font-size:0.7rem;">عنوان الإيداع (TRC20):</p>
-            <div style="background:#000; padding:10px; border:1px dashed var(--gold); font-size:0.6rem; color:var(--gold); word-break:break-all;">TSWkiKSK8iuC3MMuz5ZwqGdyWkRe9vZkDb</div>
-            <button onclick="confirmDeposit()" style="width:100%; background:var(--buy); color:white; border:none; padding:10px; border-radius:5px; margin-top:10px; font-weight:bold;">تأكيد التحويل</button>
-            <button onclick="closeModal('walletModal')" style="background:none; border:none; color:#848e9c; margin-top:15px;">إغلاق</button>
         </div>
     </div>
 
@@ -134,25 +157,23 @@
                 const data = s.val();
                 if(data && data.password === pass) login(user);
                 else if(!data) db.ref('users/' + user).set({ password: pass, balance_demo: 1000, balance_real: 0 }).then(() => login(user));
-                else alert("خطأ في البيانات!");
+                else alert("خطأ في الدخول");
             });
         }
 
         function login(user) {
             currentUser = user;
             document.getElementById('auth-screen').style.display = 'none';
-            // مراقبة الأخبار من السيرفر
-            db.ref('admin/news').on('value', s => { if(s.val()) document.getElementById('news-text').innerText = s.val(); });
-            // مراقبة الإشعارات الخاصة
+            db.ref('admin/news').on('value', s => { if(s.val()) document.getElementById('newsTicker').innerText = s.val(); });
             db.ref('users/' + user + '/notifications').on('value', s => {
-                const notifs = s.val();
-                if(notifs) {
-                    const list = Object.values(notifs);
-                    document.getElementById('notif-count').innerText = list.length;
-                    document.getElementById('notif-count').style.display = "block";
-                    let html = "";
-                    list.reverse().forEach(n => { html += `<div style="border-bottom:1px solid #333; padding:8px;"><b>📢 ${n.title}</b><br>${n.msg}</div>`; });
-                    document.getElementById('notif-list').innerHTML = html;
+                const ns = s.val();
+                if(ns) {
+                    const list = Object.values(ns);
+                    document.getElementById('notifBadge').innerText = list.length;
+                    document.getElementById('notifBadge').style.display = "block";
+                    let h = "";
+                    list.reverse().forEach(n => { h += `<div style="padding:10px; border-bottom:1px solid #333;"><b>📢 ${n.title}</b><br>${n.msg}</div>`; });
+                    document.getElementById('notifList').innerHTML = h;
                 }
             });
             switchMode('DEMO');
@@ -161,57 +182,63 @@
 
         function switchMode(mode) {
             currentMode = mode;
-            document.getElementById('rBtn').className = mode === 'REAL' ? "m-btn active-r" : "m-btn";
-            document.getElementById('dBtn').className = mode === 'DEMO' ? "m-btn active-d" : "m-btn";
-            db.ref('users/' + currentUser + (mode === 'REAL' ? '/balance_real' : '/balance_demo')).on('value', s => {
+            document.getElementById('rBtn').style.background = mode==='REAL' ? 'var(--gold)' : 'none';
+            document.getElementById('rBtn').style.color = mode==='REAL' ? 'black' : '#848e9c';
+            document.getElementById('dBtn').style.background = mode==='DEMO' ? 'var(--demo)' : 'none';
+            document.getElementById('dBtn').style.color = mode==='DEMO' ? 'white' : '#848e9c';
+            
+            document.getElementById('accLabel').innerText = mode==='REAL' ? 'محفظة الحقيقي' : 'محفظة التجريبي';
+            document.getElementById('accLabel').style.color = mode==='REAL' ? 'var(--gold)' : 'var(--demo)';
+            document.getElementById('realSection').style.display = mode==='REAL' ? 'block' : 'none';
+
+            db.ref('users/' + currentUser + (mode==='REAL'?'/balance_real':'/balance_demo')).on('value', s => {
                 balance = s.val() || 0;
-                document.getElementById('header-bal').innerText = balance.toFixed(2) + "$";
-                document.getElementById('w-bal').innerText = balance.toFixed(2) + "$";
+                document.getElementById('headBal').innerText = balance.toFixed(2) + "$";
+                document.getElementById('modalBal').innerText = balance.toFixed(2) + "$";
             });
             db.ref('users/' + currentUser + '/trades_' + mode.toLowerCase()).on('value', s => renderTrades(s.val()));
         }
 
-        function changePair(pair) {
-            selectedPair = pair;
-            new TradingView.widget({ "autosize": true, "symbol": "BINANCE:" + pair, "theme": "dark", "container_id": "tv_chart", "locale": "ar" });
-            const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${pair.toLowerCase()}@ticker`);
+        function changePair(p) {
+            selectedPair = p;
+            document.getElementById('tv_chart').innerHTML = "";
+            new TradingView.widget({ "autosize": true, "symbol": "BINANCE:"+p, "theme": "dark", "container_id": "tv_chart", "locale": "ar" });
+            const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${p.toLowerCase()}@ticker`);
             ws.onmessage = e => {
                 currentPrice = parseFloat(JSON.parse(e.data).c);
-                document.getElementById('live-price').innerText = currentPrice.toFixed(2) + "$";
+                document.getElementById('livePrice').innerText = currentPrice.toFixed(2) + "$";
             };
         }
 
-        function openTrade(type) {
-            const amt = parseFloat(document.getElementById('trade-amt').value);
+        function openTrade(t) {
+            const amt = parseFloat(document.getElementById('tradeAmt').value);
             if(amt > balance || amt <= 0) return alert("رصيد غير كافٍ");
-            const key = currentMode === 'REAL' ? 'balance_real' : 'balance_demo';
+            const key = currentMode==='REAL' ? 'balance_real' : 'balance_demo';
             db.ref('users/' + currentUser).update({ [key]: balance - amt });
-            db.ref('users/' + currentUser + '/trades_' + currentMode.toLowerCase() + '/' + Date.now()).set({
-                pair: selectedPair, type: type, amount: amt, entryPrice: currentPrice
-            });
+            db.ref('users/' + currentUser + '/trades_' + currentMode.toLowerCase() + '/' + Date.now()).set({ pair: selectedPair, type: t, amount: amt, entryPrice: currentPrice });
         }
 
         function renderTrades(trades) {
-            const cont = document.getElementById('orders-container');
+            const cont = document.getElementById('tradeList');
             cont.innerHTML = "";
             for(let id in trades) {
                 const t = trades[id];
                 cont.innerHTML += `<div style="background:#121418; padding:10px; border-radius:8px; margin-bottom:5px; border-right:4px solid ${currentMode==='REAL'?'var(--gold)':'var(--demo)'}">
-                    <b>${t.type} ${t.pair}</b> | المبلغ: ${t.amount}$
-                    <button onclick="closeTrade('${id}', ${t.amount})" style="float:left; background:#333; color:white; border:none; padding:3px 8px; border-radius:4px;">إغلاق</button>
+                    <b>${t.type} ${t.pair}</b> | ${t.amount}$
+                    <button onclick="closeTrade('${id}', ${t.amount})" style="float:left; background:#333; color:white; border:none; padding:4px 10px; border-radius:5px; cursor:pointer;">إغلاق</button>
                 </div>`;
             }
         }
 
         function closeTrade(id, amt) {
-            const key = currentMode === 'REAL' ? 'balance_real' : 'balance_demo';
+            const key = currentMode==='REAL' ? 'balance_real' : 'balance_demo';
             db.ref('users/' + currentUser).update({ [key]: balance + amt });
             db.ref('users/' + currentUser + '/trades_' + currentMode.toLowerCase() + '/' + id).remove();
         }
 
         function confirmDeposit() {
-            const amt = prompt("أدخل مبلغ الإيداع:");
-            if(amt) db.ref('admin/deposits').push({ user: currentUser, amount: amt, time: new Date().toLocaleString() });
+            const a = prompt("مبلغ الإيداع:");
+            if(a) db.ref('admin/deposits').push({ user: currentUser, amount: a, time: new Date().toLocaleString() });
             alert("تم إرسال طلبك.");
             closeModal('walletModal');
         }
