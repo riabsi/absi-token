@@ -1,148 +1,37 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | Secure Login</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --text: #eaecef; }
-        body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; }
-        
-        /* شاشة الدخول والخروج */
-        #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .auth-box { background: var(--panel); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 100%; max-width: 340px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .auth-input { width: 100%; padding: 14px; margin: 8px 0; background: #2b3139; border: 1px solid #444; border-radius: 10px; color: white; box-sizing: border-box; font-size: 1rem; outline: none; transition: 0.3s; }
-        .auth-input:focus { border-color: var(--gold); }
-        .auth-btn { width: 100%; padding: 15px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1rem; color: #000; }
-        .toggle-text { font-size: 0.8rem; color: #848e9c; cursor: pointer; margin-top: 15px; display: block; }
-        
-        /* الهيدر والعناصر الأساسية */
-        header { height: 65px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; position: relative; }
-        .brand-center { position: absolute; left: 50%; transform: translateX(-50%); color: var(--gold); font-weight: bold; font-size: 1.2rem; }
-        .header-left { display: flex; align-items: center; gap: 10px; cursor: pointer; background: rgba(240, 185, 11, 0.1); padding: 5px 10px; border-radius: 8px; }
-    </style>
-</head>
-<body>
+// --- إعدادات نظام الإرسال الآلي (EmailJS) ---
+// 1. تفعيل الاتصال باستخدام مفتاحك العام
+emailjs.init("I7O-M98m-x4dW5R3t"); 
 
-    <div id="auth-screen">
-        <div class="auth-box">
-            <h2 style="color:var(--gold); margin-bottom:10px;">ABSI NEXUS</h2>
-            <div id="auth-mode-title" style="font-size:0.9rem; margin-bottom:20px; color:#848e9c;">تسجيل دخول / حساب جديد</div>
-            
-            <input type="text" id="username" class="auth-input" placeholder="اسم المستخدم (بالإنجليزي)">
-            <input type="password" id="password" class="auth-input" placeholder="كلمة المرور">
-            <input type="email" id="user-email" class="auth-input" placeholder="البريد الإلكتروني">
-            
-            <button class="auth-btn" onclick="handleAuth()">دخول للمنصة</button>
-            
-            <div class="toggle-text" onclick="recoverAccount()">نسيت كلمة المرور؟ استعدها عبر الإيميل</div>
-        </div>
-    </div>
+// 2. دالة استعادة الحساب وإرسال الإيميل
+function recoverAccount() {
+    const email = prompt("أدخل بريدك الإلكتروني المسجل لارسال كلمة المرور:");
+    if (!email) return;
 
-    <header id="main-header" style="display:none;">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <span style="font-size:1.4rem;">🔔</span>
-            <div style="display:flex; background:#000; border-radius:15px; padding:2px; border:1px solid #444;">
-                <button id="rBtn" onclick="switchMode('REAL')" style="background:none; border:none; color:#848e9c; font-size:0.6rem; padding:5px 10px; cursor:pointer;">حقيقي</button>
-                <button id="dBtn" onclick="switchMode('DEMO')" style="background:#2d83ff; border:none; color:white; font-size:0.6rem; padding:5px 10px; border-radius:12px; cursor:pointer;">تجريبي</button>
-            </div>
-        </div>
-        
-        <div class="brand-center">ABSI NEXUS</div>
-        
-        <div class="header-left" onclick="alert('فتح المحفظة')">
-            <div style="text-align:left;">
-                <div id="accLabel" style="font-size:0.55rem; color:#2d83ff;">محفظة التجريبي</div>
-                <div id="headBal" style="font-size:0.9rem; font-weight:bold;">0.00$</div>
-            </div>
-            <span>💰</span>
-        </div>
-    </header>
-
-    <div id="tv_container" style="height: calc(100vh - 65px); display:none;">
-        </div>
-
-    <script>
-        // تكوين Firebase (استخدم نفس بياناتك)
-        const firebaseConfig = {
-            apiKey: "AIzaSyBZ3NMwdz8GqUlVtE_WPLIBi8ZmR_uIy1U",
-            authDomain: "absinexus.firebaseapp.com",
-            projectId: "absinexus",
-            databaseURL: "https://absinexus-default-rtdb.firebaseio.com/", 
-            storageBucket: "absinexus.firebasestorage.app",
-            messagingSenderId: "1037317212228",
-            appId: "1:1037317212228:web:bf243fd222fa77726a1411"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        function handleAuth() {
-            const user = document.getElementById('username').value.trim().toLowerCase().replace(/[.@]/g, "_");
-            const pass = document.getElementById('password').value.trim();
-            const email = document.getElementById('user-email').value.trim();
-
-            if (!user || !pass) {
-                alert("يرجى إدخال اسم المستخدم وكلمة المرور");
-                return;
+    // البحث في قاعدة بيانات Firebase عن البريد المدخل
+    db.ref('users').once('value', snapshot => {
+        let foundUser = null;
+        snapshot.forEach(child => {
+            if (child.val().email === email) {
+                foundUser = { name: child.key, pass: child.val().password };
             }
+        });
 
-            db.ref('users/' + user).once('value', snapshot => {
-                const userData = snapshot.val();
+        if (foundUser) {
+            alert("جاري التحقق وإرسال البيانات لبريدك الإلكتروني...");
 
-                if (userData) {
-                    // المستخدم موجود -> محاولة تسجيل دخول
-                    if (userData.password === pass) {
-                        startApp(user);
-                    } else {
-                        alert("كلمة المرور خاطئة!");
-                    }
-                } else {
-                    // المستخدم غير موجود -> تسجيل حساب جديد
-                    if (!email || !email.includes("@")) {
-                        alert("هذا مستخدم جديد. يرجى إدخال بريد إلكتروني صحيح لإتمام التسجيل.");
-                        return;
-                    }
-                    
-                    db.ref('users/' + user).set({
-                        password: pass,
-                        email: email,
-                        balance_demo: 1000,
-                        balance_real: 0,
-                        createdAt: new Date().toISOString()
-                    }).then(() => {
-                        alert("تم إنشاء حسابك بنجاح!");
-                        startApp(user);
-                    });
-                }
+            // إرسال البيانات باستخدام معرف الخدمة ومعرف القالب الخاص بك
+            emailjs.send("service_vv75pdh", "template_5glwjdq", {
+                to_email: email,
+                user_name: foundUser.name,
+                user_password: foundUser.pass
+            }).then(() => {
+                alert("تم الإرسال بنجاح! يرجى تفقد بريدك الإلكتروني الآن.");
+            }, (error) => {
+                alert("فشل الإرسال، تأكد من إعدادات الربط في EmailJS.");
+                console.error("FAILED...", error);
             });
+        } else {
+            alert("عذراً، هذا البريد الإلكتروني غير موجود في سجلاتنا.");
         }
-
-        function recoverAccount() {
-            const email = prompt("أدخل بريدك الإلكتروني لاسترجاع بياناتك:");
-            if (!email) return;
-
-            db.ref('users').once('value', snapshot => {
-                let found = false;
-                snapshot.forEach(child => {
-                    const data = child.val();
-                    if (data.email === email) {
-                        alert(`تم العثور على حسابك!\n\nاسم المستخدم: ${child.key}\nكلمة المرور: ${data.password}`);
-                        found = true;
-                    }
-                });
-                if (!found) alert("عذراً، هذا البريد غير مسجل لدينا.");
-            });
-        }
-
-        function startApp(user) {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('tv_container').style.display = 'block';
-            // هنا تكمل بقية كود تشغيل الشارت والأسعار كما في النسخ السابقة
-            console.log("Welcome " + user);
-        }
-    </script>
-</body>
-</html>
+    });
+}
