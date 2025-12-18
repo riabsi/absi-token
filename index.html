@@ -4,100 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABSI NEXUS | Login</title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #0b0e11; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .container { background-color: #1e2329; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; width: 350px; position: relative; }
-        .lang-btn { position: absolute; top: 15px; right: 15px; background: #2b3139; color: #f0b90b; border: 1px solid #474d57; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-        h2 { color: #f0b90b; margin-bottom: 25px; }
-        input { width: 100%; padding: 14px; border-radius: 5px; border: 1px solid #474d57; background-color: #2b3139; color: white; box-sizing: border-box; outline: none; margin: 10px 0; text-align: center; }
+        .logo { color: #f0b90b; font-size: 40px; font-weight: bold; margin-bottom: 10px; }
+        h2 { color: white; font-size: 18px; margin-bottom: 25px; }
+        input { width: 100%; padding: 14px; border-radius: 5px; border: 1px solid #474d57; background-color: #2b3139; color: white; box-sizing: border-box; outline: none; margin: 8px 0; text-align: center; font-size: 16px; }
         button#main-btn { width: 100%; padding: 14px; background-color: #f0b90b; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 16px; color: #000; }
         .link { color: #f0b90b; cursor: pointer; font-size: 14px; margin-top: 15px; display: block; text-decoration: none; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <button class="lang-btn" onclick="toggleLanguage()" id="lang-switcher">English</button>
+        <div class="logo">ABSI</div>
         <h2 id="form-title">تسجيل الدخول</h2>
+        
         <input type="text" id="username" placeholder="اسم المستخدم">
         <div id="email-group" style="display:none;"><input type="email" id="useremail" placeholder="البريد الإلكتروني"></div>
         <input type="password" id="password" placeholder="كلمة المرور">
+        
         <button id="main-btn" onclick="handleAction()">دخول للمنصة</button>
-        <a id="forget-link" class="link" onclick="recoverAccount()">نسيت كلمة المرور؟</a>
-        <div style="border-top: 1px solid #474d57; margin: 20px 0;"></div>
-        <span id="txt-footer">ليس لديك حساب؟</span>
-        <a class="link" id="toggle-link" onclick="toggleForm()" style="display: inline; font-weight: bold;">إنشاء حساب جديد</a>
+        
+        <div id="toggle-section" style="margin-top: 20px;">
+            <a class="link" id="toggle-link" onclick="toggleForm()">إنشاء حساب جديد</a>
+        </div>
     </div>
 
     <script>
+        // إعدادات Firebase الخاصة بك
         const firebaseConfig = { databaseURL: "https://riabsi-default-rtdb.firebaseio.com" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        emailjs.init("I7O-M98m-x4dW5R3t");
 
-        let currentLang = 'ar', isRegisterMode = false;
-        const translations = {
-            ar: { titleIn: "تسجيل الدخول", titleUp: "إنشاء حساب جديد", userP: "اسم المستخدم", passP: "كلمة المرور", btnIn: "دخول للمنصة", btnUp: "إتمام التسجيل", passWeak: "كلمة المرور ضعيفة! استخدم 8 خانات تشمل حرفاً كبيراً ورمزاً." },
-            en: { titleIn: "Login", titleUp: "Create Account", userP: "Username", passP: "Password", btnIn: "Login to Platform", btnUp: "Complete Sign Up", passWeak: "Weak password! Use 8+ chars with uppercase & symbol." }
-        };
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            document.getElementById('main-html').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('lang-switcher').innerText = currentLang === 'ar' ? 'English' : 'العربية';
-            updateUI();
-        }
-
-        function updateUI() {
-            const t = translations[currentLang];
-            document.getElementById('form-title').innerText = isRegisterMode ? t.titleUp : t.titleIn;
-            document.getElementById('username').placeholder = t.userP;
-            document.getElementById('password').placeholder = t.passP;
-            document.getElementById('main-btn').innerText = isRegisterMode ? t.btnUp : t.btnIn;
-        }
+        let isRegisterMode = false;
 
         function toggleForm() {
             isRegisterMode = !isRegisterMode;
+            document.getElementById('form-title').innerText = isRegisterMode ? "إنشاء حساب جديد" : "تسجيل الدخول";
             document.getElementById('email-group').style.display = isRegisterMode ? "block" : "none";
-            updateUI();
+            document.getElementById('main-btn').innerText = isRegisterMode ? "تسجيل الحساب" : "دخول للمنصة";
+            document.getElementById('toggle-link').innerText = isRegisterMode ? "لديك حساب؟ دخول" : "إنشاء حساب جديد";
         }
 
         function handleAction() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
-            if(!user || !pass) return alert("Missing info");
+
+            if (!user || !pass) return alert("يرجى إدخال البيانات");
 
             if (isRegisterMode) {
-                // فحص قوة كلمة المرور
-                const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
-                if(!strong.test(pass)) return alert(translations[currentLang].passWeak);
-
-                db.ref('users/' + user).set({ email: document.getElementById('useremail').value, password: pass }).then(() => {
-                    alert("تم التسجيل! سجل دخولك الآن");
+                // عملية التسجيل
+                const email = document.getElementById('useremail').value.trim();
+                db.ref('users/' + user).set({ email: email, password: pass }).then(() => {
+                    alert("تم التسجيل بنجاح! يمكنك الآن الدخول باسم المستخدم الخاص بك.");
                     toggleForm();
                 });
             } else {
-                db.ref('users/' + user).once('value', s => {
-                    if (s.exists() && s.val().password === pass) {
+                // عملية الدخول (تبحث باسم المستخدم كما في صورك)
+                db.ref('users/' + user).once('value', snapshot => {
+                    if (snapshot.exists() && snapshot.val().password === pass) {
                         alert("نجح الدخول! جاري فتح المنصة...");
-                        // التوجيه المباشر لملف wallet.html الموجود في ملفاتك
+                        // توجيه نهائي لصفحة wallet.html
                         window.location.href = "wallet.html";
-                    } else { alert("خطأ في البيانات"); }
+                    } else {
+                        alert("خطأ: اسم المستخدم أو كلمة المرور غير صحيحة");
+                    }
                 });
             }
-        }
-
-        function recoverAccount() {
-            const email = prompt("أدخل بريدك:");
-            if (!email) return;
-            db.ref('users').once('value', s => {
-                let f = null;
-                s.forEach(c => { if(c.val().email === email) f = {n:c.key, p:c.val().password} });
-                if(f) emailjs.send("service_vv75pdh", "template_5glwjdq", { to_email: email, user_name: f.n, user_password: f.p }).then(() => alert("Sent!"));
-            });
         }
     </script>
 </body>
