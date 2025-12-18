@@ -2,121 +2,77 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | Trading Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABSI NEXUS | دخول</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; --demo-blue: #2d83ff; }
-        body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        header { height: 65px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 10px; border-bottom: 1px solid #333; }
-        .mode-switcher { background: #121418; border-radius: 20px; display: flex; padding: 3px; border: 1px solid #444; }
-        .mode-btn { padding: 5px 12px; border-radius: 15px; font-size: 0.7rem; cursor: pointer; border: none; color: #848e9c; background: none; transition: 0.3s; }
-        .mode-btn.active-real { background: var(--gold); color: black; font-weight: bold; }
-        .mode-btn.active-demo { background: var(--demo-blue); color: white; font-weight: bold; }
-        .brand-name { color: var(--gold); font-weight: bold; font-size: 1rem; }
-        #chart-zone { height: 45vh; width: 100%; background: #000; }
-        .trade-zone { flex: 1; background: var(--panel); padding: 10px; overflow-y: auto; border-top: 2px solid var(--gold); }
-        .order-card { background: #121418; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-right: 4px solid var(--gold); }
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
-        .modal-box { background: var(--panel); padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; border: 1px solid var(--gold); }
+        body { background: #0b0e11; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: #1e2329; padding: 30px; border-radius: 12px; border: 1px solid #f0b90b; width: 320px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #2b3139; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #f0b90b; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .link { color: #f0b90b; font-size: 13px; cursor: pointer; display: block; margin-top: 15px; text-decoration: none; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="mode-switcher">
-            <button id="realBtn" class="mode-btn" onclick="switchAccount('REAL')">حقيقي</button>
-            <button id="demoBtn" class="mode-btn active-demo" onclick="switchAccount('DEMO')">تجريبي</button>
-        </div>
-        <div class="brand-name">ABSI NEXUS</div>
-        <div onclick="openModal('walletModal')" style="text-align:left; cursor:pointer;">
-            <div id="acc-type-label" style="font-size:0.6rem; color:var(--demo-blue);">حساب تجريبي</div>
-            <div id="header-bal" style="font-weight:bold; color:white;">0.00$</div>
-        </div>
-    </header>
-
-    <div style="background:#181a20; padding:8px 15px; display:flex; justify-content:space-between; align-items:center;">
-        <select id="pairSelector" onchange="changePair(this.value)" style="background:none; color:var(--gold); border:none; font-weight:bold;">
-            <option value="BTCUSDT">BTC/USDT</option>
-            <option value="ETHUSDT">ETH/USDT</option>
-        </select>
-        <span id="live-price" style="color:var(--gold); font-weight:bold;">0.00$</span>
+    <div class="box">
+        <h2 style="color:#f0b90b">ABSI NEXUS</h2>
+        <h3 id="status-title">تسجيل الدخول</h3>
+        
+        <input type="text" id="user" placeholder="اسم المستخدم">
+        <div id="email-div" style="display:none;"><input type="email" id="email" placeholder="البريد الإلكتروني"></div>
+        <input type="password" id="pass" placeholder="كلمة المرور">
+        
+        <button onclick="startAction()" id="btn-text">دخول للمنصة</button>
+        <a class="link" onclick="toggle()" id="toggle-link">إنشاء حساب جديد</a>
     </div>
 
-    <div id="chart-zone"><div id="tv_chart" style="height:100%;"></div></div>
-
-    <div class="trade-zone">
-        <input type="number" id="trade-amt" style="width:100%; padding:12px; background:#2b3139; border:1px solid #444; color:white; border-radius:8px; margin-bottom:10px;" placeholder="المبلغ USDT">
-        <div style="display:flex; gap:10px;">
-            <button onclick="openTrade('BUY')" style="flex:1; background:var(--buy); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">شراء</button>
-            <button onclick="openTrade('SELL')" style="flex:1; background:var(--sell); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">بيع</button>
-        </div>
-        <div id="orders-container" style="margin-top:15px;"></div>
-    </div>
-
-    <div class="modal" id="walletModal">
-        <div class="modal-box">
-            <h3 id="modal-title">رصيد التجريبي</h3>
-            <div style="font-size:1.8rem; font-weight:bold; margin-bottom:15px;" id="modal-bal">0.00$</div>
-            <div id="deposit-section" style="display:none;">
-                <p style="font-size:0.7rem;">عنوان إيداع الحقيقي (TRC20):</p>
-                <div style="background:#121418; padding:8px; border:1px dashed var(--gold); font-size:0.6rem; color:var(--gold); word-break:break-all;">TSWkiKSK8iuC3MMuz5ZwqGdyWkRe9vZkDb</div>
-                <button onclick="confirmDeposit()" style="width:100%; background:var(--buy); border:none; padding:10px; margin-top:10px; border-radius:5px; color:white; font-weight:bold;">تأكيد التحويل</button>
-            </div>
-            <button onclick="closeModal('walletModal')" style="background:none; border:none; color:#848e9c; margin-top:15px;">إغلاق</button>
-        </div>
-    </div>
-
-    <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // استخدام رابط قاعدة البيانات الصحيح والجديد
-        const firebaseConfig = { databaseURL: "https://riabsi-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(firebaseConfig);
+        // إعدادات قاعدة البيانات الخاصة بك
+        const config = { databaseURL: "https://riabsi-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(config);
         const db = firebase.database();
 
-        let currentUser = "Riad"; // هنا يمكننا لاحقاً جعلها تجلب اسم المستخدم تلقائياً
-        let currentMode = "DEMO";
-        let balances = { REAL: 0, DEMO: 0 };
-        let currentPrice = 0;
-        let selectedPair = "BTCUSDT";
+        let isReg = false;
 
-        // تشغيل المنصة فوراً
-        window.onload = function() {
-            startPlatform();
-        };
-
-        function startPlatform() {
-            db.ref('users/' + currentUser).on('value', snap => {
-                const data = snap.val() || {};
-                balances.REAL = data.balance_real || 0;
-                balances.DEMO = data.balance_demo || 1000;
-                updateHeaderUI();
-            });
-            changePair("BTCUSDT");
+        function toggle() {
+            isReg = !isReg;
+            document.getElementById('status-title').innerText = isReg ? "حساب جديد" : "تسجيل الدخول";
+            document.getElementById('email-div').style.display = isReg ? "block" : "none";
+            document.getElementById('btn-text').innerText = isReg ? "إتمام التسجيل" : "دخول للمنصة";
+            document.getElementById('toggle-link').innerText = isReg ? "لديك حساب؟ سجل دخولك" : "إنشاء حساب جديد";
         }
 
-        function switchAccount(mode) {
-            currentMode = mode;
-            document.getElementById('acc-type-label').innerText = mode === 'REAL' ? "حساب حقيقي" : "حساب تجريبي";
-            document.getElementById('acc-type-label').style.color = mode === 'REAL' ? "var(--gold)" : "var(--demo-blue)";
-            document.getElementById('deposit-section').style.display = mode === 'REAL' ? "block" : "none";
-            updateHeaderUI();
-        }
+        function startAction() {
+            const u = document.getElementById('user').value.trim();
+            const p = document.getElementById('pass').value.trim();
+            const e = document.getElementById('email').value.trim();
 
-        function updateHeaderUI() {
-            const bal = currentMode === 'REAL' ? balances.REAL : balances.DEMO;
-            document.getElementById('header-bal').innerText = bal.toFixed(2) + "$";
-            document.getElementById('modal-bal').innerText = bal.toFixed(2) + "$";
-        }
+            if(!u || !p) return alert("اكمل البيانات");
 
-        function changePair(pair) {
-            selectedPair = pair;
-            new TradingView.widget({ "autosize": true, "symbol": "BINANCE:" + pair, "theme": "dark", "container_id": "tv_chart", "locale": "ar" });
+            if(isReg) {
+                // تسجيل جديد بدون شروط معقدة للتجربة
+                db.ref('users/' + u).set({ email: e, password: p, balance_demo: 1000, balance_real: 0 }).then(() => {
+                    alert("تم الحفظ! جرب الدخول الآن");
+                    location.reload();
+                });
+            } else {
+                // الدخول
+                db.ref('users/' + u).once('value', s => {
+                    const data = s.val();
+                    if(data && data.password === p) {
+                        alert("نجح الدخول! سيتم نقلك الآن للمنصة");
+                        
+                        // التوجيه القسري المباشر
+                        window.location.assign("https://riabsi.github.io/absi-token/wallet.html");
+                        
+                    } else {
+                        alert("بيانات خاطئة");
+                    }
+                });
+            }
         }
-
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     </script>
 </body>
 </html>
