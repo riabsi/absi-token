@@ -3,31 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b0e11">
     <title>ABSI NEXUS | Live Trading</title>
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* الهيدر مع اسم المنصة */
+        /* الهيدر */
         header { height: 50px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; flex-shrink: 0; }
         .logo { color: var(--gold); font-weight: bold; font-size: 1rem; letter-spacing: 1px; }
 
-        /* منطقة السعر والعملات */
+        /* منطقة السعر */
         .price-bar { background: #181a20; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; flex-shrink: 0; }
         #live-price { color: var(--gold); font-family: monospace; font-weight: bold; font-size: 1.1rem; }
         select { background: #2b3139; color: white; border: 1px solid #444; border-radius: 4px; padding: 3px; font-size: 0.8rem; }
 
-        /* تصغير الشارت لإظهار الأزرار */
+        /* الشارت */
         #chart-zone { flex-grow: 1; width: 100%; background: #000; position: relative; }
         #tv_chart { height: 100% !important; width: 100% !important; }
 
-        /* لوحة التداول المرفوعة والواضحة */
+        /* لوحة التداول */
         .trade-zone { height: 170px; background: var(--panel); padding: 15px; box-sizing: border-box; flex-shrink: 0; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; }
         .amt-in { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 10px; margin-bottom: 10px; text-align: center; font-size: 1.1rem; }
         .btn-row { display: flex; gap: 10px; height: 55px; }
         .btn-act { flex: 1; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
 
-        /* القوائم والصفحات */
+        /* القوائم والمودالز */
         .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: none; flex-direction: column; }
         .side-bar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 1500; transition: 0.3s; }
         .side-bar.active { right: 0; }
@@ -61,10 +62,10 @@
     </div>
 
     <div class="trade-zone">
-        <input type="number" class="amt-in" placeholder="أدخل الكمية USDT">
+        <input type="number" id="trade-amount" class="amt-in" placeholder="أدخل الكمية USDT">
         <div class="btn-row">
-            <button class="btn-act" style="background:var(--buy)" onclick="openMod('balModal')">شراء</button>
-            <button class="btn-act" style="background:var(--sell)" onclick="openMod('balModal')">بيع</button>
+            <button class="btn-act" style="background:var(--buy)" onclick="handleSecureTrade('شراء')">شراء</button>
+            <button class="btn-act" style="background:var(--sell)" onclick="handleSecureTrade('بيع')">بيع</button>
         </div>
     </div>
 
@@ -80,22 +81,9 @@
         <div style="padding:10px;">
             <div onclick="openPage('imgPage')" style="padding:15px; border-bottom:1px solid #222;">تغيير الصورة ➔</div>
             <div onclick="openPage('secPage')" style="padding:15px; border-bottom:1px solid #222;">الأمان ➔</div>
-            <div style="padding:15px; color:var(--gold);">UID: <span id="uid-v">510688194</span></div>
+            <div style="padding:15px; color:var(--gold);">UID: <span id="uid-v">...</span></div>
         </div>
         <button onclick="localStorage.clear(); location.reload();" style="width:90%; margin:20px 5%; padding:15px; background:#181a20; color:var(--sell); border:1px solid #444; border-radius:10px;">تسجيل خروج</button>
-    </div>
-
-    <div class="full-page" id="imgPage">
-        <div style="padding:15px; border-bottom:1px solid #333;" onclick="closePages()">➔ اختيار الأفاتار</div>
-        <div class="avatar-grid" id="avatarBox"></div>
-    </div>
-
-    <div class="full-page" id="secPage">
-        <div style="padding:15px; border-bottom:1px solid #333;" onclick="closePages()">➔ الأمان</div>
-        <div style="padding:20px;">
-            <input type="password" class="amt-in" placeholder="باسورد جديد">
-            <button class="btn-act" style="background:var(--gold); color:black; width:100%;" onclick="alert('تم التحديث')">تحديث</button>
-        </div>
     </div>
 
     <div class="modal" id="depModal">
@@ -117,12 +105,23 @@
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
-    <script>
+    <script src="security.js"></script> <script>
         let ws;
         function openPage(id) { closePages(); document.getElementById(id).style.display = 'flex'; }
         function closePages() { document.querySelectorAll('.full-page').forEach(p => p.style.display='none'); }
         function openMod(id) { closeMods(); document.getElementById(id).style.display = 'flex'; }
         function closeMods() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
+
+        // وظيفة التداول الآمنة التي تستخدم ملف security.js
+        function handleSecureTrade(type) {
+            const amt = document.getElementById('trade-amount').value;
+            if(!amt) { alert("يرجى إدخال الكمية أولاً"); return; }
+            
+            // استدعاء التحقق من ملف الأمان المصل
+            if(typeof AbsiSecurity !== 'undefined' && AbsiSecurity.verifyProcess()) {
+                openMod('balModal'); // إذا نجح التحقق، ننتقل لفحص الرصيد
+            }
+        }
 
         function connectLivePrice(pair) {
             if(ws) ws.close();
@@ -143,27 +142,6 @@
 
         window.onload = () => {
             changePair("BTCUSDT");
-            
-            const box = document.getElementById('avatarBox');
-            for(let i=1; i<=20; i++) {
-                let img = document.createElement('img');
-                let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+50}`;
-                img.src = url; img.className = 'avatar-img';
-                img.onclick = () => {
-                    localStorage.setItem('u_img', url);
-                    updateAvatar(url);
-                    closePages();
-                };
-                box.appendChild(img);
-            }
-            const saved = localStorage.getItem('u_img');
-            if(saved) updateAvatar(saved);
-
-            function updateAvatar(url) {
-                document.getElementById('p-avatar').innerHTML = `<img src="${url}" style="width:100%; height:100%;">`;
-                document.getElementById('user-p').innerHTML = `<img src="${url}" style="width:30px; height:30px; border-radius:50%;">`;
-            }
-
             let uid = localStorage.getItem('absi_uid') || Math.floor(100000000 + Math.random() * 900000000);
             localStorage.setItem('absi_uid', uid);
             document.getElementById('uid-v').innerText = uid;
