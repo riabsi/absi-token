@@ -3,38 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0b0e11">
     <title>ABSI NEXUS | Professional Trading</title>
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         header { height: 50px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; flex-shrink: 0; }
-        .logo { color: var(--gold); font-weight: bold; font-size: 1rem; }
+        .logo { color: var(--gold); font-weight: bold; }
         .price-bar { background: #181a20; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; flex-shrink: 0; }
         #live-price { color: var(--gold); font-family: monospace; font-weight: bold; font-size: 1.1rem; }
-        #chart-zone { flex: 1; width: 100%; background: #000; }
-        #tv_chart { height: 100% !important; width: 100% !important; }
-        .trade-zone { background: var(--panel); padding: 10px 15px; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; flex-shrink: 0; padding-bottom: 60px; }
-        .amt-in { width: 100%; padding: 10px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 8px; text-align: center; font-size: 1.1rem; box-sizing: border-box; }
+        #chart-zone { flex: 1; width: 100%; background: #000; position: relative; }
+        .trade-zone { background: var(--panel); padding: 10px 15px; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; flex-shrink: 0; padding-bottom: 40px; }
+        .amt-in { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 8px; text-align: center; font-size: 1.1rem; box-sizing: border-box; }
         .btn-row { display: flex; gap: 10px; height: 45px; margin-bottom: 10px; }
         .btn-act { flex: 1; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
-        .log-box { background: #121418; border-radius: 8px; padding: 5px 10px; height: 65px; overflow-y: auto; font-size: 0.75rem; border: 1px solid #333; }
-        .log-entry { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #222; }
+        .log-box { background: #121418; border-radius: 8px; padding: 5px; height: 85px; overflow-y: auto; font-size: 0.7rem; border: 1px solid #333; }
+        .order-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #222; }
+        .pnl-plus { color: var(--buy); font-weight: bold; } .pnl-minus { color: var(--sell); font-weight: bold; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; }
         .modal-box { background: var(--panel); border-radius: 20px; padding: 25px; width: 85%; max-width: 320px; border: 1px solid var(--gold); text-align: center; }
-        .balance-display { font-size: 2rem; color: var(--gold); font-weight: bold; margin: 15px 0; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="cursor:pointer; font-size: 1.5rem;">👤</div>
+        <div style="font-size: 1.3rem;">👤</div>
         <div class="logo">ABSI NEXUS</div>
         <button onclick="openMod('walletModal')" style="background:var(--gold); border:none; padding:5px 12px; border-radius:5px; font-weight:bold;">محفظتي</button>
     </header>
 
     <div class="price-bar">
-        <select id="pairSelector" onchange="changePair(this.value)" style="background:#2b3139; color:white; border:none; padding:3px;">
+        <select id="pairSelector" onchange="changePair(this.value)" style="background:#2b3139; color:white; border:none; padding:5px; border-radius:4px;">
             <option value="BTCUSDT">BTC/USDT</option>
             <option value="ETHUSDT">ETH/USDT</option>
             <option value="SOLUSDT">SOL/USDT</option>
@@ -42,116 +40,106 @@
         <div id="live-price">Loading...</div>
     </div>
 
-    <div id="chart-zone"><div id="tv_chart"></div></div>
+    <div id="chart-zone"><div id="tv_chart" style="height:100%;"></div></div>
 
     <div class="trade-zone">
-        <input type="number" id="trade-amount" class="amt-in" placeholder="أدخل الكمية USDT">
+        <input type="number" id="trade-amount" class="amt-in" placeholder="المبلغ USDT">
         <div class="btn-row">
-            <button class="btn-act" style="background:var(--buy)" onclick="handleSecureTrade('buy')">شراء</button>
-            <button class="btn-act" style="background:var(--sell)" onclick="handleSecureTrade('sell')">بيع</button>
+            <button class="btn-act" style="background:var(--buy)" onclick="openTrade('buy')">شراء / صعود</button>
+            <button class="btn-act" style="background:var(--sell)" onclick="openTrade('sell')">بيع / هبوط</button>
         </div>
-        <div id="orders-log" class="log-box">
-            <div id="log-empty-msg" style="color: #848e9c; text-align: center; padding-top: 15px;">لا توجد صفقات حالياً</div>
+        <div id="active-orders" class="log-box">
+            <div style="color:#555; text-align:center; padding-top:25px;">لا توجد صفقات مفتوحة</div>
         </div>
     </div>
 
     <div class="modal" id="walletModal">
         <div class="modal-box">
-            <h3 style="color:var(--gold);">محفظتي الرقمية</h3>
-            <div class="balance-display" id="main-balance">0.00$</div>
-            <p style="font-size: 0.8rem; color: #848e9c;">الرصيد المتاح (USDT)</p>
-            <button onclick="testDeposit()" style="background:var(--buy); border:none; width:100%; padding:12px; border-radius:10px; font-weight:bold; color:white; margin-bottom:10px;">إيداع سريع (تجربة)</button>
-            <button onclick="closeMods()" style="background:none; border:1px solid #444; width:100%; padding:10px; border-radius:10px; color:white;">إغلاق</button>
-        </div>
-    </div>
-
-    <div class="modal" id="balModal">
-        <div class="modal-box">
-            <div style="font-size:3rem;">⚠️</div>
-            <h3>رصيد غير كافٍ</h3>
-            <p>تحتاج لشحن حسابك لتنفيذ هذه الصفقة.</p>
-            <button class="btn-act" style="background:var(--gold); color:black; width:100%;" onclick="openMod('walletModal')">شحن الآن</button>
-            <button onclick="closeMods()" style="background:none; border:none; color:#848e9c; margin-top:15px;">إلغاء</button>
+            <h3 style="color:var(--gold); margin-top:0;">إيداع USDT (TRC20)</h3>
+            <p style="color:#848e9c; font-size:0.75rem;">تأكد من اختيار شبكة Tron (TRC20)</p>
+            <div style="font-size:2rem; font-weight:bold; margin:15px 0;" id="display-bal">0.00$</div>
+            
+            <div style="background:#121418; padding:12px; border-radius:12px; margin-bottom:15px; border: 1px solid #333;">
+                <p style="font-size:0.65rem; color:#848e9c; margin-bottom:8px; text-align:right;">عنوان الإيداع الخاص بك:</p>
+                <div style="word-break: break-all; color:var(--gold); font-size:0.75rem; font-family:monospace; margin-bottom:12px; line-height:1.4;" id="addrText">TSWkiKSK8iuC3MMuz5ZwqGdyWkRe9vZkDb</div>
+                <button onclick="copyAddr()" style="background:var(--gold); border:none; color:black; width:100%; padding:8px; border-radius:6px; font-weight:bold; cursor:pointer;">نسخ العنوان</button>
+            </div>
+            
+            <p style="color:var(--sell); font-size:0.65rem; margin-bottom:15px;">⚠️ إرسال عملات عبر شبكة أخرى سيؤدي لفقدانها</p>
+            
+            <button onclick="testDeposit()" style="background:#2b3139; border:none; width:100%; padding:10px; border-radius:8px; color:white; font-size:0.8rem; margin-bottom:10px;">إيداع تجريبي (للإختبار)</button>
+            <button onclick="closeMods()" style="color:#848e9c; background:none; border:none; cursor:pointer;">إغلاق</button>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
         let ws;
-        
-        function initStorage() {
-            if (localStorage.getItem('user_balance') === null) localStorage.setItem('user_balance', '0');
-            if (localStorage.getItem('trade_log') === null) localStorage.setItem('trade_log', JSON.stringify([]));
-        }
-
-        let userBalance = parseFloat(localStorage.getItem('user_balance')) || 0;
-        let tradeLog = JSON.parse(localStorage.getItem('trade_log')) || [];
+        let currentPrice = 0;
+        let userBalance = parseFloat(localStorage.getItem('absi_bal')) || 0;
+        let activeTrades = JSON.parse(localStorage.getItem('absi_trades')) || [];
 
         function updateUI() {
-            document.getElementById('main-balance').innerText = userBalance.toFixed(2) + " $";
-            localStorage.setItem('user_balance', userBalance.toString());
+            document.getElementById('display-bal').innerText = userBalance.toFixed(2) + " $";
+            localStorage.setItem('absi_bal', userBalance.toString());
+            localStorage.setItem('absi_trades', JSON.stringify(activeTrades));
+            renderTrades();
+        }
 
-            const logContainer = document.getElementById('orders-log');
-            if (tradeLog.length > 0) {
-                logContainer.innerHTML = ''; 
-                [...tradeLog].reverse().forEach(item => {
-                    const entry = `<div class="log-entry">
-                        <span style="color:${item.typeColor}; font-weight:bold;">${item.typeLabel}</span>
-                        <span>${item.amt} USDT</span>
-                        <span style="color:${item.statusColor}; font-size:0.65rem;">${item.status}</span>
-                        <span style="color:#848e9c; font-size:0.6rem;">${item.time}</span>
+        function openTrade(type) {
+            const amt = parseFloat(document.getElementById('trade-amount').value);
+            if(!amt || amt > userBalance || amt <= 0) { alert("الرصيد غير كافٍ أو المبلغ خاطئ"); return; }
+            userBalance -= amt;
+            activeTrades.push({ id: Date.now(), type, amount: amt, entryPrice: currentPrice, pair: document.getElementById('pairSelector').value });
+            updateUI();
+            document.getElementById('trade-amount').value = '';
+        }
+
+        function renderTrades() {
+            const container = document.getElementById('active-orders');
+            if(activeTrades.length === 0) { container.innerHTML = '<div style="color:#555; text-align:center; padding-top:25px;">لا توجد صفقات مفتوحة</div>'; return; }
+            container.innerHTML = '';
+            activeTrades.forEach(t => {
+                let pnl = t.type === 'buy' ? ((currentPrice - t.entryPrice) / t.entryPrice) * t.amount * 20 : ((t.entryPrice - currentPrice) / t.entryPrice) * t.amount * 20;
+                container.innerHTML += `
+                    <div class="order-row">
+                        <span style="color:${t.type==='buy'?'var(--buy)':'var(--sell)'}">${t.type === 'buy' ? 'شراء' : 'بيع'}</span>
+                        <span style="color:#848e9c;">$${t.amount}</span>
+                        <span class="${pnl >= 0 ? 'pnl-plus' : 'pnl-minus'}">${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}$</span>
+                        <button onclick="closeTrade(${t.id}, ${pnl})" style="background:#333; border:none; color:white; border-radius:4px; padding:4px 10px; font-size:0.65rem;">إغلاق</button>
                     </div>`;
-                    logContainer.innerHTML += entry;
-                });
+            });
+        }
+
+        function closeTrade(id, pnl) {
+            const idx = activeTrades.findIndex(t => t.id === id);
+            if(idx > -1) { 
+                userBalance += (activeTrades[idx].amount + pnl); 
+                activeTrades.splice(idx, 1); 
+                updateUI(); 
             }
         }
 
-        function testDeposit() {
-            userBalance += 1000;
-            updateUI();
-            alert("تم إيداع 1000$ بنجاح! الرصيد محفوظ الآن.");
-        }
-
-        function handleSecureTrade(type) {
-            const amtInput = document.getElementById('trade-amount');
-            const amt = parseFloat(amtInput.value);
-            const pair = document.getElementById('pairSelector').value;
-            if(!amt || amt <= 0) return;
-            
-            const time = new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'});
-            let newTrade = { amt: amt, time: time, typeLabel: type === 'buy' ? 'شراء' : 'بيع', typeColor: type === 'buy' ? 'var(--buy)' : 'var(--sell)' };
-
-            if(userBalance >= amt) {
-                userBalance -= amt;
-                newTrade.status = "ناجحة";
-                newTrade.statusColor = "var(--buy)";
-            } else {
-                newTrade.status = "فشلت (رصيد)";
-                newTrade.statusColor = "#f6465d";
-                openMod('balModal'); 
-            }
-
-            tradeLog.push(newTrade);
-            localStorage.setItem('trade_log', JSON.stringify(tradeLog));
-            updateUI();
-            amtInput.value = '';
-        }
-
-        function openMod(id) { closeMods(); document.getElementById(id).style.display = 'flex'; }
+        function testDeposit() { userBalance += 1000; updateUI(); alert("تمت إضافة 1000$ رصيد تجريبي!"); }
+        function openMod(id) { document.getElementById(id).style.display = 'flex'; }
         function closeMods() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
+        function copyAddr() { 
+            navigator.clipboard.writeText("TSWkiKSK8iuC3MMuz5ZwqGdyWkRe9vZkDb"); 
+            alert("تم نسخ العنوان! تأكد من التحويل عبر شبكة TRC20 فقط."); 
+        }
 
         function changePair(pair) {
             new TradingView.widget({ "autosize": true, "symbol": "BINANCE:" + pair, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_side_toolbar": true });
             if(ws) ws.close();
             ws = new WebSocket(`wss://stream.binance.com:9443/ws/${pair.toLowerCase()}@ticker`);
-            ws.onmessage = (e) => { document.getElementById('live-price').innerText = parseFloat(JSON.parse(e.data).c).toFixed(2) + " $"; };
+            ws.onmessage = (e) => { 
+                currentPrice = parseFloat(JSON.parse(e.data).c); 
+                document.getElementById('live-price').innerText = currentPrice.toFixed(2) + " $"; 
+                renderTrades(); 
+            };
         }
 
-        window.onload = () => {
-            initStorage();
-            changePair("BTCUSDT");
-            updateUI();
-        };
+        window.onload = () => { changePair("BTCUSDT"); updateUI(); };
     </script>
 </body>
 </html>
