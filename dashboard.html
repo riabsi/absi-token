@@ -3,68 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | Secure Access</title>
+    <title>ABSI NEXUS | لوحة التحكم</title>
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://s3.tradingview.com/tv.js"></script>
     
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        /* شاشة الدخول المدمجة */
-        #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .auth-box { background: var(--panel); padding: 25px; border-radius: 15px; border: 1px solid var(--gold); width: 100%; max-width: 320px; text-align: center; }
-        .auth-input { width: 100%; padding: 12px; margin: 6px 0; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; font-size: 0.9rem; }
-        .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .forgot-link { font-size: 0.75rem; color: #848e9c; cursor: pointer; text-decoration: underline; display: block; margin-top: 12px; }
-        
-        /* تصميم المنصة */
         header { height: 60px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; position: relative; }
-        .brand-center { position: absolute; left: 50%; transform: translateX(-50%); color: var(--gold); font-weight: bold; }
-        .news-ticker { background: #181a20; height: 28px; overflow: hidden; border-bottom: 1px solid #333; }
-        .ticker-text { white-space: nowrap; animation: scroll 20s linear infinite; color: var(--gold); font-size: 0.8rem; display: inline-block; padding-right: 100%; }
+        .brand-center { position: absolute; left: 50%; transform: translateX(-50%); color: var(--gold); font-weight: bold; font-size: 1.2rem; }
         
+        .news-ticker { background: #181a20; height: 28px; overflow: hidden; border-bottom: 1px solid #333; }
+        .ticker-text { white-space: nowrap; animation: scroll 20s linear infinite; color: var(--gold); font-size: 0.8rem; display: inline-block; padding-right: 100%; padding-top: 5px; }
         @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        #chart-zone { height: 40vh; }
-        .trade-zone { flex: 1; background: var(--panel); padding: 10px; overflow-y: auto; border-top: 2px solid var(--gold); }
+        #chart-zone { height: 45vh; background: #000; }
+        .trade-zone { flex: 1; background: var(--panel); padding: 15px; border-top: 2px solid var(--gold); overflow-y: auto; }
         
-        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:5000; justify-content:center; align-items:center; }
-        .modal-box { background:#1e2329; padding:20px; border-radius:15px; border: 1px solid var(--gold); text-align:center; width: 80%; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; color: white; }
+        .btn-buy { background: #0ecb81; }
+        .btn-sell { background: #f6465d; }
+        
+        input { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; text-align: center; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <div class="auth-box" id="login-form">
-            <h2 style="color:var(--gold); margin-bottom:5px;">ABSI NEXUS</h2>
-            <p style="font-size:0.7rem; color:#848e9c; margin-bottom:15px;">ادخل أو سجل حساباً جديداً</p>
-            <input type="text" id="username" class="auth-input" placeholder="اسم المستخدم">
-            <input type="password" id="password" class="auth-input" placeholder="كلمة المرور">
-            <input type="email" id="user-email" class="auth-input" placeholder="البريد الإلكتروني (للاستعادة)">
-            <button class="auth-btn" onclick="handleAuth()">دخول / تسجيل</button>
-            <span class="forgot-link" onclick="recoverAccount()">نسيت بيانات الدخول؟</span>
-        </div>
-    </div>
-
     <header>
         <div style="display:flex; gap:10px; align-items:center;">
-            <span onclick="openModal('notifModal')" style="cursor:pointer; font-size:1.2rem;">🔔</span>
             <div style="display:flex; background:#000; border-radius:12px; padding:2px; border:1px solid #444;">
-                <button id="rBtn" onclick="switchMode('REAL')" style="background:none; border:none; color:#848e9c; font-size:0.6rem; padding:4px 7px; cursor:pointer;">حقيقي</button>
-                <button id="dBtn" onclick="switchMode('DEMO')" style="background:#2d83ff; border:none; color:white; font-size:0.6rem; padding:4px 7px; border-radius:10px; cursor:pointer;">تجريبي</button>
+                <button id="rBtn" onclick="switchMode('REAL')" style="background:none; border:none; color:#848e9c; font-size:0.65rem; padding:5px 10px; cursor:pointer;">حقيقي</button>
+                <button id="dBtn" onclick="switchMode('DEMO')" style="background:#2d83ff; border:none; color:white; font-size:0.65rem; padding:5px 10px; border-radius:10px; cursor:pointer;">تجريبي</button>
             </div>
         </div>
         <div class="brand-center">ABSI NEXUS</div>
-        <div onclick="openModal('walletModal')" style="cursor:pointer; text-align:left;">
-            <div id="accLabel" style="font-size:0.55rem; color:#2d83ff;">محفظة التجريبي</div>
-            <div id="headBal" style="font-size:0.9rem; font-weight:bold;">0.00$</div>
+        <div style="text-align:left;">
+            <div id="accLabel" style="font-size:0.6rem; color:#2d83ff;">رصيدك الحالي</div>
+            <div id="headBal" style="font-size:1rem; font-weight:bold; color:white;">0.00$</div>
         </div>
     </header>
 
     <div class="news-ticker">
-        <div class="ticker-text" id="newsTicker">أهلاً بكم في ABSI NEXUS.. تداول بأمان وسرعة.. أول منصة عربية ذكية..</div>
+        <div class="ticker-text">أهلاً بك في منصة ABSI NEXUS المطورة.. تداول بذكاء.. راقب الأسواق العالمية لحظة بلحظة..</div>
     </div>
 
     <div id="chart-zone">
@@ -72,76 +56,45 @@
     </div>
 
     <div class="trade-zone">
-        <input type="number" id="tradeAmt" style="width:100%; padding:14px; background:#2b3139; border:1px solid #444; border-radius:8px; color:white; margin-bottom:10px; box-sizing:border-box;" placeholder="مبلغ USDT">
-        <div style="display:flex; gap:10px;">
-            <button onclick="alert('فتح صفقة شراء...')" style="flex:1; background:#0ecb81; color:white; padding:14px; border:none; border-radius:8px; font-weight:bold;">شراء</button>
-            <button onclick="alert('فتح صفقة بيع...')" style="flex:1; background:#f6465d; color:white; padding:14px; border:none; border-radius:8px; font-weight:bold;">بيع</button>
+        <p style="margin: 0 0 10px 0; font-size: 0.8rem; color: #848e9c;">أدخل الكمية للتداول (USDT):</p>
+        <input type="number" id="tradeAmt" value="100">
+        <div class="btn-group">
+            <button class="btn btn-buy" onclick="processTrade('شراء')">شراء / Long</button>
+            <button class="btn btn-sell" onclick="processTrade('بيع')">بيع / Short</button>
         </div>
-        <div id="tradeList" style="margin-top:15px;"></div>
+        <p style="text-align: center; margin-top: 15px; font-size: 0.7rem; color: #848e9c; cursor: pointer;" onclick="location.href='index.html'">تسجيل الخروج من الحساب</p>
     </div>
 
-    <div class="modal" id="walletModal">
-        <div class="modal-box">
-            <h3 id="wTitle">المحفظة</h3>
-            <div id="modalBal" style="font-size:1.5rem; font-weight:bold;">0.00$</div>
-            <button onclick="closeModal('walletModal')" style="margin-top:15px; background:var(--gold); border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">إغلاق</button>
-        </div>
-    </div>
-
-    <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // الربط بقاعدة بيانات Firebase (تأكد من الرابط الصحيح)
-        const firebaseConfig = {
-            databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" 
-        };
+        // --- 1. إعدادات Firebase ---
+        const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentUser = "";
-        let currentMode = "DEMO";
+        // --- 2. جلب المستخدم من الرابط ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentUser = urlParams.get('user');
 
-        function handleAuth() {
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value.trim();
-            const email = document.getElementById('user-email').value.trim();
-
-            if(!user || !pass) return alert("يرجى إدخال البيانات");
-
-            db.ref('users/' + user.replace(/[^a-zA-Z0-9]/g, "")).once('value', s => {
-                const data = s.val();
-                if(data) {
-                    if(data.password === pass) login(user);
-                    else alert("كلمة المرور خاطئة");
-                } else {
-                    if(!email) return alert("يرجى وضع الإيميل للتسجيل الجديد");
-                    db.ref('users/' + user.replace(/[^a-zA-Z0-9]/g, "")).set({
-                        password: pass,
-                        email: email,
-                        balance_demo: 1000,
-                        balance_real: 0
-                    }).then(() => login(user));
-                }
-            });
+        // إذا لم يوجد مستخدم (دخول غير قانوني) يعيده لصفحة index
+        if (!currentUser) {
+            window.location.href = "index.html";
         }
 
-        function login(user) {
-            currentUser = user.replace(/[^a-zA-Z0-9]/g, "");
-            document.getElementById('auth-screen').style.display = 'none';
-            switchMode('DEMO');
-            new TradingView.widget({ 
-                "autosize": true, 
-                "symbol": "BINANCE:BTCUSDT", 
+        // --- 3. تشغيل الرسم البياني فوراً ---
+        window.onload = function() {
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": "BINANCE:BTCUSDT",
                 "interval": "1",
-                "timezone": "Etc/UTC",
-                "theme": "dark", 
-                "style": "1",
-                "locale": "ar",
-                "container_id": "tv_chart" 
+                "theme": "dark",
+                "container_id": "tv_chart",
+                "locale": "ar"
             });
-        }
+            switchMode('DEMO'); // افتراضياً يبدأ بالتجريبي
+        };
 
+        // --- 4. نظام تبديل الحساب (حقيقي/تجريبي) ---
         function switchMode(mode) {
-            currentMode = mode;
             const rBtn = document.getElementById('rBtn');
             const dBtn = document.getElementById('dBtn');
             const accLabel = document.getElementById('accLabel');
@@ -149,24 +102,23 @@
             if(mode === 'REAL') {
                 rBtn.style.background = "#f0b90b"; rBtn.style.color = "black";
                 dBtn.style.background = "none"; dBtn.style.color = "#848e9c";
-                accLabel.innerText = "محفظة الحقيقي"; accLabel.style.color = "#f0b90b";
+                accLabel.style.color = "#f0b90b";
             } else {
                 dBtn.style.background = "#2d83ff"; dBtn.style.color = "white";
                 rBtn.style.background = "none"; rBtn.style.color = "#848e9c";
-                accLabel.innerText = "محفظة التجريبي"; accLabel.style.color = "#2d83ff";
+                accLabel.style.color = "#2d83ff";
             }
 
             const path = mode === 'REAL' ? '/balance_real' : '/balance_demo';
             db.ref('users/' + currentUser + path).on('value', s => {
-                let val = (s.val() || 0).toFixed(2) + "$";
-                document.getElementById('headBal').innerText = val;
-                document.getElementById('modalBal').innerText = val;
+                document.getElementById('headBal').innerText = (s.val() || 0).toFixed(2) + "$";
             });
         }
 
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function recoverAccount() { alert("تواصل مع الإدارة عبر التلجرام لاستعادة الحساب"); }
+        function processTrade(type) {
+            const amt = document.getElementById('tradeAmt').value;
+            alert(`تم استلام طلب ${type} بمبلغ ${amt}$.. يتم المعالجة الآن.`);
+        }
     </script>
 </body>
     </html>
