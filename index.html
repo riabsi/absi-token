@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS | تسجيل الدخول</title>
+    <title>ABSI NEXUS | الأمان والدخول</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -28,14 +28,14 @@
         <input type="text" id="user" placeholder="اسم المستخدم">
         <input type="password" id="pass" placeholder="كلمة المرور">
         <div id="extra-fields" style="display: none;">
-            <input type="email" id="recoveryEmail" placeholder="بريد الاسترداد (مهم جداً)">
+            <input type="email" id="recoveryEmail" placeholder="بريد الاسترداد (يستخدم للأمان)">
         </div>
         <button id="mainBtn" onclick="handleAuth()">دخول</button>
     </div>
     
     <div class="links">
         <p id="toggleText">ليس لديك حساب؟ <span onclick="toggleMode()">إنشاء حساب جديد</span></p>
-        <p id="forgotLink">نسيت كلمة المرور؟ <span onclick="forgotPass()">استعادة الآن</span></p>
+        <p id="forgotLink">نسيت كلمة المرور؟ <span onclick="forgotPass()">استعادة عبر البريد</span></p>
     </div>
 </div>
 
@@ -45,11 +45,10 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     
-    (function() { emailjs.init("user_XqG187hYf62m20t38"); })(); // ضع اليوزر ID الخاص بك هنا إذا اختلف
+    (function() { emailjs.init("user_XqG187hYf62m20t38"); })(); 
 
     let isLogin = true;
 
-    // --- 2. التبديل بين الدخول والتسجيل ---
     function toggleMode() {
         isLogin = !isLogin;
         document.getElementById('extra-fields').style.display = isLogin ? 'none' : 'block';
@@ -59,16 +58,15 @@
             'لديك حساب بالفعل؟ <span onclick="toggleMode()">تسجيل الدخول</span>';
     }
 
-    // --- 3. معالجة الدخول والتسجيل ---
+    // --- 2. نظام الدخول والتسجيل مع التحقق من تكرار البريد ---
     function handleAuth() {
         const user = document.getElementById('user').value.trim();
         const pass = document.getElementById('pass').value.trim();
-        const email = document.getElementById('recoveryEmail').value.trim();
+        const email = document.getElementById('recoveryEmail').value.trim().toLowerCase();
 
         if (!user || !pass) return alert("يرجى ملء الخانات الأساسية");
 
         if (isLogin) {
-            // تسجيل الدخول
             db.ref('users/' + user).once('value', s => {
                 if (s.exists() && s.val().password === pass) {
                     window.location.href = "dashboard.html?user=" + user;
@@ -77,48 +75,68 @@
                 }
             });
         } else {
-            // إنشاء حساب جديد
-            if (!email) return alert("يرجى إدخال بريد الاسترداد");
-            db.ref('users/' + user).set({
-                username: user,
-                password: pass,
-                recoveryEmail: email,
-                balance_real: 0,
-                balance_demo: 1000
-            }).then(() => {
-                alert("تم إنشاء الحساب بنجاح! يمكنك الدخول الآن.");
-                toggleMode();
+            if (!email) return alert("يرجى إدخال بريد الاسترداد للأمان");
+
+            // فحص هل البريد الإلكتروني مستخدم من قبل مستخدم آخر؟
+            db.ref('users').once('value', snapshot => {
+                let emailInUse = false;
+                snapshot.forEach(child => {
+                    if (child.val().recoveryEmail && child.val().recoveryEmail.toLowerCase() === email) {
+                        emailInUse = true;
+                    }
+                });
+
+                if (emailInUse) {
+                    alert("هذا البريد الإلكتروني مسجل بالفعل بحساب آخر. يرجى استخدام بريد مختلف.");
+                } else {
+                    // إذا كان البريد فريداً، نقوم بإنشاء الحساب
+                    db.ref('users/' + user).set({
+                        username: user,
+                        password: pass,
+                        recoveryEmail: email,
+                        balance_real: 0,
+                        balance_demo: 1000
+                    }).then(() => {
+                        alert("تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول.");
+                        toggleMode();
+                    });
+                }
             });
         }
     }
 
-    // --- 4. نظام استعادة كلمة المرور المطور (عبر الإيميل) ---
+    // --- 3. نظام استعادة كلمة المرور المعتمد كلياً على الإيميل ---
     function forgotPass() {
-        const emailInput = prompt("أدخل بريد الاسترداد المسجل في حسابك:");
+        const emailInput = prompt("أدخل بريد الاسترداد المسجل في حسابك (التحقق بالأمان):");
         if (!emailInput) return;
+
+        const searchEmail = emailInput.trim().toLowerCase();
 
         db.ref('users').once('value', snapshot => {
             let foundUser = null;
+            
+            // البحث عن الشخص الذي يملك هذا الإيميل الفريد
             snapshot.forEach(child => {
-                if (child.val().recoveryEmail === emailInput.trim()) {
-                    foundUser = child.val();
+                const data = child.val();
+                if (data.recoveryEmail && data.recoveryEmail.toLowerCase() === searchEmail) {
+                    foundUser = data;
                 }
             });
 
             if (foundUser) {
-                alert("تم العثور على الحساب! جاري إرسال البيانات إلى بريدك...");
+                alert("تم التحقق من البريد بنجاح! جاري إرسال بيانات المستخدم [" + foundUser.username + "] إلى بريدك...");
                 
                 emailjs.send("service_vv75pdh", "template_5glwjdq", {
-                    to_email: emailInput,
+                    to_email: searchEmail,
                     user_name: foundUser.username,
                     user_password: foundUser.password
                 }).then(() => {
                     alert("تم الإرسال! تفقد صندوق الوارد أو الـ Spam.");
                 }).catch(err => {
-                    alert("خطأ في خدمة الإرسال. تأكد من إعدادات EmailJS.");
+                    alert("حدث خطأ في خدمة الإرسال. تأكد من إعدادات EmailJS.");
                 });
             } else {
-                alert("عذراً، هذا البريد غير مسجل في نظامنا.");
+                alert("عذراً، لا يوجد أي حساب مرتبط بهذا البريد الإلكتروني.");
             }
         });
     }
