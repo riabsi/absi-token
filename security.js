@@ -1,49 +1,35 @@
-/**
- * ABSI NEXUS - SECURITY MODULE (2FA)
- * هذا الملف مسؤول عن تأمين العمليات ومنع الدخول غير المصرح به
- */
-
 const AbsiSecurity = {
-    // إعدادات الأمان
     settings: {
-        twoFactorEnabled: true,
-        defaultCode: "123456", // كود التجربة الافتراضي
+        // جلب الرقم السري المحفوظ في ذاكرة المتصفح، إذا لم يوجد يكون فارغاً
+        userPin: localStorage.getItem('absi_user_pin') || null,
         maxAttempts: 3,
         currentAttempts: 0
     },
 
-    /**
-     * وظيفة التحقق من الكود (2FA)
-     * تظهر نافذة للمستخدم وتطلب منه الرمز السري
-     */
     verifyProcess: function() {
-        if (!this.settings.twoFactorEnabled) return true;
+        // الحالة الأولى: إذا كان المستخدم لم يحدد رقم سري بعد
+        if (!this.settings.userPin) {
+            let newPin = prompt("🆕 أهلاً بك! يرجى تعيين رقم سري جديد لعملياتك (6 أرقام):");
+            if (newPin && newPin.length >= 4) {
+                localStorage.setItem('absi_user_pin', newPin);
+                this.settings.userPin = newPin;
+                alert("✅ تم تعيين رقمك السري بنجاح. يمكنك التداول الآن.");
+                return true;
+            } else {
+                alert("❌ يجب إدخال رقم سري صالح.");
+                return false;
+            }
+        }
 
-        // إظهار نافذة الطلب (Prompt)
-        let userInput = prompt("🔒 نظام الأمان ABSI NEXUS:\nيرجى إدخال رمز التوثيق المكون من 6 أرقام للمتابعة:");
-
-        if (userInput === this.settings.defaultCode) {
-            alert("✅ تم التحقق من الهوية بنجاح. جاري معالجة الطلب...");
-            this.settings.currentAttempts = 0; // إعادة تصفير المحاولات
+        // الحالة الثانية: طلب الرقم السري المحفوظ
+        let input = prompt("🔒 يرجى إدخال رقمك السري لتأكيد العملية:");
+        if (input === this.settings.userPin) {
+            this.settings.currentAttempts = 0;
             return true;
         } else {
             this.settings.currentAttempts++;
-            alert(`❌ رمز غير صحيح! (محاولة ${this.settings.currentAttempts} من ${this.settings.maxAttempts})`);
-            
-            if (this.settings.currentAttempts >= this.settings.maxAttempts) {
-                alert("⚠️ تم تقييد الحساب مؤقتاً لأسباب أمنية. يرجى التواصل مع الدعم.");
-            }
+            alert(`❌ رقم سري خاطئ! محاولة ${this.settings.currentAttempts} من ${this.settings.maxAttempts}`);
             return false;
         }
-    },
-
-    /**
-     * وظيفة قفل الشاشة التلقائي
-     */
-    lockSession: function() {
-        console.log("🔒 Session Locked for Security.");
-        // يمكن إضافة منطق لإعادة توجيه المستخدم لصفحة تسجيل الدخول هنا
     }
 };
-
-console.log("🛡️ ABSI Security Module Loaded Successfully.");
