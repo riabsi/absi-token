@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS - تسجيل الدخول</title>
+    <title>ABSI NEXUS - الوصول الآمن</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -11,101 +11,105 @@
 
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #0b0e11; color: #e1e1e1; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-card { background: #181a20; padding: 2.5rem; border-radius: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); width: 100%; max-width: 380px; text-align: center; border: 1px solid #2b3139; }
-        h2 { color: #f0b90b; margin-bottom: 1.5rem; letter-spacing: 1px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #474d57; background: #2b3139; color: white; box-sizing: border-box; font-size: 16px; }
-        input:focus { border-color: #f0b90b; outline: none; }
-        button { width: 100%; padding: 14px; background: #f0b90b; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 17px; transition: 0.3s; }
-        button:hover { background: #d9a508; transform: translateY(-2px); }
-        .footer-links { margin-top: 20px; font-size: 0.9rem; }
+        .login-card { background: #181a20; padding: 2rem; border-radius: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); width: 100%; max-width: 350px; text-align: center; border: 1px solid #f0b90b; }
+        h2 { color: #f0b90b; margin-bottom: 1rem; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #474d57; background: #2b3139; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background: #f0b90b; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; }
+        .footer-links { margin-top: 15px; font-size: 0.85rem; }
         .link { color: #848e9c; cursor: pointer; text-decoration: underline; margin: 5px; display: inline-block; }
-        .link:hover { color: #f0b90b; }
+        #recovery-email-field { display: none; } /* يظهر فقط في التسجيل */
     </style>
 </head>
 <body>
 
 <div class="login-card">
     <h2 id="title">تسجيل الدخول</h2>
-    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <p id="desc" style="font-size: 0.8rem; color: #848e9c;">مرحباً بك في مستقبل التداول</p>
+    
+    <input type="text" id="username" placeholder="اسم المستخدم">
     <input type="password" id="password" placeholder="كلمة المرور">
+    
+    <input type="email" id="recovery-email" placeholder="بريد الاسترداد الاحتياطي" style="display: none;">
     
     <button id="mainBtn" onclick="handleAction()">دخول</button>
     
     <div class="footer-links">
-        <span class="link" id="toggleLink" onclick="toggleMode()">تسجيل حساب جديد</span> | 
+        <span class="link" id="toggleLink" onclick="toggleMode()">إنشاء حساب جديد (3 خانات)</span> | 
         <span class="link" onclick="forgotPass()">نسيت كلمة المرور؟</span>
     </div>
 </div>
 
 <script>
-    // --- 1. إعدادات Firebase (من رابطك الموثق) ---
-    const firebaseConfig = { 
-        databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" 
-    };
+    // إعدادات Firebase
+    const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- 2. إعدادات EmailJS (من صورك الموثقة) ---
     emailjs.init("I7O-M98m-x4dW5R3t");
 
     let isLoginMode = true;
 
     function toggleMode() {
         isLoginMode = !isLoginMode;
-        document.getElementById('title').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
-        document.getElementById('mainBtn').innerText = isLoginMode ? "دخول" : "حفظ الحساب والدخول";
-        document.getElementById('toggleLink').innerText = isLoginMode ? "تسجيل حساب جديد" : "لديك حساب؟ سجل دخول";
+        document.getElementById('title').innerText = isLoginMode ? "تسجيل الدخول" : "تسجيل حساب جديد";
+        document.getElementById('recovery-email').style.display = isLoginMode ? "none" : "block";
+        document.getElementById('mainBtn').innerText = isLoginMode ? "دخول" : "تأكيد التسجيل والحفظ";
+        document.getElementById('toggleLink').innerText = isLoginMode ? "إنشاء حساب جديد (3 خانات)" : "لديك حساب؟ سجل دخولك";
     }
 
     function handleAction() {
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('password').value;
-
-        if (!email || !pass) return alert("يرجى ملء كافة الحقول");
-
-        // تنظيف البريد لاستخدامه كمعرف (ID)
-        const safeId = email.replace(/[^a-zA-Z0-9]/g, "");
+        const user = document.getElementById('username').value.trim();
+        const pass = document.getElementById('password').value.trim();
+        const email = document.getElementById('recovery-email').value.trim();
+        
+        if (!user || !pass) return alert("يرجى إدخال اسم المستخدم وكلمة المرور");
+        
+        const safeId = user.replace(/[^a-zA-Z0-9]/g, "");
 
         if (isLoginMode) {
-            // التحقق من الدخول
             db.ref('users/' + safeId).once('value', snapshot => {
                 if (snapshot.exists() && snapshot.val().password === pass) {
-                    alert("مرحباً بك في ABSI NEXUS!");
-                    window.location.href = "dashboard.html"; // صفحة المنصة الداخلية
+                    alert("تم التحقق بنجاح! جاري تحويلك للمنصة...");
+                    // تمرير اسم المستخدم للمنصة لفتح رصيده
+                    window.location.href = "dashboard.html?user=" + safeId;
                 } else {
-                    alert("خطأ في البيانات أو الحساب غير موجود.");
+                    alert("بيانات خاطئة. تأكد من اسم المستخدم وكلمة المرور");
                 }
             });
         } else {
-            // تسجيل حساب جديد وحفظه
+            if (!email) return alert("يرجى إضافة بريد الاسترداد للأمان");
+            
             db.ref('users/' + safeId).set({
-                email: email,
-                password: pass
+                username: user,
+                password: pass,
+                recoveryEmail: email,
+                balance_demo: 1000.00,
+                balance_real: 0.00
             }).then(() => {
-                alert("تم تسجيل وحفظ حسابك بنجاح! يمكنك الآن الدخول.");
+                alert("تم إنشاء حسابك بنجاح بـ 3 خانات أمان! يمكنك الدخول الآن.");
                 toggleMode();
             });
         }
     }
 
     function forgotPass() {
-        const email = prompt("أدخل بريدك المسجل:");
-        if (!email) return;
-        const safeId = email.replace(/[^a-zA-Z0-9]/g, "");
-        
+        const user = prompt("أدخل اسم المستخدم لاستعادة الباسورد عبر بريدك الاحتياطي:");
+        if (!user) return;
+        const safeId = user.replace(/[^a-zA-Z0-9]/g, "");
+
         db.ref('users/' + safeId).once('value', snapshot => {
             if (snapshot.exists()) {
-                alert("جاري إرسال كلمة المرور...");
+                const data = snapshot.val();
+                alert("جاري الإرسال إلى: " + data.recoveryEmail);
                 emailjs.send("service_vv75pdh", "template_5glwjdq", {
-                    to_email: email,
-                    user_password: snapshot.val().password
-                }).then(() => alert("تم الإرسال! تفقد بريدك."));
+                    to_email: data.recoveryEmail,
+                    user_password: data.password
+                }).then(() => alert("تم الإرسال بنجاح!"));
             } else {
-                alert("هذا البريد غير مسجل.");
+                alert("المستخدم غير موجود.");
             }
         });
     }
 </script>
-
 </body>
 </html>
