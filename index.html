@@ -8,30 +8,22 @@
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
         header { height: 50px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; flex-shrink: 0; }
         .logo { color: var(--gold); font-weight: bold; font-size: 1rem; }
-
         .price-bar { background: #181a20; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; flex-shrink: 0; }
         #live-price { color: var(--gold); font-family: monospace; font-weight: bold; font-size: 1.1rem; }
-        
         #chart-zone { flex: 1; width: 100%; background: #000; }
         #tv_chart { height: 100% !important; width: 100% !important; }
-
         .trade-zone { background: var(--panel); padding: 10px 15px; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; flex-shrink: 0; padding-bottom: 60px; }
         .amt-in { width: 100%; padding: 10px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 8px; text-align: center; font-size: 1.1rem; box-sizing: border-box; }
         .btn-row { display: flex; gap: 10px; height: 45px; margin-bottom: 10px; }
         .btn-act { flex: 1; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
-
         .log-box { background: #121418; border-radius: 8px; padding: 5px 10px; height: 65px; overflow-y: auto; font-size: 0.75rem; border: 1px solid #333; }
         .log-entry { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #222; }
-
         .side-bar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 1500; transition: 0.3s; }
         .side-bar.active { right: 0; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; }
         .modal-box { background: var(--panel); border-radius: 20px; padding: 25px; width: 85%; max-width: 320px; border: 1px solid var(--gold); text-align: center; }
-        
-        /* تنسيق الرصيد في المحفظة */
         .balance-display { font-size: 2rem; color: var(--gold); font-weight: bold; margin: 15px 0; }
     </style>
 </head>
@@ -61,7 +53,7 @@
             <button class="btn-act" style="background:var(--sell)" onclick="handleSecureTrade('sell')">بيع</button>
         </div>
         <div id="orders-log" class="log-box">
-            <div style="color: #848e9c; text-align: center; padding-top: 15px;">سجل النشاط المباشر</div>
+            <div id="log-empty-msg" style="color: #848e9c; text-align: center; padding-top: 15px;">لا توجد صفقات حالياً</div>
         </div>
     </div>
 
@@ -69,7 +61,7 @@
         <div class="modal-box">
             <h3 style="color:var(--gold);">محفظتي الرقمية</h3>
             <div class="balance-display" id="main-balance">0.00$</div>
-            <p style="font-size: 0.8rem; color: #848e9c;">الرصيد المتاح للتداول (USDT)</p>
+            <p style="font-size: 0.8rem; color: #848e9c;">الرصيد المتاح (USDT)</p>
             <button onclick="testDeposit()" style="background:var(--buy); border:none; width:100%; padding:12px; border-radius:10px; font-weight:bold; color:white; margin-bottom:10px;">إيداع سريع (تجربة)</button>
             <button onclick="closeMods()" style="background:none; border:1px solid #444; width:100%; padding:10px; border-radius:10px; color:white;">إغلاق</button>
         </div>
@@ -88,55 +80,66 @@
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
         let ws;
-        // نظام إدارة الرصيد (Local Storage) لمحاكاة الحقيقة
         let userBalance = parseFloat(localStorage.getItem('user_balance')) || 0;
+        let tradeLog = JSON.parse(localStorage.getItem('trade_log')) || [];
 
-        function updateUIBalance() {
+        function updateUI() {
+            // تحديث الرصيد في الواجهة وحفظه
             document.getElementById('main-balance').innerText = userBalance.toFixed(2) + " $";
             localStorage.setItem('user_balance', userBalance);
+
+            // تحديث السجل من الذاكرة
+            const logContainer = document.getElementById('orders-log');
+            if (tradeLog.length > 0) {
+                logContainer.innerHTML = ''; // مسح الرسالة الفارغة
+                tradeLog.forEach(item => {
+                    const entry = `<div class="log-entry">
+                        <span style="color:${item.typeColor}; font-weight:bold;">${item.typeLabel}</span>
+                        <span>${item.amt} USDT</span>
+                        <span style="color:${item.statusColor}; font-size:0.65rem;">${item.status}</span>
+                        <span style="color:#848e9c; font-size:0.6rem;">${item.time}</span>
+                    </div>`;
+                    logContainer.innerHTML = entry + logContainer.innerHTML;
+                });
+            }
         }
 
         function testDeposit() {
-            userBalance += 1000; // إيداع وهمي لغرض التجربة
-            updateUIBalance();
-            alert("تم إيداع 1000$ بنجاح في حسابك!");
+            userBalance += 1000;
+            updateUI();
+            alert("تم إيداع 1000$ بنجاح!");
         }
-
-        function openMod(id) { closeMods(); document.getElementById(id).style.display = 'flex'; }
-        function closeMods() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
 
         function handleSecureTrade(type) {
             const amt = parseFloat(document.getElementById('trade-amount').value);
             const pair = document.getElementById('pairSelector').value;
+            if(!amt || amt <= 0) return;
             
-            if(!amt || amt <= 0) { alert("أدخل الكمية أولاً"); return; }
-            
-            // التحقق من الرصيد الحقيقي
+            const time = new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'});
+            let newTrade = {
+                amt: amt,
+                time: time,
+                typeLabel: type === 'buy' ? 'شراء' : 'بيع',
+                typeColor: type === 'buy' ? 'var(--buy)' : 'var(--sell)'
+            };
+
             if(userBalance >= amt) {
-                userBalance -= amt; // خصم المبلغ عند الشراء
-                updateUIBalance();
-                addToLog(type, pair, amt, "تم التنفيذ (نجاح)", "var(--buy)");
+                userBalance -= amt;
+                newTrade.status = "ناجحة";
+                newTrade.statusColor = "var(--buy)";
             } else {
-                addToLog(type, pair, amt, "فشلت (نقص رصيد)", "#f6465d");
+                newTrade.status = "فشلت (رصيد)";
+                newTrade.statusColor = "#f6465d";
                 openMod('balModal'); 
             }
+
+            tradeLog.push(newTrade);
+            localStorage.setItem('trade_log', JSON.stringify(tradeLog));
+            updateUI();
         }
 
-        function addToLog(type, pair, amt, status, statusColor) {
-            const logContainer = document.getElementById('orders-log');
-            const time = new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'});
-            const typeColor = type === 'buy' ? 'var(--buy)' : 'var(--sell)';
-            
-            const entry = `<div class="log-entry">
-                <span style="color:${typeColor}; font-weight:bold;">${type === 'buy' ? 'شراء' : 'بيع'}</span>
-                <span>${amt} USDT</span>
-                <span style="color:${statusColor}; font-size:0.65rem;">${status}</span>
-                <span style="color:#848e9c; font-size:0.6rem;">${time}</span>
-            </div>`;
-            
-            if(logContainer.innerText.includes("سجل النشاط")) logContainer.innerHTML = '';
-            logContainer.innerHTML = entry + logContainer.innerHTML;
-        }
+        function openMod(id) { closeMods(); document.getElementById(id).style.display = 'flex'; }
+        function closeMods() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
 
         function changePair(pair) {
             new TradingView.widget({ "autosize": true, "symbol": "BINANCE:" + pair, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_side_toolbar": true });
@@ -147,7 +150,7 @@
 
         window.onload = () => {
             changePair("BTCUSDT");
-            updateUIBalance(); // تحديث الرصيد عند فتح الصفحة
+            updateUI(); // سيقوم بتحميل الرصيد والسجل من الذاكرة فوراً
         };
     </script>
 </body>
