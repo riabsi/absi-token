@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS | Login & Register</title>
+    <title>ABSI NEXUS | Login</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -13,14 +13,13 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #0b0e11; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .container { background-color: #1e2329; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; width: 350px; position: relative; }
-        .lang-btn { position: absolute; top: 15px; left: 15px; background: #2b3139; color: #f0b90b; border: 1px solid #474d57; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .lang-btn { position: absolute; top: 15px; right: 15px; background: #2b3139; color: #f0b90b; border: 1px solid #474d57; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
         h2 { color: #f0b90b; margin-bottom: 25px; }
         .input-group { position: relative; width: 100%; margin: 10px 0; }
-        input { width: 100%; padding: 14px; border-radius: 5px; border: 1px solid #474d57; background-color: #2b3139; color: white; box-sizing: border-box; outline: none; text-align: inherit; }
+        input { width: 100%; padding: 14px; border-radius: 5px; border: 1px solid #474d57; background-color: #2b3139; color: white; box-sizing: border-box; outline: none; }
         .toggle-password { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #848e9c; }
         button#main-btn { width: 100%; padding: 14px; background-color: #f0b90b; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 16px; color: #000; }
         .link { color: #f0b90b; cursor: pointer; font-size: 14px; margin-top: 15px; display: block; text-decoration: none; }
-        .hr-line { border-top: 1px solid #474d57; margin: 25px 0; }
     </style>
 </head>
 <body>
@@ -38,7 +37,7 @@
         
         <button id="main-btn" onclick="handleAction()">دخول</button>
         <a id="forget-link" class="link" onclick="recoverAccount()">نسيت كلمة المرور؟</a>
-        <div class="hr-line"></div>
+        <div style="border-top: 1px solid #474d57; margin: 25px 0;"></div>
         <div id="toggle-section">
             <span id="txt-footer" style="font-size: 14px; color: #848e9c;">ليس لديك حساب؟</span>
             <a class="link" id="toggle-link" onclick="toggleForm()" style="display: inline; margin-right: 5px; font-weight: bold;">إنشاء حساب جديد</a>
@@ -46,30 +45,41 @@
     </div>
 
     <script>
-        // إعدادات Firebase
         const firebaseConfig = { databaseURL: "https://riabsi-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
-        // إعدادات EmailJS
         emailjs.init("I7O-M98m-x4dW5R3t");
 
         let currentLang = 'ar';
         let isRegisterMode = false;
 
         const translations = {
-            ar: { titleLogin: "تسجيل الدخول", titleReg: "إنشاء حساب جديد", userPlce: "اسم المستخدم", emailPlce: "البريد الإلكتروني", passPlce: "كلمة المرور", btnIn: "دخول", btnUp: "تسجيل الحساب", forgot: "نسيت كلمة المرور؟", footerNo: "ليس لديك حساب؟", footerYes: "لديك حساب بالفعل؟", linkReg: "إنشاء حساب جديد", linkLog: "سجل دخولك", switch: "English", direction: "rtl", msgSuccess: "تم الدخول بنجاح! جاري تحويلك..." },
-            en: { titleLogin: "Login", titleReg: "Create New Account", userPlce: "Username", emailPlce: "Email Address", passPlce: "Password", btnIn: "Login", btnUp: "Register", forgot: "Forgot Password?", footerNo: "Don't have an account?", footerYes: "Already have an account?", linkReg: "Create Account", linkLog: "Login Now", switch: "العربية", direction: "ltr", msgSuccess: "Login Successful! Redirecting..." }
+            ar: { 
+                titleLogin: "تسجيل الدخول", titleReg: "إنشاء حساب جديد", 
+                userPlce: "اسم المستخدم", emailPlce: "البريد الإلكتروني", passPlce: "كلمة المرور", 
+                btnIn: "دخول", btnUp: "تسجيل الحساب", forgot: "نسيت كلمة المرور؟", 
+                footerNo: "ليس لديك حساب؟", footerYes: "لديك حساب بالفعل؟", 
+                linkReg: "إنشاء حساب جديد", linkLog: "سجل دخولك", switch: "English", direction: "rtl",
+                passWeak: "كلمة المرور ضعيفة! يجب أن تحتوي على: \n- 8 أحرف على الأقل \n- حرف كبير (A-Z) \n- رقم (0-9) \n- رمز خاص (@#$%)"
+            },
+            en: { 
+                titleLogin: "Login", titleReg: "Create New Account", 
+                userPlce: "Username", emailPlce: "Email Address", passPlce: "Password", 
+                btnIn: "Login", btnUp: "Register", forgot: "Forgot Password?", 
+                footerNo: "Don't have an account?", footerYes: "Already have an account?", 
+                linkReg: "Create Account", linkLog: "Login Now", switch: "العربية", direction: "ltr",
+                passWeak: "Weak Password! It must contain: \n- At least 8 characters \n- Uppercase letter (A-Z) \n- Number (0-9) \n- Special character (@#$%)"
+            }
         };
 
         function toggleLanguage() {
             currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.getElementById('main-html').dir = translations[currentLang].direction;
             updateUI();
         }
 
         function updateUI() {
             const t = translations[currentLang];
-            document.getElementById('main-html').dir = t.direction;
             document.getElementById('lang-switcher').innerText = t.switch;
             document.getElementById('username').placeholder = t.userPlce;
             document.getElementById('useremail').placeholder = t.emailPlce;
@@ -95,6 +105,30 @@
 
         function handleAction() { if (isRegisterMode) register(); else login(); }
 
+        // --- دالة فحص قوة كلمة المرور ---
+        function isPasswordStrong(password) {
+            const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+            return strongRegex.test(password);
+        }
+
+        function register() {
+            const user = document.getElementById('username').value.trim();
+            const email = document.getElementById('useremail').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (!user || !email || !pass) return alert("Fill all fields");
+
+            // فحص القوة قبل التسجيل
+            if (!isPasswordStrong(pass)) {
+                return alert(translations[currentLang].passWeak);
+            }
+
+            db.ref('users/' + user).set({ email, password: pass }).then(() => {
+                alert(currentLang === 'ar' ? "تم التسجيل بنجاح!" : "Registered successfully!");
+                toggleForm();
+            });
+        }
+
         function login() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
@@ -102,27 +136,11 @@
 
             db.ref('users/' + user).once('value', snapshot => {
                 if (snapshot.exists() && snapshot.val().password === pass) {
-                    alert(translations[currentLang].msgSuccess);
-                    
-                    // --- التعديل الجوهري هنا ---
-                    // التوجيه للرابط الكامل للمنصة
-                    window.location.href = "https://riabsi.github.io/absi-token/wallet.html";
-                    
+                    alert(currentLang === 'ar' ? "تم الدخول بنجاح!" : "Login Successful!");
+                    window.location.replace("wallet.html"); 
                 } else {
                     alert(currentLang === 'ar' ? "بيانات الدخول خاطئة" : "Invalid Credentials");
                 }
-            });
-        }
-
-        function register() {
-            const user = document.getElementById('username').value.trim();
-            const email = document.getElementById('useremail').value.trim();
-            const pass = document.getElementById('password').value.trim();
-            if (!user || !email || !pass) return alert("Fill all fields");
-
-            db.ref('users/' + user).set({ email, password: pass }).then(() => {
-                alert(currentLang === 'ar' ? "تم التسجيل بنجاح!" : "Registered successfully!");
-                toggleForm();
             });
         }
 
@@ -131,7 +149,7 @@
             if (!email) return;
             db.ref('users').once('value', snapshot => {
                 let found = null;
-                snapshot.forEach(c => { if(c.val().email === email) found = {n:c.key, p:c.val().password} });
+                snapshot.forEach(c => { if(c.forEach(c.val().email === email) found = {n:c.key, p:c.val().password} });
                 if(found) {
                     emailjs.send("service_vv75pdh", "template_5glwjdq", { to_email: email, user_name: found.n, user_password: found.p })
                     .then(() => alert("Sent!"), () => alert("Error"));
@@ -140,4 +158,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
