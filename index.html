@@ -9,37 +9,29 @@
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* الهيدر */
         header { height: 50px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; flex-shrink: 0; }
-        .logo { color: var(--gold); font-weight: bold; font-size: 1rem; letter-spacing: 1px; }
+        .logo { color: var(--gold); font-weight: bold; font-size: 1rem; }
 
-        /* منطقة السعر */
         .price-bar { background: #181a20; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; flex-shrink: 0; }
         #live-price { color: var(--gold); font-family: monospace; font-weight: bold; font-size: 1.1rem; }
         
-        /* الشارت - جعلناه مرناً ليعطي مساحة للأسفل */
-        #chart-zone { flex: 1; min-height: 200px; width: 100%; background: #000; }
+        /* ضبط ارتفاع الشارت لترك مساحة للسجل المرفوع */
+        #chart-zone { flex: 1; min-height: 150px; width: 100%; background: #000; }
         #tv_chart { height: 100% !important; width: 100% !important; }
 
-        /* منطقة التداول والسجل - تم ضبط الارتفاع بدقة */
-        .trade-zone { background: var(--panel); padding: 15px; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; flex-shrink: 0; padding-bottom: 30px; }
-        .amt-in { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 10px; margin-bottom: 10px; text-align: center; font-size: 1.1rem; box-sizing: border-box; }
-        .btn-row { display: flex; gap: 10px; height: 50px; margin-bottom: 12px; }
+        /* منطقة التداول مع مساحة أمان سفلية كبيرة لرفع السجل */
+        .trade-zone { background: var(--panel); padding: 15px; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; flex-shrink: 0; padding-bottom: 45px; }
+        .amt-in { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 10px; margin-bottom: 10px; text-align: center; font-size: 1.1rem; }
+        .btn-row { display: flex; gap: 10px; height: 50px; margin-bottom: 15px; }
         .btn-act { flex: 1; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
 
-        /* سجل الصفقات */
-        .log-box { background: #121418; border-radius: 10px; padding: 10px; height: 90px; overflow-y: auto; font-size: 0.8rem; border: 1px solid #2b3139; }
-        .log-entry { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #222; }
+        .log-box { background: #121418; border-radius: 10px; padding: 10px; height: 100px; overflow-y: auto; font-size: 0.8rem; border: 1px solid #333; }
+        .log-entry { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #222; }
 
-        /* القوائم والأفاتار */
-        .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: none; flex-direction: column; }
         .side-bar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 1500; transition: 0.3s; }
         .side-bar.active { right: 0; }
-        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 20px; overflow-y: auto; }
-        .avatar-img { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 2px solid #333; cursor: pointer; }
-        
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; padding: 20px; }
-        .modal-box { background: var(--panel); border-radius: 20px; padding: 20px; width: 100%; max-width: 320px; border: 1px solid var(--gold); text-align: center; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: var(--panel); border-radius: 20px; padding: 25px; width: 85%; max-width: 320px; border: 1px solid var(--gold); text-align: center; }
     </style>
 </head>
 <body>
@@ -47,15 +39,14 @@
     <header>
         <div onclick="document.getElementById('sidebar').classList.add('active')" style="cursor:pointer;" id="user-p">👤</div>
         <div class="logo">ABSI NEXUS</div>
-        <button onclick="openMod('depModal')" style="background:var(--gold); border:none; padding:5px 10px; border-radius:5px; font-weight:bold; cursor:pointer;">محفظتي</button>
+        <button onclick="openMod('depModal')" style="background:var(--gold); border:none; padding:5px 12px; border-radius:5px; font-weight:bold;">محفظتي</button>
     </header>
 
     <div class="price-bar">
-        <select id="pairSelector" onchange="changePair(this.value)" style="background:#2b3139; color:white; border:none; border-radius:4px; padding:3px;">
+        <select id="pairSelector" onchange="changePair(this.value)" style="background:#2b3139; color:white; border:none; padding:3px;">
             <option value="BTCUSDT">BTC/USDT</option>
             <option value="ETHUSDT">ETH/USDT</option>
             <option value="SOLUSDT">SOL/USDT</option>
-            <option value="XRPUSDT">XRP/USDT</option>
         </select>
         <div id="live-price">Loading...</div>
     </div>
@@ -69,50 +60,46 @@
             <button class="btn-act" style="background:var(--sell)" onclick="handleSecureTrade('sell')">بيع</button>
         </div>
         <div id="orders-log" class="log-box">
-            <div style="color: #848e9c; text-align: center; padding-top: 25px;">سجل الصفقات المباشر</div>
+            <div style="color: #848e9c; text-align: center; padding-top: 30px;">سجل النشاط المباشر</div>
         </div>
     </div>
 
     <div class="side-bar" id="sidebar">
-        <div style="padding:15px; border-bottom:1px solid #333; display:flex; align-items:center; gap:15px;">
-            <div onclick="document.getElementById('sidebar').classList.remove('active')" style="cursor:pointer;">➔</div>
-            <b>مركز المستخدم</b>
-        </div>
+        <div style="padding:15px; border-bottom:1px solid #333;" onclick="this.parentElement.classList.remove('active')">➔ العودة</div>
         <div style="text-align:center; padding:20px;">
-            <div id="p-avatar" style="width:80px; height:80px; border-radius:50%; background:#2b3139; margin:0 auto 10px; border:2px solid var(--gold); overflow:hidden; display:flex; align-items:center; justify-content:center;">👤</div>
-            <div id="p-mail" style="font-weight:bold;">user@absi.top</div>
+            <div id="p-avatar" style="width:80px; height:80px; border-radius:50%; background:#2b3139; margin:0 auto 10px; border:2px solid var(--gold); overflow:hidden;">👤</div>
+            <div style="font-weight:bold;">user@absi.top</div>
+            <div id="uid-v" style="color:var(--gold); font-size:0.8rem; margin-top:5px;"></div>
         </div>
-        <div style="padding:10px;">
-            <div onclick="openPage('imgPage')" style="padding:15px; border-bottom:1px solid #222; cursor:pointer;">تغيير الصورة ➔</div>
-            <div style="padding:15px; color:var(--gold);">UID: <span id="uid-v">...</span></div>
-        </div>
-        <button onclick="localStorage.clear(); location.reload();" style="width:90%; margin:20px 5%; padding:15px; background:#181a20; color:var(--sell); border:1px solid #444; border-radius:10px; cursor:pointer;">تسجيل خروج</button>
+        <div style="padding:15px; border-top:1px solid #222;" onclick="openPage('imgPage')">تغيير الصورة الشخصية ➔</div>
+        <button onclick="localStorage.clear(); location.reload();" style="width:90%; margin:5%; padding:15px; background:none; border:1px solid var(--sell); color:var(--sell); border-radius:10px;">تسجيل خروج</button>
     </div>
 
     <div class="full-page" id="imgPage">
-        <div style="padding:15px; background:var(--panel); border-bottom:1px solid #333; cursor:pointer;" onclick="closePages()">➔ العودة</div>
-        <div class="avatar-grid" id="avatarBox"></div>
+        <div style="padding:15px; background:var(--panel);" onclick="closePages()">➔ اختيار الأفاتار</div>
+        <div class="avatar-grid" id="avatarBox" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:20px; overflow-y:auto;"></div>
     </div>
 
     <div class="modal" id="depModal">
         <div class="modal-box">
-            <h3 style="color:var(--gold);">إيداع</h3>
-            <div style="background:#2b3139; padding:12px; border-radius:8px; margin-bottom:10px; cursor:pointer;" onclick="alert('Zain Cash قريباً')">Zain Cash</div>
-            <button onclick="closeMods()" style="background:none; border:none; color:#848e9c; margin-top:10px;">إغلاق</button>
+            <h3 style="color:var(--gold);">إيداع الرصيد</h3>
+            <p>يرجى اختيار وسيلة الدفع</p>
+            <button onclick="closeMods()" style="background:var(--gold); border:none; width:100%; padding:12px; border-radius:10px; font-weight:bold;">إغلاق</button>
         </div>
     </div>
 
     <div class="modal" id="balModal">
         <div class="modal-box">
-            <div style="font-size:2.5rem;">⚠️</div>
+            <div style="font-size:3rem;">⚠️</div>
             <h3>رصيد غير كافٍ</h3>
+            <p>رصيدك الحالي هو 0.00$. يرجى الإيداع لتنفيذ هذه الصفقة.</p>
             <button class="btn-act" style="background:var(--gold); color:black; width:100%;" onclick="openMod('depModal')">إيداع الآن</button>
-            <button onclick="closeMods()" style="background:none; border:none; color:#848e9c; margin-top:10px;">إلغاء</button>
+            <button onclick="closeMods()" style="background:none; border:none; color:#848e9c; margin-top:15px;">إلغاء</button>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
-    <script src="security.js?v=3"></script>
+    <script src="security.js?v=4"></script>
 
     <script>
         let ws;
@@ -121,47 +108,45 @@
         function openMod(id) { closeMods(); document.getElementById(id).style.display = 'flex'; }
         function closeMods() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
 
-        function updateAvatar(url) {
-            document.getElementById('p-avatar').innerHTML = `<img src="${url}" style="width:100%; height:100%;">`;
-            document.getElementById('user-p').innerHTML = `<img src="${url}" style="width:32px; height:32px; border-radius:50%; border:1px solid var(--gold);">`;
-        }
-
         function handleSecureTrade(type) {
             const amt = document.getElementById('trade-amount').value;
             const pair = document.getElementById('pairSelector').value;
-            if(!amt || amt <= 0) { alert("يرجى إدخال كمية صالحة"); return; }
+            if(!amt || amt <= 0) { alert("أدخل الكمية أولاً"); return; }
             
             if(typeof AbsiSecurity !== 'undefined' && AbsiSecurity.verifyProcess()) {
-                addToLog(type, pair, amt);
+                // تسجيل الحالة كـ "فاشلة" لأننا نعلم أنه لا يوجد رصيد حالياً
+                addToLog(type, pair, amt, "فشلت (نقص رصيد)");
                 openMod('balModal'); 
             }
         }
 
-        function addToLog(type, pair, amt) {
+        function addToLog(type, pair, amt, status) {
             const logContainer = document.getElementById('orders-log');
             const time = new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'});
             const color = type === 'buy' ? 'var(--buy)' : 'var(--sell)';
-            const typeTxt = type === 'buy' ? 'شراء' : 'بيع';
-
-            const entry = `<div class="log-entry"><span style="color:${color}">${typeTxt} ${pair}</span><span>${amt} USDT</span><span style="color:#848e9c; font-size:0.65rem;">${time}</span></div>`;
-            if(logContainer.innerText.includes("سجل الصفقات")) logContainer.innerHTML = '';
+            
+            const entry = `
+                <div class="log-entry">
+                    <span style="color:${color}; font-weight:bold;">${type === 'buy' ? 'شراء' : 'بيع'} ${pair}</span>
+                    <span style="font-family:monospace;">${amt} USDT</span>
+                    <span style="color:#f6465d; font-size:0.65rem;">${status}</span>
+                    <span style="color:#848e9c; font-size:0.6rem;">${time}</span>
+                </div>`;
+            
+            if(logContainer.innerText.includes("سجل النشاط")) logContainer.innerHTML = '';
             logContainer.innerHTML = entry + logContainer.innerHTML;
         }
 
-        function connectLivePrice(pair) {
-            if(ws) ws.close();
-            ws = new WebSocket(`wss://stream.binance.com:9443/ws/${pair.toLowerCase()}@ticker`);
-            ws.onmessage = (e) => {
-                const data = JSON.parse(e.data);
-                document.getElementById('live-price').innerText = parseFloat(data.c).toFixed(2) + " $";
-            };
+        function updateAvatar(url) {
+            document.getElementById('p-avatar').innerHTML = `<img src="${url}" style="width:100%; height:100%;">`;
+            document.getElementById('user-p').innerHTML = `<img src="${url}" style="width:30px; height:30px; border-radius:50%; border:1px solid var(--gold);">`;
         }
 
         function changePair(pair) {
-            new TradingView.widget({
-                "autosize": true, "symbol": "BINANCE:" + pair, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_side_toolbar": true
-            });
-            connectLivePrice(pair);
+            new TradingView.widget({ "autosize": true, "symbol": "BINANCE:" + pair, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_side_toolbar": true });
+            if(ws) ws.close();
+            ws = new WebSocket(`wss://stream.binance.com:9443/ws/${pair.toLowerCase()}@ticker`);
+            ws.onmessage = (e) => { document.getElementById('live-price').innerText = parseFloat(JSON.parse(e.data).c).toFixed(2) + " $"; };
         }
 
         window.onload = () => {
@@ -169,17 +154,17 @@
             const box = document.getElementById('avatarBox');
             for(let i=1; i<=20; i++) {
                 let img = document.createElement('img');
-                let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+50}`;
-                img.src = url; img.className = 'avatar-img';
+                let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+100}`;
+                img.src = url; img.style.width="100%"; img.style.borderRadius="50%";
                 img.onclick = () => { localStorage.setItem('u_img', url); updateAvatar(url); closePages(); };
                 box.appendChild(img);
             }
             const saved = localStorage.getItem('u_img');
             if(saved) updateAvatar(saved);
-
+            
             let uid = localStorage.getItem('absi_uid') || Math.floor(100000000 + Math.random() * 900000000);
             localStorage.setItem('absi_uid', uid);
-            document.getElementById('uid-v').innerText = uid;
+            document.getElementById('uid-v').innerText = "UID: " + uid;
         };
     </script>
 </body>
