@@ -3,22 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | Cloud Trading</title>
+    <title>ABSI NEXUS | Ultimate Trading</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
         #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .auth-box { background: var(--panel); padding: 30px; border-radius: 15px; border: 1px solid var(--gold); width: 100%; max-width: 350px; text-align: center; }
         .auth-input { width: 100%; padding: 12px; margin: 8px 0; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; }
-        header { height: 50px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; }
+        
+        header { height: 60px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; }
+        .pair-select { background: #2b3139; color: var(--gold); border: 1px solid #444; padding: 5px 10px; border-radius: 5px; font-weight: bold; outline: none; }
+        
         #chart-zone { height: 40vh; width: 100%; background: #000; }
+        
         .trade-zone { flex: 1; background: var(--panel); padding: 10px; overflow-y: auto; border-top: 2px solid var(--gold); }
-        .order-row { background: #121418; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-right: 4px solid var(--gold); font-size: 0.85rem; }
-        .profit { color: var(--buy); font-weight: bold; }
-        .loss { color: var(--sell); font-weight: bold; }
-        .btn-main { background: var(--gold); border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .order-card { background: #121418; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-right: 4px solid var(--gold); }
+        .pnl-plus { color: var(--buy); font-weight: bold; }
+        .pnl-minus { color: var(--sell); font-weight: bold; }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: var(--panel); padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; border: 1px solid var(--gold); }
+        
+        .btn-trade { flex: 1; padding: 15px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -28,29 +37,52 @@
             <h2 style="color:var(--gold)">ABSI NEXUS</h2>
             <input type="text" id="username" class="auth-input" placeholder="اسم المستخدم">
             <input type="password" id="password" class="auth-input" placeholder="كلمة المرور">
-            <button onclick="handleAuth()" class="btn-main">دخول / تسجيل</button>
+            <button onclick="handleAuth()" style="background:var(--gold); border:none; width:100%; padding:14px; border-radius:8px; font-weight:bold; cursor:pointer;">دخول / تسجيل</button>
         </div>
     </div>
 
     <header>
-        <div id="user-display" style="color:var(--gold); font-weight:bold;">👤 زائر</div>
-        <div id="wallet-bal" style="font-weight:bold;">0.00$</div>
+        <select class="pair-select" id="pairSelector" onchange="changePair(this.value)">
+            <option value="BTCUSDT">BTC/USDT</option>
+            <option value="ETHUSDT">ETH/USDT</option>
+            <option value="SOLUSDT">SOL/USDT</option>
+            <option value="BNBUSDT">BNB/USDT</option>
+        </select>
+        <div id="wallet-btn" onclick="openModal('walletModal')" style="cursor:pointer; text-align:left;">
+            <div style="font-size:0.7rem; color:#848e9c;">رصيد المحفظة</div>
+            <div id="header-bal" style="color:var(--gold); font-weight:bold;">0.00$</div>
+        </div>
     </header>
 
-    <div style="background:#181a20; padding:8px 15px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-weight:bold;">BTC/USDT</span>
-        <span id="live-price" style="color:var(--gold); font-weight:bold;">0.00$</span>
+    <div style="background:#181a20; padding:10px 15px; display:flex; justify-content:space-between; font-size:1.1rem;">
+        <span id="current-pair-display">BTC/USDT</span>
+        <span id="live-price" style="color:var(--gold); font-family:monospace; font-weight:bold;">0.00</span>
     </div>
 
     <div id="chart-zone"><div id="tv_chart" style="height:100%;"></div></div>
 
     <div class="trade-zone">
-        <input type="number" id="trade-amt" style="width:100%; padding:12px; background:#2b3139; border:1px solid #444; border-radius:8px; color:white; margin-bottom:10px;" placeholder="المبلغ USDT">
+        <input type="number" id="trade-amt" style="width:100%; padding:15px; background:#2b3139; border:1px solid #444; border-radius:8px; color:white; margin-bottom:10px; box-sizing:border-box;" placeholder="أدخل مبلغ الاستثمار USDT">
         <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <button onclick="openTrade('BUY')" style="flex:1; background:var(--buy); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">شراء</button>
-            <button onclick="openTrade('SELL')" style="flex:1; background:var(--sell); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">بيع</button>
+            <button onclick="openTrade('BUY')" class="btn-trade" style="background:var(--buy)">شراء / LONG</button>
+            <button onclick="openTrade('SELL')" class="btn-trade" style="background:var(--sell)">بيع / SHORT</button>
         </div>
-        <div id="active-orders-list"></div>
+        
+        <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px;">الصفقات المفتوحة (سحابي)</div>
+        <div id="orders-container"></div>
+    </div>
+
+    <div class="modal" id="walletModal">
+        <div class="modal-box">
+            <h3 style="color:var(--gold); margin-top:0;">محفظتك السحابية</h3>
+            <div style="font-size:1.8rem; font-weight:bold;" id="modal-bal">0.00$</div>
+            <p style="font-size:0.8rem; color:#848e9c;">إيداع USDT (TRC20)</p>
+            <div style="background:#121418; padding:12px; border:1px dashed var(--gold); font-size:0.7rem; color:var(--gold); word-break:break-all;">
+                TSWkiKSK8iuC3MMuz5ZwqGdyWkRe9vZkDb
+            </div>
+            <button onclick="confirmDeposit()" style="width:100%; background:var(--buy); color:white; border:none; padding:12px; margin-top:15px; border-radius:8px; font-weight:bold; cursor:pointer;">لقد قمت بالتحويل - تأكيد</button>
+            <button onclick="closeModal('walletModal')" style="background:none; border:none; color:#848e9c; margin-top:15px; cursor:pointer;">إغلاق</button>
+        </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
@@ -70,92 +102,111 @@
         let currentUser = "";
         let balance = 0;
         let currentPrice = 0;
+        let selectedPair = "BTCUSDT";
         let activeTrades = {};
+        let socket;
 
         function handleAuth() {
             const user = document.getElementById('username').value.trim().replace(/[.@]/g, "_");
             const pass = document.getElementById('password').value.trim();
-            if(!user || !pass) return alert("أكمل البيانات");
+            if(!user || !pass) return alert("يرجى إكمال البيانات");
 
             db.ref('users/' + user).once('value').then(s => {
                 const data = s.val();
                 if(data && data.password === pass) login(user);
                 else if(!data) db.ref('users/' + user).set({ password: pass, balance: 1000 }).then(() => login(user));
-                else alert("خطأ في الدخول");
+                else alert("كلمة المرور خاطئة");
             });
         }
 
         function login(user) {
             currentUser = user;
             document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('user-display').innerText = "👤 " + user;
-            
-            // استماع للرصيد
-            db.ref('users/' + user + '/balance').on('value', snap => {
-                balance = snap.val() || 0;
-                document.getElementById('wallet-bal').innerText = balance.toFixed(2) + "$";
+            db.ref('users/' + user + '/balance').on('value', s => {
+                balance = s.val() || 0;
+                document.getElementById('header-bal').innerText = balance.toFixed(2) + "$";
+                document.getElementById('modal-bal').innerText = balance.toFixed(2) + "$";
             });
+            db.ref('users/' + user + '/trades').on('value', s => {
+                activeTrades = s.val() || {};
+                renderTrades();
+            });
+            changePair("BTCUSDT");
+        }
 
-            // استماع للصفقات من السحابة
-            db.ref('users/' + user + '/trades').on('value', snap => {
-                activeTrades = snap.val() || {};
-                updateTradesUI();
-            });
+        function changePair(pair) {
+            selectedPair = pair;
+            document.getElementById('current-pair-display').innerText = pair.replace("USDT", "/USDT");
+            
+            // تحديث الشارت
+            document.getElementById('tv_chart').innerHTML = "";
+            new TradingView.widget({ "autosize": true, "symbol": "BINANCE:" + pair, "interval": "1", "theme": "dark", "container_id": "tv_chart", "locale": "ar" });
+
+            // تحديث السعر
+            if(socket) socket.close();
+            socket = new WebSocket(`wss://stream.binance.com:9443/ws/${pair.toLowerCase()}@ticker`);
+            socket.onmessage = e => {
+                currentPrice = parseFloat(JSON.parse(e.data).c);
+                document.getElementById('live-price').innerText = currentPrice.toFixed(2);
+                renderTrades();
+            };
         }
 
         function openTrade(type) {
             const amt = parseFloat(document.getElementById('trade-amt').value);
-            if(amt > balance || amt <= 0) return alert("رصيد غير كافٍ");
-            
-            const tradeId = Date.now();
-            const newTrade = {
+            if(isNaN(amt) || amt <= 0 || amt > balance) return alert("المبلغ غير صحيح أو الرصيد غير كافٍ");
+
+            const id = Date.now();
+            const tradeData = {
+                pair: selectedPair,
                 type: type,
                 amount: amt,
                 entryPrice: currentPrice,
                 time: new Date().toLocaleTimeString()
             };
-            
-            // خصم الرصيد وحفظ الصفقة في السحاب فوراً
+
             db.ref('users/' + currentUser).update({ balance: balance - amt });
-            db.ref('users/' + currentUser + '/trades/' + tradeId).set(newTrade);
+            db.ref('users/' + currentUser + '/trades/' + id).set(tradeData);
+            document.getElementById('trade-amt').value = "";
         }
 
-        const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
-        ws.onmessage = e => {
-            currentPrice = parseFloat(JSON.parse(e.data).c);
-            document.getElementById('live-price').innerText = currentPrice.toFixed(2) + "$";
-            updateTradesUI();
-        };
-
-        function updateTradesUI() {
-            const list = document.getElementById('active-orders-list');
-            list.innerHTML = "";
-            for (let id in activeTrades) {
+        function renderTrades() {
+            const container = document.getElementById('orders-container');
+            container.innerHTML = "";
+            for(let id in activeTrades) {
                 const t = activeTrades[id];
-                let diff = currentPrice - t.entryPrice;
-                if(t.type === 'SELL') diff = t.entryPrice - currentPrice;
-                const profit = (diff / t.entryPrice) * t.amount * 50; // رافعة 50x
-                
-                list.innerHTML += `
-                    <div class="order-row">
-                        <div style="display:flex; justify-content:space-between;">
-                            <b>${t.type} BTC</b>
-                            <span class="${profit >= 0 ? 'profit' : 'loss'}">${profit.toFixed(2)}$</span>
+                // الربح والخسارة يتفاعلون فقط إذا كانت الصفقة لنفس الزوج المختار، وإلا يظهر الربح "قيد الانتظار"
+                let pnl = 0;
+                if(t.pair === selectedPair) {
+                    let diff = currentPrice - t.entryPrice;
+                    if(t.type === 'SELL') diff = t.entryPrice - currentPrice;
+                    pnl = (diff / t.entryPrice) * t.amount * 50; 
+                }
+
+                container.innerHTML += `
+                    <div class="order-card">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <b style="color:var(--gold)">${t.pair} | ${t.type}</b>
+                            <span class="${pnl >= 0 ? 'pnl-plus' : 'pnl-minus'}">${pnl.toFixed(2)}$</span>
                         </div>
-                        <div style="font-size:0.7rem; color:#848e9c;">دخول: ${t.entryPrice}$ | ${t.time}</div>
-                        <button onclick="closeTrade('${id}', ${profit}, ${t.amount})" style="width:100%; background:#333; color:white; border:none; margin-top:5px; border-radius:4px; padding:5px; cursor:pointer;">إغلاق وربح</button>
+                        <div style="font-size:0.7rem; color:#848e9c;">دخول: ${t.entryPrice}$ | مبلغ: ${t.amount}$</div>
+                        <button onclick="closeTrade('${id}', ${pnl}, ${t.amount})" style="width:100%; background:#333; color:white; border:none; margin-top:10px; padding:6px; border-radius:5px; cursor:pointer;">إغلاق الصفقة</button>
                     </div>`;
             }
         }
 
-        function closeTrade(id, profit, amount) {
-            const finalReturn = amount + profit;
-            // تحديث الرصيد وحذف الصفقة من السحاب
-            db.ref('users/' + currentUser).update({ balance: balance + finalReturn });
+        function closeTrade(id, pnl, amt) {
+            db.ref('users/' + currentUser).update({ balance: balance + amt + pnl });
             db.ref('users/' + currentUser + '/trades/' + id).remove();
         }
 
-        new TradingView.widget({ "autosize": true, "symbol": "BINANCE:BTCUSDT", "theme": "dark", "container_id": "tv_chart" });
+        function confirmDeposit() {
+            alert("تم إرسال إشعار للإدارة. سيتم إضافة الرصيد بعد تأكيد العملية على البلوكشين.");
+            closeModal('walletModal');
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     </script>
 </body>
-</html>
+                </html>
