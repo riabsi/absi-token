@@ -8,32 +8,22 @@
     <style>
         :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; }
         body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* الهيدر */
         header { height: 50px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; flex-shrink: 0; }
         .logo { color: var(--gold); font-weight: bold; font-size: 1rem; letter-spacing: 1px; }
-
-        /* منطقة السعر */
         .price-bar { background: #181a20; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; flex-shrink: 0; }
         #live-price { color: var(--gold); font-family: monospace; font-weight: bold; font-size: 1.1rem; }
         select { background: #2b3139; color: white; border: 1px solid #444; border-radius: 4px; padding: 3px; font-size: 0.8rem; }
-
-        /* الشارت */
         #chart-zone { flex-grow: 1; width: 100%; background: #000; position: relative; }
         #tv_chart { height: 100% !important; width: 100% !important; }
-
-        /* لوحة التداول */
         .trade-zone { height: 170px; background: var(--panel); padding: 15px; box-sizing: border-box; flex-shrink: 0; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; }
         .amt-in { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 10px; margin-bottom: 10px; text-align: center; font-size: 1.1rem; }
         .btn-row { display: flex; gap: 10px; height: 55px; }
         .btn-act { flex: 1; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
-
-        /* القوائم والمودالز */
         .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: none; flex-direction: column; }
         .side-bar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 1500; transition: 0.3s; }
         .side-bar.active { right: 0; }
         .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 20px; overflow-y: auto; }
-        .avatar-img { width: 65px; height: 65px; border-radius: 50%; border: 2px solid #333; }
+        .avatar-img { width: 65px; height: 65px; border-radius: 50%; border: 2px solid #333; cursor: pointer; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-box { background: var(--panel); border-radius: 20px; padding: 20px; width: 100%; max-width: 320px; border: 1px solid var(--gold); text-align: center; }
     </style>
@@ -43,7 +33,7 @@
     <header>
         <div onclick="document.getElementById('sidebar').classList.add('active')" style="font-size:1.6rem; cursor:pointer;" id="user-p">👤</div>
         <div class="logo">ABSI NEXUS</div>
-        <button onclick="openMod('depModal')" style="background:var(--gold); border:none; padding:5px 10px; border-radius:5px; font-weight:bold;">محفظتي</button>
+        <button onclick="openMod('depModal')" style="background:var(--gold); border:none; padding:5px 10px; border-radius:5px; font-weight:bold; cursor:pointer;">محفظتي</button>
     </header>
 
     <div class="price-bar">
@@ -52,20 +42,17 @@
             <option value="ETHUSDT">ETH/USDT</option>
             <option value="SOLUSDT">SOL/USDT</option>
             <option value="XRPUSDT">XRP/USDT</option>
-            <option value="PEPEUSDT">PEPE/USDT</option>
         </select>
         <div id="live-price">Loading...</div>
     </div>
 
-    <div id="chart-zone">
-        <div id="tv_chart"></div>
-    </div>
+    <div id="chart-zone"><div id="tv_chart"></div></div>
 
     <div class="trade-zone">
         <input type="number" id="trade-amount" class="amt-in" placeholder="أدخل الكمية USDT">
         <div class="btn-row">
-            <button class="btn-act" style="background:var(--buy)" onclick="handleSecureTrade('شراء')">شراء</button>
-            <button class="btn-act" style="background:var(--sell)" onclick="handleSecureTrade('بيع')">بيع</button>
+            <button class="btn-act" style="background:var(--buy)" onclick="handleSecureTrade('buy')">شراء</button>
+            <button class="btn-act" style="background:var(--sell)" onclick="handleSecureTrade('sell')">بيع</button>
         </div>
     </div>
 
@@ -79,19 +66,24 @@
             <div id="p-mail" style="font-weight:bold;">user@absi.top</div>
         </div>
         <div style="padding:10px;">
-            <div onclick="openPage('imgPage')" style="padding:15px; border-bottom:1px solid #222;">تغيير الصورة ➔</div>
-            <div onclick="openPage('secPage')" style="padding:15px; border-bottom:1px solid #222;">الأمان ➔</div>
+            <div onclick="openPage('imgPage')" style="padding:15px; border-bottom:1px solid #222; cursor:pointer;">تغيير الصورة ➔</div>
             <div style="padding:15px; color:var(--gold);">UID: <span id="uid-v">...</span></div>
         </div>
-        <button onclick="localStorage.clear(); location.reload();" style="width:90%; margin:20px 5%; padding:15px; background:#181a20; color:var(--sell); border:1px solid #444; border-radius:10px;">تسجيل خروج</button>
+        <button onclick="localStorage.clear(); location.reload();" style="width:90%; margin:20px 5%; padding:15px; background:#181a20; color:var(--sell); border:1px solid #444; border-radius:10px; cursor:pointer;">تسجيل خروج</button>
+    </div>
+
+    <div class="full-page" id="imgPage">
+        <div style="padding:15px; border-bottom:1px solid #333; cursor:pointer;" onclick="closePages()">➔ اختيار الأفاتار</div>
+        <div class="avatar-grid" id="avatarBox"></div>
     </div>
 
     <div class="modal" id="depModal">
         <div class="modal-box">
             <h3 style="color:var(--gold);">إيداع</h3>
-            <div style="background:#2b3139; padding:12px; border-radius:8px; margin-bottom:10px;" onclick="alert('Zain Cash')">Zain Cash</div>
-            <div style="background:#2b3139; padding:12px; border-radius:8px; margin-bottom:10px;" onclick="alert('P2P')">P2P Transfer</div>
-            <button onclick="closeMods()" style="background:none; border:none; color:#848e9c; margin-top:10px;">إغلاق</button>
+            <p>اختر وسيلة الإيداع لتعبئة رصيدك</p>
+            <div style="background:#2b3139; padding:12px; border-radius:8px; margin-bottom:10px; cursor:pointer;" onclick="alert('Zain Cash قريباً')">Zain Cash</div>
+            <div style="background:#2b3139; padding:12px; border-radius:8px; margin-bottom:10px; cursor:pointer;" onclick="alert('P2P قريباً')">P2P Transfer</div>
+            <button onclick="closeMods()" style="background:none; border:none; color:#848e9c; margin-top:10px; cursor:pointer;">إغلاق</button>
         </div>
     </div>
 
@@ -99,28 +91,40 @@
         <div class="modal-box">
             <div style="font-size:2.5rem;">⚠️</div>
             <h3>رصيد غير كافٍ</h3>
+            <p>رصيدك الحالي 0.00$. يرجى الإيداع للمتابعة.</p>
             <button class="btn-act" style="background:var(--gold); color:black; width:100%;" onclick="openMod('depModal')">إيداع الآن</button>
-            <button onclick="closeMods()" style="background:none; border:none; color:#848e9c; margin-top:10px;">إلغاء</button>
+            <button onclick="closeMods()" style="background:none; border:none; color:#848e9c; margin-top:10px; cursor:pointer;">إلغاء</button>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
-    <script src="security.js"></script> <script>
+    <script src="security.js"></script>
+
+    <script>
         let ws;
         function openPage(id) { closePages(); document.getElementById(id).style.display = 'flex'; }
         function closePages() { document.querySelectorAll('.full-page').forEach(p => p.style.display='none'); }
         function openMod(id) { closeMods(); document.getElementById(id).style.display = 'flex'; }
         function closeMods() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
 
-        // وظيفة التداول الآمنة التي تستخدم ملف security.js
+        // وظيفة التداول الآمنة المصلحة
         function handleSecureTrade(type) {
             const amt = document.getElementById('trade-amount').value;
-            if(!amt) { alert("يرجى إدخال الكمية أولاً"); return; }
+            if(!amt || amt <= 0) { alert("يرجى إدخال كمية صالحة"); return; }
             
-            // استدعاء التحقق من ملف الأمان المصل
-            if(typeof AbsiSecurity !== 'undefined' && AbsiSecurity.verifyProcess()) {
-                openMod('balModal'); // إذا نجح التحقق، ننتقل لفحص الرصيد
+            // استدعاء الأمان من ملف security.js
+            if(typeof AbsiSecurity !== 'undefined') {
+                if(AbsiSecurity.verifyProcess()) { openMod('balModal'); }
+            } else {
+                // حل احتياطي في حال لم يتم العثور على ملف security.js
+                let code = prompt("🔒 كود الأمان (123456):");
+                if(code === "123456") openMod('balModal');
             }
+        }
+
+        function updateAvatar(url) {
+            document.getElementById('p-avatar').innerHTML = `<img src="${url}" style="width:100%; height:100%;">`;
+            document.getElementById('user-p').innerHTML = `<img src="${url}" style="width:30px; height:30px; border-radius:50%;">`;
         }
 
         function connectLivePrice(pair) {
@@ -134,14 +138,24 @@
 
         function changePair(pair) {
             new TradingView.widget({
-                "autosize": true, "symbol": "BINANCE:" + pair,
-                "interval": "1", "theme": "dark", "hide_side_toolbar": false, "container_id": "tv_chart"
+                "autosize": true, "symbol": "BINANCE:" + pair, "interval": "1", "theme": "dark", "container_id": "tv_chart"
             });
             connectLivePrice(pair);
         }
 
         window.onload = () => {
             changePair("BTCUSDT");
+            const box = document.getElementById('avatarBox');
+            for(let i=1; i<=20; i++) {
+                let img = document.createElement('img');
+                let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+50}`;
+                img.src = url; img.className = 'avatar-img';
+                img.onclick = () => { localStorage.setItem('u_img', url); updateAvatar(url); closePages(); };
+                box.appendChild(img);
+            }
+            const saved = localStorage.getItem('u_img');
+            if(saved) updateAvatar(saved);
+
             let uid = localStorage.getItem('absi_uid') || Math.floor(100000000 + Math.random() * 900000000);
             localStorage.setItem('absi_uid', uid);
             document.getElementById('uid-v').innerText = uid;
