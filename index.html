@@ -10,13 +10,14 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #0b0e11; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0e11; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .container { background-color: #1e2329; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; width: 350px; }
         h2 { color: #f0b90b; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #474d57; background-color: #2b3139; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #f0b90b; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .link { color: #f0b90b; cursor: pointer; font-size: 13px; margin-top: 10px; display: block; text-decoration: none; }
-        .register-section { border-top: 1px solid #474d57; margin-top: 20px; padding-top: 10px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #474d57; background-color: #2b3139; color: white; box-sizing: border-box; outline: none; }
+        button { width: 100%; padding: 12px; background-color: #f0b90b; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 16px; }
+        button:hover { background-color: #d8a608; }
+        .link { color: #f0b90b; cursor: pointer; font-size: 13px; margin-top: 15px; display: block; text-decoration: none; }
+        .hr-line { border-top: 1px solid #474d57; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -25,87 +26,98 @@
         <h2 id="form-title">تسجيل الدخول</h2>
         
         <input type="text" id="username" placeholder="اسم المستخدم">
-        <input type="email" id="useremail" placeholder="البريد الإلكتروني (للتسجيل فقط)" style="display:none;">
+        <input type="email" id="useremail" placeholder="البريد الإلكتروني" style="display:none;">
         <input type="password" id="password" placeholder="كلمة المرور">
         
         <button id="main-btn" onclick="login()">دخول</button>
         
-        <a class="link" onclick="recoverAccount()">نسيت كلمة المرور؟</a>
+        <a id="forget-link" class="link" onclick="recoverAccount()">نسيت كلمة المرور؟</a>
 
-        <div class="register-section">
-            <p id="toggle-text" style="font-size: 14px;">ليس لديك حساب؟</p>
-            <a class="link" id="toggle-link" onclick="showRegister()">إنشاء حساب جديد</a>
+        <div class="hr-line"></div>
+
+        <div id="toggle-section">
+            <span style="font-size: 14px; color: #848e9c;">ليس لديك حساب؟</span>
+            <a class="link" id="toggle-link" onclick="toggleForm()" style="display: inline; margin-right: 5px;">إنشاء حساب جديد</a>
         </div>
     </div>
 
     <script>
-        // --- إعدادات Firebase (ضع إعداداتك هنا) ---
+        // --- 1. إعدادات Firebase (ضع رابط قاعدة بياناتك هنا) ---
         const firebaseConfig = {
-            databaseURL: "أدخل_رابط_قاعدة_بياناتك_هنا" 
+            databaseURL: "https://riabsi-default-rtdb.firebaseio.com" // تأكد من صحة هذا الرابط
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- إعدادات EmailJS ---
+        // --- 2. إعدادات EmailJS (المفاتيح التي استخرجتها) ---
         emailjs.init("I7O-M98m-x4dW5R3t");
 
         let isRegisterMode = false;
 
-        // تبديل الواجهة بين تسجيل الدخول وإنشاء الحساب
-        function showRegister() {
+        // دالة تبديل الواجهة (هي التي كانت لا تعمل لديك)
+        function toggleForm() {
             isRegisterMode = !isRegisterMode;
-            const emailField = document.getElementById('useremail');
+            const title = document.getElementById('form-title');
+            const emailInput = document.getElementById('useremail');
             const mainBtn = document.getElementById('main-btn');
-            const formTitle = document.getElementById('form-title');
             const toggleLink = document.getElementById('toggle-link');
+            const forgetLink = document.getElementById('forget-link');
 
             if (isRegisterMode) {
-                formTitle.innerText = "إنشاء حساب جديد";
-                emailField.style.display = "block";
+                title.innerText = "إنشاء حساب جديد";
+                emailInput.style.display = "block";
                 mainBtn.innerText = "تسجيل الحساب";
-                mainBtn.setAttribute("onclick", "register()");
-                toggleLink.innerText = "لديك حساب؟ سجل دخولك";
+                mainBtn.onclick = register; // تغيير وظيفة الزر للتسجيل
+                toggleLink.innerText = "لديك حساب؟ دخول";
+                forgetLink.style.visibility = "hidden"; // إخفاء "نسيت كلمة المرور" عند التسجيل
             } else {
-                formTitle.innerText = "تسجيل الدخول";
-                emailField.style.display = "none";
+                title.innerText = "تسجيل الدخول";
+                emailInput.style.display = "none";
                 mainBtn.innerText = "دخول";
-                mainBtn.setAttribute("onclick", "login()");
+                mainBtn.onclick = login; // تغيير وظيفة الزر للدخول
                 toggleLink.innerText = "إنشاء حساب جديد";
+                forgetLink.style.visibility = "visible";
             }
         }
 
-        // وظيفة إنشاء حساب جديد وحفظه في Firebase
+        // دالة التسجيل
         function register() {
-            const user = document.getElementById('username').value;
-            const email = document.getElementById('useremail').value;
-            const pass = document.getElementById('password').value;
+            const user = document.getElementById('username').value.trim();
+            const email = document.getElementById('useremail').value.trim();
+            const pass = document.getElementById('password').value.trim();
 
-            if (!user || !email || !pass) return alert("يرجى تعبئة كافة الخانات");
+            if (!user || !email || !pass) {
+                alert("يرجى ملء كافة الخانات المطلوبة");
+                return;
+            }
 
             db.ref('users/' + user).set({
                 email: email,
                 password: pass
             }).then(() => {
-                alert("تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول.");
-                showRegister(); // العودة لوجهة الدخول
-            });
+                alert("تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.");
+                toggleForm(); // العودة لواجهة الدخول تلقائياً
+            }).catch(err => alert("خطأ في التسجيل: " + err));
         }
 
-        // وظيفة تسجيل الدخول
+        // دالة الدخول
         function login() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (!user || !pass) return alert("يرجى إدخال بيانات الدخول");
 
             db.ref('users/' + user).once('value', snapshot => {
                 if (snapshot.exists() && snapshot.val().password === pass) {
-                    alert("أهلاً بك " + user);
+                    alert("مرحباً بك في ABSI NEXUS");
+                    // هنا يمكنك توجيه المستخدم لصفحة أخرى
                 } else {
-                    alert("خطأ في اسم المستخدم أو كلمة المرور");
+                    alert("اسم المستخدم أو كلمة المرور غير صحيحة");
                 }
             });
         }
 
-        // وظيفة استعادة الحساب عبر EmailJS
+        // دالة الاستعادة (EmailJS)
         function recoverAccount() {
             const email = prompt("أدخل بريدك الإلكتروني المسجل:");
             if (!email) return;
@@ -119,14 +131,14 @@
                 });
 
                 if (foundUser) {
-                    alert("جاري الإرسال...");
+                    alert("جاري إرسال بياناتك إلى بريدك...");
                     emailjs.send("service_vv75pdh", "template_5glwjdq", {
                         to_email: email,
                         user_name: foundUser.name,
                         user_password: foundUser.pass
-                    }).then(() => alert("وصلتك الرسالة! تفقد بريدك."), () => alert("فشل الإرسال"));
+                    }).then(() => alert("تم الإرسال! تفقد بريدك."), () => alert("فشل في الإرسال"));
                 } else {
-                    alert("البريد غير مسجل");
+                    alert("هذا البريد غير مسجل لدينا");
                 }
             });
         }
