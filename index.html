@@ -15,18 +15,18 @@
         .price-bar { background: #181a20; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; flex-shrink: 0; }
         #live-price { color: var(--gold); font-family: monospace; font-weight: bold; font-size: 1.1rem; }
         
-        /* إعادة الشارت لحجمه الطبيعي والمريح */
+        /* موازنة الشارت لترك مساحة كافية بالأسفل */
         #chart-zone { flex: 1; width: 100%; background: #000; }
         #tv_chart { height: 100% !important; width: 100% !important; }
 
-        /* منطقة التداول - جعلناها أنحف ومنظمة */
-        .trade-zone { background: var(--panel); padding: 10px 15px; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; flex-shrink: 0; }
-        .amt-in { width: 100%; padding: 10px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 8px; text-align: center; font-size: 1.1rem; }
+        /* منطقة التداول مع رفع السجل بمسافة أمان سفلية */
+        .trade-zone { background: var(--panel); padding: 10px 15px; border-top: 1px solid var(--gold); border-radius: 20px 20px 0 0; flex-shrink: 0; padding-bottom: 60px; }
+        .amt-in { width: 100%; padding: 10px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 8px; text-align: center; font-size: 1.1rem; box-sizing: border-box; }
         .btn-row { display: flex; gap: 10px; height: 45px; margin-bottom: 10px; }
         .btn-act { flex: 1; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
 
-        /* سجل الصفقات - حجم صغير (ثلث الحجم السابق) وفي الأسفل تماماً */
-        .log-box { background: #121418; border-radius: 8px; padding: 5px 10px; height: 55px; overflow-y: auto; font-size: 0.75rem; border: 1px solid #333; }
+        /* سجل الصفقات - حجم متوازن متوسط لضمان عدم التداخل */
+        .log-box { background: #121418; border-radius: 8px; padding: 5px 10px; height: 65px; overflow-y: auto; font-size: 0.75rem; border: 1px solid #333; }
         .log-entry { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #222; }
 
         .side-bar { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: var(--bg); z-index: 1500; transition: 0.3s; }
@@ -95,7 +95,7 @@
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
-    <script src="security.js?v=5"></script>
+    <script src="security.js?v=6"></script>
 
     <script>
         let ws;
