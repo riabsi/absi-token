@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختبار الدخول المباشر</title>
+    <title>دخول مباشر للمنصة</title>
     <style>
         body { 
             background: #0b0e11; 
-            color: white; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -15,35 +14,28 @@
             margin: 0; 
             font-family: sans-serif; 
         }
-        .test-card { 
-            background: #1e2329; 
-            padding: 40px; 
-            border-radius: 15px; 
+        .container { 
             text-align: center; 
-            border: 2px solid #f0b90b;
-            box-shadow: 0 0 20px rgba(240, 185, 11, 0.2);
         }
-        button { 
-            width: 100%; 
-            padding: 20px; 
+        .btn-open { 
             background: #f0b90b; 
-            border: none; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            cursor: pointer; 
             color: black; 
-            font-size: 20px; 
+            padding: 25px 50px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 22px; 
+            font-weight: bold; 
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(240, 185, 11, 0.4);
         }
-        p { color: #848e9c; margin-bottom: 25px; }
+        h1 { color: #f0b90b; margin-bottom: 30px; }
     </style>
 </head>
 <body>
 
-    <div class="test-card">
-        <h2 style="color:#f0b90b">ABSI NEXUS</h2>
-        <p>هذا الزر للاختبار (بدون يوزر أو باسورد)</p>
-        
-        <button onclick="window.location.href='wallet.html'">فتح المنصة فوراً</button>
+    <div class="container">
+        <h1>ABSI NEXUS</h1>
+        <button class="btn-open" onclick="window.location.href='wallet.html'">دخول للمنصة الآن</button>
     </div>
 
 </body>
