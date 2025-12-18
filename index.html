@@ -3,60 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI LOGIN</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <title>اختبار الدخول المباشر</title>
     <style>
-        body { background: #0b0e11; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; }
-        .card { background: #1e2329; padding: 30px; border-radius: 10px; text-align: center; width: 320px; border: 1px solid #f0b90b; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #2b3139; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #f0b90b; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: black; }
-        .mode { color: #f0b90b; cursor: pointer; display: block; margin-top: 15px; font-size: 14px; }
+        body { 
+            background: #0b0e11; 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            font-family: sans-serif; 
+        }
+        .test-card { 
+            background: #1e2329; 
+            padding: 40px; 
+            border-radius: 15px; 
+            text-align: center; 
+            border: 2px solid #f0b90b;
+            box-shadow: 0 0 20px rgba(240, 185, 11, 0.2);
+        }
+        button { 
+            width: 100%; 
+            padding: 20px; 
+            background: #f0b90b; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            color: black; 
+            font-size: 20px; 
+        }
+        p { color: #848e9c; margin-bottom: 25px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
+    <div class="test-card">
         <h2 style="color:#f0b90b">ABSI NEXUS</h2>
-        <h3 id="txt">تسجيل الدخول</h3>
-        <input type="text" id="u" placeholder="اسم المستخدم">
-        <input type="password" id="p" placeholder="كلمة المرور">
-        <button onclick="go()">دخول للمنصة</button>
-        <span class="mode" onclick="change()">إنشاء حساب جديد</span>
+        <p>هذا الزر للاختبار (بدون يوزر أو باسورد)</p>
+        
+        <button onclick="window.location.href='wallet.html'">فتح المنصة فوراً</button>
     </div>
 
-    <script>
-        const config = { databaseURL: "https://riabsi-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(config);
-        const db = firebase.database();
-
-        let isNew = false;
-        function change() {
-            isNew = !isNew;
-            document.getElementById('txt').innerText = isNew ? "حساب جديد" : "تسجيل الدخول";
-        }
-
-        function go() {
-            const user = document.getElementById('u').value.trim();
-            const pass = document.getElementById('p').value.trim();
-
-            if (isNew) {
-                // عند إنشاء حساب، استخدم كلمة مرور قوية لتجنب رسالة جوجل
-                db.ref('users/' + user).set({ password: pass }).then(() => {
-                    alert("تم الحفظ! سجل دخولك الآن");
-                    location.reload();
-                });
-            } else {
-                db.ref('users/' + user).once('value', s => {
-                    if (s.exists() && s.val().password === pass) {
-                        // التوجيه المباشر بدون رسالة "نجح الدخول" لتفادي اعتراض جوجل
-                        window.location.replace("wallet.html");
-                    } else {
-                        alert("خطأ في البيانات");
-                    }
-                });
-            }
-        }
-    </script>
 </body>
 </html>
