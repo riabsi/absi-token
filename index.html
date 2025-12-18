@@ -3,113 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS - الوصول الآمن</title>
+    <title>ABSI NEXUS | تسجيل الدخول</title>
     
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #0b0e11; color: #e1e1e1; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-card { background: #181a20; padding: 2rem; border-radius: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); width: 100%; max-width: 350px; text-align: center; border: 1px solid #f0b90b; }
-        h2 { color: #f0b90b; margin-bottom: 1rem; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #474d57; background: #2b3139; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 14px; background: #f0b90b; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; }
-        .footer-links { margin-top: 15px; font-size: 0.85rem; }
-        .link { color: #848e9c; cursor: pointer; text-decoration: underline; margin: 5px; display: inline-block; }
-        #recovery-email-field { display: none; } /* يظهر فقط في التسجيل */
+        :root { --gold: #f0b90b; --bg: #0b0e11; --card: #1e2329; }
+        body { background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: var(--card); padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; text-align: center; }
+        h2 { color: var(--gold); margin-bottom: 25px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; margin-top: 15px; border-radius: 8px; border: none; background: var(--gold); color: black; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .links { margin-top: 20px; font-size: 0.8rem; color: #848e9c; }
+        .links span { color: var(--gold); cursor: pointer; text-decoration: underline; margin: 0 5px; }
     </style>
 </head>
 <body>
 
 <div class="login-card">
-    <h2 id="title">تسجيل الدخول</h2>
-    <p id="desc" style="font-size: 0.8rem; color: #848e9c;">مرحباً بك في مستقبل التداول</p>
+    <h2>ABSI NEXUS</h2>
+    <div id="auth-form">
+        <input type="text" id="user" placeholder="اسم المستخدم">
+        <input type="password" id="pass" placeholder="كلمة المرور">
+        <div id="extra-fields" style="display: none;">
+            <input type="email" id="recoveryEmail" placeholder="بريد الاسترداد (مهم جداً)">
+        </div>
+        <button id="mainBtn" onclick="handleAuth()">دخول</button>
+    </div>
     
-    <input type="text" id="username" placeholder="اسم المستخدم">
-    <input type="password" id="password" placeholder="كلمة المرور">
-    
-    <input type="email" id="recovery-email" placeholder="بريد الاسترداد الاحتياطي" style="display: none;">
-    
-    <button id="mainBtn" onclick="handleAction()">دخول</button>
-    
-    <div class="footer-links">
-        <span class="link" id="toggleLink" onclick="toggleMode()">إنشاء حساب جديد (3 خانات)</span> | 
-        <span class="link" onclick="forgotPass()">نسيت كلمة المرور؟</span>
+    <div class="links">
+        <p id="toggleText">ليس لديك حساب؟ <span onclick="toggleMode()">إنشاء حساب جديد</span></p>
+        <p id="forgotLink">نسيت كلمة المرور؟ <span onclick="forgotPass()">استعادة الآن</span></p>
     </div>
 </div>
 
 <script>
-    // إعدادات Firebase
+    // --- 1. إعدادات Firebase & EmailJS ---
     const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    
+    (function() { emailjs.init("user_XqG187hYf62m20t38"); })(); // ضع اليوزر ID الخاص بك هنا إذا اختلف
 
-    emailjs.init("I7O-M98m-x4dW5R3t");
+    let isLogin = true;
 
-    let isLoginMode = true;
-
+    // --- 2. التبديل بين الدخول والتسجيل ---
     function toggleMode() {
-        isLoginMode = !isLoginMode;
-        document.getElementById('title').innerText = isLoginMode ? "تسجيل الدخول" : "تسجيل حساب جديد";
-        document.getElementById('recovery-email').style.display = isLoginMode ? "none" : "block";
-        document.getElementById('mainBtn').innerText = isLoginMode ? "دخول" : "تأكيد التسجيل والحفظ";
-        document.getElementById('toggleLink').innerText = isLoginMode ? "إنشاء حساب جديد (3 خانات)" : "لديك حساب؟ سجل دخولك";
+        isLogin = !isLogin;
+        document.getElementById('extra-fields').style.display = isLogin ? 'none' : 'block';
+        document.getElementById('mainBtn').innerText = isLogin ? 'دخول' : 'تأكيد التسجيل';
+        document.getElementById('toggleText').innerHTML = isLogin ? 
+            'ليس لديك حساب؟ <span onclick="toggleMode()">إنشاء حساب جديد</span>' : 
+            'لديك حساب بالفعل؟ <span onclick="toggleMode()">تسجيل الدخول</span>';
     }
 
-    function handleAction() {
-        const user = document.getElementById('username').value.trim();
-        const pass = document.getElementById('password').value.trim();
-        const email = document.getElementById('recovery-email').value.trim();
-        
-        if (!user || !pass) return alert("يرجى إدخال اسم المستخدم وكلمة المرور");
-        
-        const safeId = user.replace(/[^a-zA-Z0-9]/g, "");
+    // --- 3. معالجة الدخول والتسجيل ---
+    function handleAuth() {
+        const user = document.getElementById('user').value.trim();
+        const pass = document.getElementById('pass').value.trim();
+        const email = document.getElementById('recoveryEmail').value.trim();
 
-        if (isLoginMode) {
-            db.ref('users/' + safeId).once('value', snapshot => {
-                if (snapshot.exists() && snapshot.val().password === pass) {
-                    alert("تم التحقق بنجاح! جاري تحويلك للمنصة...");
-                    // تمرير اسم المستخدم للمنصة لفتح رصيده
-                    window.location.href = "dashboard.html?user=" + safeId;
+        if (!user || !pass) return alert("يرجى ملء الخانات الأساسية");
+
+        if (isLogin) {
+            // تسجيل الدخول
+            db.ref('users/' + user).once('value', s => {
+                if (s.exists() && s.val().password === pass) {
+                    window.location.href = "dashboard.html?user=" + user;
                 } else {
-                    alert("بيانات خاطئة. تأكد من اسم المستخدم وكلمة المرور");
+                    alert("خطأ في اسم المستخدم أو كلمة المرور");
                 }
             });
         } else {
-            if (!email) return alert("يرجى إضافة بريد الاسترداد للأمان");
-            
-            db.ref('users/' + safeId).set({
+            // إنشاء حساب جديد
+            if (!email) return alert("يرجى إدخال بريد الاسترداد");
+            db.ref('users/' + user).set({
                 username: user,
                 password: pass,
                 recoveryEmail: email,
-                balance_demo: 1000.00,
-                balance_real: 0.00
+                balance_real: 0,
+                balance_demo: 1000
             }).then(() => {
-                alert("تم إنشاء حسابك بنجاح بـ 3 خانات أمان! يمكنك الدخول الآن.");
+                alert("تم إنشاء الحساب بنجاح! يمكنك الدخول الآن.");
                 toggleMode();
             });
         }
     }
 
+    // --- 4. نظام استعادة كلمة المرور المطور (عبر الإيميل) ---
     function forgotPass() {
-        const user = prompt("أدخل اسم المستخدم لاستعادة الباسورد عبر بريدك الاحتياطي:");
-        if (!user) return;
-        const safeId = user.replace(/[^a-zA-Z0-9]/g, "");
+        const emailInput = prompt("أدخل بريد الاسترداد المسجل في حسابك:");
+        if (!emailInput) return;
 
-        db.ref('users/' + safeId).once('value', snapshot => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                alert("جاري الإرسال إلى: " + data.recoveryEmail);
+        db.ref('users').once('value', snapshot => {
+            let foundUser = null;
+            snapshot.forEach(child => {
+                if (child.val().recoveryEmail === emailInput.trim()) {
+                    foundUser = child.val();
+                }
+            });
+
+            if (foundUser) {
+                alert("تم العثور على الحساب! جاري إرسال البيانات إلى بريدك...");
+                
                 emailjs.send("service_vv75pdh", "template_5glwjdq", {
-                    to_email: data.recoveryEmail,
-                    user_password: data.password
-                }).then(() => alert("تم الإرسال بنجاح!"));
+                    to_email: emailInput,
+                    user_name: foundUser.username,
+                    user_password: foundUser.password
+                }).then(() => {
+                    alert("تم الإرسال! تفقد صندوق الوارد أو الـ Spam.");
+                }).catch(err => {
+                    alert("خطأ في خدمة الإرسال. تأكد من إعدادات EmailJS.");
+                });
             } else {
-                alert("المستخدم غير موجود.");
+                alert("عذراً، هذا البريد غير مسجل في نظامنا.");
             }
         });
     }
 </script>
+
 </body>
 </html>
