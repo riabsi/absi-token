@@ -1,127 +1,37 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | Access</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --blue: #2d83ff; --text: #eaecef; }
-        body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .auth-box { background: var(--panel); padding: 25px; border-radius: 15px; border: 1px solid var(--gold); width: 100%; max-width: 320px; text-align: center; }
-        .auth-input { width: 100%; padding: 12px; margin: 8px 0; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; text-align: center; font-size: 16px; }
-        .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; color: black; }
-        header { height: 60px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; position: relative; }
-        .brand-center { position: absolute; left: 50%; transform: translateX(-50%); color: var(--gold); font-weight: bold; }
-        #chart-zone { height: 45vh; background: #000; }
-        .trade-zone { flex: 1; background: var(--panel); padding: 15px; border-top: 2px solid var(--gold); }
-    </style>
-</head>
-<body>
+// --- إعدادات نظام الإرسال الآلي (EmailJS) ---
+// 1. تفعيل الاتصال باستخدام مفتاحك العام
+emailjs.init("I7O-M98m-x4dW5R3t"); 
 
-    <div id="auth-screen">
-        <div class="auth-box">
-            <h2 style="color:var(--gold);">ABSI NEXUS</h2>
-            <input type="text" id="username" class="auth-input" placeholder="اسم المستخدم">
-            <input type="password" id="password" class="auth-input" placeholder="كلمة المرور">
-            <button class="auth-btn" onclick="handleAuth()">دخول للمنصة</button>
-            <p id="status-msg" style="font-size:0.7rem; color:gray; margin-top:10px;">بانتظار إدخال البيانات...</p>
-        </div>
-    </div>
+// 2. دالة استعادة الحساب وإرسال الإيميل
+function recoverAccount() {
+    const email = prompt("أدخل بريدك الإلكتروني المسجل لارسال كلمة المرور:");
+    if (!email) return;
 
-    <header>
-        <div style="display:flex; background:#000; border-radius:10px; padding:2px;">
-            <button id="rBtn" onclick="switchMode('REAL')" style="background:none; border:none; color:gray; font-size:0.6rem; padding:5px; cursor:pointer;">حقيقي</button>
-            <button id="dBtn" onclick="switchMode('DEMO')" style="background:var(--blue); border:none; color:white; font-size:0.6rem; padding:5px; border-radius:8px; cursor:pointer;">تجريبي</button>
-        </div>
-        <div class="brand-center">ABSI NEXUS</div>
-        <div style="text-align: left;">
-            <div id="accLabel" style="font-size:0.55rem; color:var(--blue);">محفظة التجريبي</div>
-            <div id="headBal" style="font-size:1rem; font-weight:bold;">0.00$</div>
-        </div>
-    </header>
+    // البحث في قاعدة بيانات Firebase عن البريد المدخل
+    db.ref('users').once('value', snapshot => {
+        let foundUser = null;
+        snapshot.forEach(child => {
+            if (child.val().email === email) {
+                foundUser = { name: child.key, pass: child.val().password };
+            }
+        });
 
-    <div id="chart-zone"><div id="tv_chart" style="height:100%;"></div></div>
+        if (foundUser) {
+            alert("جاري التحقق وإرسال البيانات لبريدك الإلكتروني...");
 
-    <div class="trade-zone">
-        <input type="number" id="tradeAmt" class="auth-input" style="margin-bottom:10px;" placeholder="المبلغ USDT">
-        <div style="display:flex; gap:10px;">
-            <button onclick="executeTrade('BUY')" style="flex:1; background:#0ecb81; color:white; padding:15px; border:none; border-radius:10px; font-weight:bold;">شراء</button>
-            <button onclick="executeTrade('SELL')" style="flex:1; background:#f6465d; color:white; padding:15px; border:none; border-radius:10px; font-weight:bold;">بيع</button>
-        </div>
-    </div>
-
-    <script src="https://s3.tradingview.com/tv.js"></script>
-    <script>
-        // الربط المباشر والأسرع
-        const firebaseConfig = { databaseURL: "https://riabsi-default-rtdb.firebaseio.com/" };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const db = firebase.database();
-
-        let currentUser = "";
-        let currentMode = "DEMO";
-        let currentBalance = 0;
-
-        function handleAuth() {
-            const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value.trim();
-            const msg = document.getElementById('status-msg');
-
-            if(!u || !p) { alert("أدخل البيانات"); return; }
-            msg.innerText = "جاري التحقق...";
-
-            db.ref('users/' + u).once('value').then(s => {
-                const data = s.val();
-                if(data && data.password === p) {
-                    login(u);
-                } else if(!data) {
-                    // إنشاء حساب تلقائي إذا لم يوجد لتسهيل الدخول
-                    db.ref('users/' + u).set({ password: p, balance_demo: 1000, balance_real: 0 })
-                      .then(() => login(u));
-                } else {
-                    msg.innerText = "خطأ في كلمة المرور";
-                    alert("كلمة المرور غير صحيحة");
-                }
-            }).catch(e => {
-                alert("خطأ في الاتصال بالسحابة");
-                console.error(e);
+            // إرسال البيانات باستخدام معرف الخدمة ومعرف القالب الخاص بك
+            emailjs.send("service_vv75pdh", "template_5glwjdq", {
+                to_email: email,
+                user_name: foundUser.name,
+                user_password: foundUser.pass
+            }).then(() => {
+                alert("تم الإرسال بنجاح! يرجى تفقد بريدك الإلكتروني الآن.");
+            }, (error) => {
+                alert("فشل الإرسال، تأكد من إعدادات الربط في EmailJS.");
+                console.error("FAILED...", error);
             });
+        } else {
+            alert("عذراً، هذا البريد الإلكتروني غير موجود في سجلاتنا.");
         }
-
-        function login(user) {
-            currentUser = user;
-            document.getElementById('auth-screen').style.display = 'none';
-            switchMode('DEMO');
-            new TradingView.widget({ "autosize": true, "symbol": "BINANCE:BTCUSDT", "theme": "dark", "container_id": "tv_chart", "locale": "ar" });
-        }
-
-        function switchMode(mode) {
-            currentMode = mode;
-            const path = mode === 'REAL' ? '/balance_real' : '/balance_demo';
-            
-            // تحديث الألوان
-            document.getElementById('accLabel').innerText = mode === 'REAL' ? "محفظة الحقيقي" : "محفظة التجريبي";
-            document.getElementById('accLabel').style.color = mode === 'REAL' ? "var(--gold)" : "var(--blue)";
-            
-            db.ref('users/' + currentUser + path).on('value', s => {
-                currentBalance = s.val() || 0;
-                document.getElementById('headBal').innerText = currentBalance.toFixed(2) + "$";
-            });
-        }
-
-        function executeTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value);
-            if(!amt || amt <= 0) return alert("أدخل مبلغاً صحيحاً");
-            if(amt > currentBalance) return alert("رصيدك غير كافٍ");
-
-            const newBal = currentBalance - amt;
-            const path = currentMode === 'REAL' ? '/balance_real' : '/balance_demo';
-            db.ref('users/' + currentUser + path).set(newBal).then(() => {
-                alert("تمت العملية بنجاح!");
-            });
-        }
-    </script>
-</body>
-</html>
+    });
+}
