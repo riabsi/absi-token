@@ -1,42 +1,32 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دخول مباشر للمنصة</title>
+    <title>فتح المنصة</title>
     <style>
+        /* مسح كل الأنماط القديمة */
         body { 
-            background: #0b0e11; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-            font-family: sans-serif; 
+            background: white !important; 
+            color: black !important; 
+            display: flex !important; 
+            justify-content: center !important; 
+            align-items: center !important; 
+            height: 100vh !important; 
+            margin: 0 !important; 
         }
-        .container { 
-            text-align: center; 
+        button { 
+            padding: 30px 60px; 
+            font-size: 25px; 
+            background: red; 
+            color: white; 
+            border-radius: 20px; 
+            cursor: pointer; 
         }
-        .btn-open { 
-            background: #f0b90b; 
-            color: black; 
-            padding: 25px 50px; 
-            border: none; 
-            border-radius: 12px; 
-            font-size: 22px; 
-            font-weight: bold; 
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(240, 185, 11, 0.4);
-        }
-        h1 { color: #f0b90b; margin-bottom: 30px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>ABSI NEXUS</h1>
-        <button class="btn-open" onclick="window.location.href='wallet.html'">دخول للمنصة الآن</button>
-    </div>
+    <button onclick="window.location.href='wallet.html'">اضغط هنا لفتح المنصة فوراً</button>
 
 </body>
 </html>
