@@ -3,101 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | Pro Trading</title>
+    <title>ABSI NEXUS | Authentication</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --buy: #0ecb81; --sell: #f6465d; --text: #eaecef; }
-        body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --text: #eaecef; }
+        body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* واجهة الدخول المحمية */
         #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .auth-box { background: var(--panel); padding: 30px; border-radius: 15px; border: 1px solid var(--gold); width: 100%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .auth-input { width: 100%; padding: 12px; margin: 8px 0; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; font-size: 1rem; }
+        .auth-box { background: var(--panel); padding: 30px; border-radius: 15px; border: 1px solid var(--gold); width: 100%; max-width: 350px; text-align: center; }
+        .auth-input { width: 100%; padding: 12px; margin: 8px 0; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; }
         
-        header { height: 50px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; }
-        .price-bar { background: #181a20; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gold); }
-        
-        /* تقسيم الشاشة */
-        #chart-zone { height: 45vh; width: 100%; background: #000; }
-        
-        .trade-zone { flex: 1; background: var(--panel); padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .amt-in { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; color: white; border-radius: 8px; text-align: center; font-size: 1.1rem; box-sizing: border-box; }
-        .btn-row { display: flex; gap: 10px; height: 50px; }
-        .btn-act { flex: 1; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
-        .btn-act:active { transform: scale(0.95); }
-        
-        /* دفتر الصفقات */
-        .log-container { margin-top: 5px; flex: 1; display: flex; flex-direction: column; }
-        .log-box { background: #121418; border-radius: 8px; border: 1px solid #333; flex: 1; min-height: 80px; overflow-y: auto; }
-        .order-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 0.85rem; }
-        
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; }
-        .modal-box { background: var(--panel); border-radius: 20px; padding: 25px; width: 85%; max-width: 320px; border: 1px solid var(--gold); text-align: center; }
+        .btn-main { background: var(--gold); border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-sub { background: none; border: 1px solid #444; color: #848e9c; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="auth-box">
-            <h2 style="color:var(--gold); margin-top:0;">ABSI NEXUS</h2>
-            <p style="font-size: 0.8rem; color: #848e9c;">أدخل بياناتك للوصول لمحفظتك السحابية</p>
+            <h2 id="auth-title" style="color:var(--gold)">تسجيل الدخول</h2>
             <input type="text" id="username" class="auth-input" placeholder="اسم المستخدم">
             <input type="password" id="password" class="auth-input" placeholder="كلمة المرور">
-            <button onclick="handleAuth()" style="background:var(--gold); border:none; width:100%; padding:14px; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;">دخول / إنشاء حساب</button>
+            
+            <button id="mainBtn" onclick="handleAuth('LOGIN')" class="btn-main">دخول</button>
+            <button id="toggleBtn" onclick="toggleMode()" class="btn-sub">ليس لديك حساب؟ إنشاء حساب جديد</button>
         </div>
     </div>
 
-    <header>
-        <div id="user-display" style="font-size: 0.85rem; color:var(--gold); font-weight:bold;">👤 زائر</div>
-        <div style="font-weight:bold; letter-spacing:1px;">ABSI NEXUS</div>
-        <button onclick="openMod('walletModal')" style="background:var(--gold); border:none; padding:6px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">محفظتي</button>
-    </header>
-
-    <div class="price-bar">
-        <select id="pairSelector" onchange="changePair(this.value)" style="background:#2b3139; color:white; border:1px solid #444; padding:6px; border-radius:5px; outline:none;">
-            <option value="BTCUSDT">BTC/USDT</option>
-            <option value="ETHUSDT">ETH/USDT</option>
-            <option value="SOLUSDT">SOL/USDT</option>
-            <option value="BNBUSDT">BNB/USDT</option>
-        </select>
-        <div id="live-price" style="color:var(--gold); font-family:monospace; font-weight:bold; font-size:1.2rem;">0.00 $</div>
-    </div>
-
-    <div id="chart-zone"><div id="tv_chart" style="height:100%;"></div></div>
-
-    <div class="trade-zone">
-        <input type="number" id="trade-amount" class="amt-in" placeholder="المبلغ المستثمر USDT">
-        <div class="btn-row">
-            <button class="btn-act" style="background:var(--buy)" onclick="trade('BUY')">شراء / LONG</button>
-            <button class="btn-act" style="background:var(--sell)" onclick="trade('SELL')">بيع / SHORT</button>
-        </div>
-        
-        <div class="log-container">
-            <div style="font-size: 0.8rem; margin-bottom: 5px; color: var(--gold); display: flex; justify-content: space-between;">
-                <span>دفتر الصفقات النشطة</span>
-                <span id="order-count">0</span>
-            </div>
-            <div id="active-orders" class="log-box">
-                </div>
-        </div>
-    </div>
-
-    <div class="modal" id="walletModal">
-        <div class="modal-box">
-            <h3 style="color:var(--gold); margin-top:0;">رصيدك الحالي</h3>
-            <div style="font-size:2.2rem; font-weight:bold; margin:20px 0; color:#fff;" id="display-bal">0.00$</div>
-            <p style="font-size:0.75rem; color:#848e9c; margin-bottom:5px;">عنوان الإيداع (TRC20):</p>
-            <div style="background:#121418; padding:10px; border-radius:8px; border:1px dashed var(--gold); word-break:break-all; font-size:0.7rem; color:var(--gold);">
-                TSWkiKSK8iuC3MMuz5ZwqGdyWkRe9vZkDb
-            </div>
-            <button onclick="closeMods()" style="margin-top:20px; background:none; border:1px solid #444; color:#fff; padding:8px 20px; border-radius:5px; cursor:pointer;">إغلاق</button>
-        </div>
-    </div>
-
-    <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // إعدادات Firebase
+        // ضع هنا بيانات Firebase Config الخاصة بك (نفس التي استخدمناها)
         const firebaseConfig = {
             apiKey: "AIzaSyBZ3NMwdz8GqUlVtE_WPLIBi8ZmR_uIy1U",
             authDomain: "absinexus.firebaseapp.com",
@@ -110,114 +45,46 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentUser = "";
-        let balance = 0;
-        let socket;
-        let orderCount = 0;
+        let isLoginMode = true;
 
-        // نظام تسجيل الدخول المحمي
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول" : "حساب جديد";
+            document.getElementById('mainBtn').innerText = isLoginMode ? "دخول" : "إنشاء الحساب الآن";
+            document.getElementById('toggleBtn').innerText = isLoginMode ? "ليس لديك حساب؟ إنشاء حساب جديد" : "لديك حساب بالفعل؟ دخول";
+        }
+
         function handleAuth() {
-            const user = document.getElementById('username').value.trim().toLowerCase();
+            const userRaw = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
-            
-            if(!user || !pass) return alert("الرجاء إكمال جميع الحقول");
+            const user = userRaw.replace(/[.@]/g, "_"); // تنظيف الاسم
 
-            db.ref('users/' + user).once('value', (snap) => {
+            if(!user || !pass) return alert("يرجى ملء الحقول");
+
+            db.ref('users/' + user).once('value').then((snap) => {
                 const data = snap.val();
-                if(data) {
-                    // إذا كان المستخدم موجوداً، نتحقق من كلمة السر
-                    if(data.password === pass) {
-                        loginSuccess(user, data.balance);
+
+                if (isLoginMode) {
+                    // وضع تسجيل الدخول
+                    if(data && data.password === pass) {
+                        alert("تم الدخول بنجاح");
+                        document.getElementById('auth-screen').style.display = 'none';
                     } else {
-                        alert("خطأ: كلمة المرور غير صحيحة لهذا الاسم!");
+                        alert("خطأ في الاسم أو كلمة المرور");
                     }
                 } else {
-                    // إذا كان الاسم جديداً، ننشئ حساباً جديداً
-                    const initialBalance = 1000.00;
-                    db.ref('users/' + user).set({
-                        password: pass,
-                        balance: initialBalance,
-                        createdAt: new Date().toISOString()
-                    }).then(() => loginSuccess(user, initialBalance));
+                    // وضع إنشاء حساب جديد
+                    if(data) {
+                        alert("هذا الاسم موجود بالفعل، اختر اسماً آخر");
+                    } else {
+                        db.ref('users/' + user).set({ password: pass, balance: 1000 }).then(() => {
+                            alert("مبروك! تم إنشاء حسابك برصيد 1000$");
+                            document.getElementById('auth-screen').style.display = 'none';
+                        });
+                    }
                 }
-            });
+            }).catch(e => alert("تأكد من تفعيل Rules في جوجل (جعلها true)"));
         }
-
-        function loginSuccess(user, bal) {
-            currentUser = user;
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('user-display').innerText = "👤 " + user.toUpperCase();
-            
-            // استماع دائم لتغيرات الرصيد في Firebase
-            db.ref('users/' + user + '/balance').on('value', (snapshot) => {
-                balance = snapshot.val();
-                document.getElementById('display-bal').innerText = balance.toFixed(2) + " $";
-            });
-        }
-
-        // نظام تبديل العملات والرسم البياني
-        function changePair(pair) {
-            // تحديث الرسم البياني
-            document.getElementById('tv_chart').innerHTML = "";
-            new TradingView.widget({
-                "autosize": true,
-                "symbol": "BINANCE:" + pair,
-                "interval": "1",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1",
-                "locale": "ar",
-                "container_id": "tv_chart",
-                "hide_side_toolbar": true,
-                "allow_symbol_change": false,
-                "save_image": false
-            });
-
-            // تحديث السعر المباشر عبر WebSocket
-            if(socket) socket.close();
-            socket = new WebSocket(`wss://stream.binance.com:9443/ws/${pair.toLowerCase()}@ticker`);
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                const price = parseFloat(data.c);
-                document.getElementById('live-price').innerText = price.toFixed(2) + " $";
-            };
-        }
-
-        // نظام التداول وتحديث البيانات
-        function trade(type) {
-            const amount = parseFloat(document.getElementById('trade-amount').value);
-            
-            if(isNaN(amount) || amount <= 0) return alert("يرجى إدخال مبلغ صحيح");
-            if(amount > balance) return alert("عذراً، رصيدك غير كافٍ لهذه العملية");
-
-            const newBalance = balance - amount;
-            
-            // تحديث الرصيد في Firebase
-            db.ref('users/' + currentUser).update({ balance: newBalance });
-
-            // إضافة الصفقة لدفتر الأوامر
-            orderCount++;
-            document.getElementById('order-count').innerText = orderCount;
-            const time = new Date().toLocaleTimeString('ar-EG', {hour12:false});
-            const color = type === 'BUY' ? 'var(--buy)' : 'var(--sell)';
-            
-            const row = `
-                <div class="order-row">
-                    <span style="color:${color}; font-weight:bold;">${type}</span>
-                    <span>${amount.toFixed(2)}$</span>
-                    <span style="font-size:0.7rem; color:#848e9c;">${time}</span>
-                    <span style="color:var(--gold)">نشط</span>
-                </div>
-            `;
-            const logBox = document.getElementById('active-orders');
-            logBox.innerHTML = row + logBox.innerHTML;
-        }
-
-        function openMod(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeMods() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
-
-        // تشغيل البيتكوين كافتراضي عند التحميل
-        window.onload = () => changePair("BTCUSDT");
     </script>
 </body>
 </html>
