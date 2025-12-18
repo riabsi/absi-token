@@ -3,72 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS | دخول</title>
+    <title>دخول مباشر</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { background: #0b0e11; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: #1e2329; padding: 30px; border-radius: 12px; border: 1px solid #f0b90b; width: 320px; text-align: center; }
+        body { background: #0b0e11; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        .login-card { background: #1e2329; padding: 40px; border-radius: 10px; text-align: center; width: 300px; border: 1px solid #f0b90b; }
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #2b3139; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #f0b90b; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .link { color: #f0b90b; font-size: 13px; cursor: pointer; display: block; margin-top: 15px; text-decoration: none; }
+        button { width: 100%; padding: 12px; background: #f0b90b; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: black; font-size: 16px; }
+        .toggle { color: #f0b90b; cursor: pointer; margin-top: 15px; display: block; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <h2 style="color:#f0b90b">ABSI NEXUS</h2>
-        <h3 id="status-title">تسجيل الدخول</h3>
-        
+    <div class="login-card">
+        <h2 id="title">تسجيل دخول</h2>
         <input type="text" id="user" placeholder="اسم المستخدم">
-        <div id="email-div" style="display:none;"><input type="email" id="email" placeholder="البريد الإلكتروني"></div>
         <input type="password" id="pass" placeholder="كلمة المرور">
-        
-        <button onclick="startAction()" id="btn-text">دخول للمنصة</button>
-        <a class="link" onclick="toggle()" id="toggle-link">إنشاء حساب جديد</a>
+        <button onclick="handle()">دخول الآن</button>
+        <span class="toggle" onclick="mode()">إنشاء حساب جديد</span>
     </div>
 
     <script>
-        // إعدادات قاعدة البيانات الخاصة بك
+        // ربط مباشر بقاعدة البيانات
         const config = { databaseURL: "https://riabsi-default-rtdb.firebaseio.com" };
         firebase.initializeApp(config);
         const db = firebase.database();
 
-        let isReg = false;
+        let isRegister = false;
 
-        function toggle() {
-            isReg = !isReg;
-            document.getElementById('status-title').innerText = isReg ? "حساب جديد" : "تسجيل الدخول";
-            document.getElementById('email-div').style.display = isReg ? "block" : "none";
-            document.getElementById('btn-text').innerText = isReg ? "إتمام التسجيل" : "دخول للمنصة";
-            document.getElementById('toggle-link').innerText = isReg ? "لديك حساب؟ سجل دخولك" : "إنشاء حساب جديد";
+        function mode() {
+            isRegister = !isRegister;
+            document.getElementById('title').innerText = isRegister ? "حساب جديد" : "تسجيل دخول";
         }
 
-        function startAction() {
+        function handle() {
             const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value.trim();
-            const e = document.getElementById('email').value.trim();
 
-            if(!u || !p) return alert("اكمل البيانات");
+            if (!u || !p) return alert("اكتب اليوزر والباسورد");
 
-            if(isReg) {
-                // تسجيل جديد بدون شروط معقدة للتجربة
-                db.ref('users/' + u).set({ email: e, password: p, balance_demo: 1000, balance_real: 0 }).then(() => {
-                    alert("تم الحفظ! جرب الدخول الآن");
+            if (isRegister) {
+                // حفظ بدون أي شروط أمان
+                db.ref('users/' + u).set({ password: p }).then(() => {
+                    alert("تم الحفظ بنجاح! جرب ادخل الآن");
                     location.reload();
                 });
             } else {
-                // الدخول
+                // دخول مباشر
                 db.ref('users/' + u).once('value', s => {
                     const data = s.val();
-                    if(data && data.password === p) {
-                        alert("نجح الدخول! سيتم نقلك الآن للمنصة");
-                        
-                        // التوجيه القسري المباشر
-                        window.location.assign("https://riabsi.github.io/absi-token/wallet.html");
-                        
+                    if (data && data.password === p) {
+                        // الانتقال القسري للمنصة
+                        window.location.href = "wallet.html";
                     } else {
-                        alert("بيانات خاطئة");
+                        alert("بياناتك غلط أو اليوزر مش موجود");
                     }
                 });
             }
