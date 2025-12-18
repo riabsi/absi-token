@@ -1,34 +1,30 @@
 const AbsiSecurity = {
     settings: {
-        // فحص مباشر للذاكرة
         getUserPin: function() {
             return localStorage.getItem('absi_user_pin');
-        },
-        maxAttempts: 3,
-        currentAttempts: 0
+        }
     },
-
     verifyProcess: function() {
         let storedPin = this.settings.getUserPin();
 
-        // إذا لم يجد رقم سري مخزن (أول مرة)
+        // 1. إذا كان المستخدم جديداً ولم يحدد رقماً بعد
         if (!storedPin) {
-            let newPin = prompt("🆕 أهلاً بك في ABSI NEXUS\nيرجى تعيين رقم سري جديد لعملياتك:");
+            let newPin = prompt("🆕 تعيين أمان ABSI NEXUS:\nيرجى كتابة رقم سري خاص بك لمرة واحدة:");
             if (newPin && newPin.length >= 4) {
                 localStorage.setItem('absi_user_pin', newPin);
-                alert("✅ تم حفظ رقمك السري بنجاح!");
+                alert("✅ تم حفظ رقمك السري! استعمله في كل مرة تتداول فيها.");
                 return true;
             }
-            alert("❌ يجب إدخال 4 أرقام على الأقل");
+            alert("❌ يجب إدخال 4 أرقام على الأقل.");
             return false;
         }
 
-        // إذا كان هناك رقم مخزن سابقاً
-        let input = prompt("🔒 يرجى إدخال رقمك السري لتأكيد العملية:");
+        // 2. إذا كان لديه رقم مخزن مسبقاً
+        let input = prompt("🔒 أدخل رقمك السري لتأكيد الصفقة:");
         if (input === storedPin) {
             return true;
         } else {
-            alert("❌ رقم سري خاطئ!");
+            alert("❌ الرقم السري خطأ!");
             return false;
         }
     }
