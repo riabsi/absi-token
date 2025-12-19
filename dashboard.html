@@ -3,157 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS | لوحة التداول</title>
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <title>ABSI NEXUS | الدخول والأمان</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
-        :root { --gold: #f0b90b; --bg: #0b0e11; --card: #1e2329; --green: #0ecb81; --red: #f6465d; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--card); border-radius: 10px; margin-bottom: 10px; }
-        .logo { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
-        
-        #chart { width: 100%; height: 300px; background: var(--card); border-radius: 10px; margin-bottom: 10px; }
-
-        .trade-controls { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; text-align: center; box-sizing: border-box; }
-        
-        .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .buy-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .sell-btn { background: var(--red); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* --- دفتر الأوامر (Order Book) --- */
-        .order-book { margin-top: 20px; background: #161a1e; border-radius: 10px; padding: 10px; border: 1px solid #333; }
-        .order-header { display: flex; justify-content: space-between; color: #848e9c; font-size: 0.8rem; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; }
-        .order-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2b3139; font-size: 0.85rem; }
-        .pnl-plus { color: var(--green); font-weight: bold; }
-        .pnl-minus { color: var(--red); font-weight: bold; }
-        .close-btn { background: #333; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.7rem; }
+        :root { --gold: #f0b90b; --bg: #0b0e11; --card: #1e2329; }
+        body { background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: var(--card); padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; border: 1px solid #333; text-align: center; }
+        h2 { color: var(--gold); margin-bottom: 25px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; box-sizing: border-box; text-align: center; }
+        button { width: 100%; padding: 15px; margin-top: 15px; border-radius: 8px; border: none; background: var(--gold); color: black; font-weight: bold; cursor: pointer; }
+        .links { margin-top: 20px; font-size: 0.8rem; color: #848e9c; }
+        .links span { color: var(--gold); cursor: pointer; text-decoration: underline; margin: 0 5px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="logo">ABSI NEXUS</div>
-        <div id="balanceDisplay" style="color: var(--gold);">الرصيد: 0.00$</div>
-    </div>
-
-    <div id="chart"></div>
-
-    <div class="trade-controls">
-        <input type="number" id="amount" value="100" placeholder="الكمية USDT">
-        <div class="btns">
-            <button class="buy-btn" onclick="placeOrder('buy')">شراء / Long</button>
-            <button class="sell-btn" onclick="placeOrder('sell')">بيع / Short</button>
+<div class="login-card">
+    <h2>ABSI NEXUS</h2>
+    <div id="auth-form">
+        <input type="text" id="user" placeholder="اسم المستخدم">
+        <input type="password" id="pass" placeholder="كلمة المرور">
+        <div id="extra-fields" style="display: none;">
+            <input type="email" id="recoveryEmail" placeholder="بريد الاسترداد (للأمان)">
         </div>
-
-        <div class="order-book">
-            <div class="order-header">
-                <span>النوع</span>
-                <span>الكمية</span>
-                <span>الربح/الخسارة</span>
-                <span>إجراء</span>
-            </div>
-            <div id="ordersList">
-                </div>
-        </div>
+        <button id="mainBtn" onclick="handleAuth()">دخول</button>
     </div>
+    
+    <div class="links">
+        <p id="toggleText">ليس لديك حساب؟ <span onclick="toggleMode()">إنشاء حساب جديد</span></p>
+        <p id="forgotLink">نسيت كلمة المرور؟ <span onclick="forgotPass()">استعادة عبر البريد</span></p>
+    </div>
+</div>
 
 <script>
-    // إعدادات Firebase
+    // 1. إعدادات Firebase
     const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    
+    // 2. تفعيل EmailJS ببياناتك الحقيقية من الصور
+    (function() { 
+        emailjs.init("I7O-M98m-x4dW5R3t"); // Public Key من صورتك
+    })(); 
 
-    const user = new URLSearchParams(window.location.search).get('user') || 'guest';
-    let currentPrice = 0;
-    let userBalance = 0;
-    let activeTrades = [];
+    let isLogin = true;
 
-    // جلب رصيد المستخدم
-    db.ref('users/' + user).on('value', s => {
-        if(s.exists()) {
-            userBalance = s.val().balance_demo;
-            document.getElementById('balanceDisplay').innerText = `الرصيد التجريبي: ${userBalance.toFixed(2)}$`;
+    function toggleMode() {
+        isLogin = !isLogin;
+        document.getElementById('extra-fields').style.display = isLogin ? 'none' : 'block';
+        document.getElementById('mainBtn').innerText = isLogin ? 'دخول' : 'تأكيد التسجيل';
+    }
+
+    function handleAuth() {
+        const user = document.getElementById('user').value.trim();
+        const pass = document.getElementById('pass').value.trim();
+        const email = document.getElementById('recoveryEmail').value.trim().toLowerCase();
+
+        if (isLogin) {
+            db.ref('users/' + user).once('value', s => {
+                if (s.exists() && s.val().password === pass) {
+                    window.location.href = "dashboard.html?user=" + user;
+                } else { alert("خطأ في البيانات"); }
+            });
+        } else {
+            if (!email) return alert("البريد مطلوب!");
+            db.ref('users/' + user).set({
+                username: user, password: pass, recoveryEmail: email,
+                balance_real: 0, balance_demo: 1000
+            }).then(() => { alert("تم إنشاء الحساب!"); toggleMode(); });
         }
-    });
-
-    // إعداد الرسم البياني
-    const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-        layout: { backgroundColor: '#0b0e11', textColor: '#848e9c' },
-        grid: { vertLines: { color: '#1e2329' }, horzLines: { color: '#1e2329' } },
-    });
-    const series = chart.addCandlestickSeries({ upColor: '#0ecb81', downColor: '#f6465d' });
-
-    // اتصال مباشر بسعر البتكوين (Binance)
-    const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
-    ws.onmessage = (e) => {
-        const k = JSON.parse(e.data).k;
-        currentPrice = parseFloat(k.c);
-        series.update({ time: k.t / 1000, open: +k.o, high: +k.h, low: +k.l, close: currentPrice });
-        updateOrderBook(); // تحديث الأرباح والخسائر مع كل حركة سعر
-    };
-
-    // وظيفة فتح صفقة
-    function placeOrder(type) {
-        const amt = parseFloat(document.getElementById('amount').value);
-        if (amt > userBalance) return alert("الرصيد غير كافٍ!");
-
-        const trade = {
-            id: Date.now(),
-            type: type,
-            entryPrice: currentPrice,
-            amount: amt
-        };
-
-        activeTrades.push(trade);
-        // خصم مؤقت من الرصيد في الواجهة
-        userBalance -= amt;
-        db.ref('users/' + user).update({ balance_demo: userBalance });
-        updateOrderBook();
     }
 
-    // تحديث دفتر الأوامر وحساب الأرباح
-    function updateOrderBook() {
-        const list = document.getElementById('ordersList');
-        list.innerHTML = '';
+    // 3. استعادة كلمة المرور باستخدام معرف الخدمة الجديد
+    function forgotPass() {
+        const emailInput = prompt("أدخل بريد الاسترداد المسجل:");
+        if (!emailInput) return;
+        const searchEmail = emailInput.trim().toLowerCase();
 
-        activeTrades.forEach((trade, index) => {
-            let pnl = 0;
-            if (trade.type === 'buy') {
-                pnl = (currentPrice - trade.entryPrice) * (trade.amount / trade.entryPrice);
+        db.ref('users').once('value', snapshot => {
+            let foundUser = null;
+            snapshot.forEach(child => {
+                if (child.val().recoveryEmail === searchEmail) foundUser = child.val();
+            });
+
+            if (foundUser) {
+                alert("تم التحقق! جاري الإرسال...");
+                
+                emailjs.send("service_782r24l", "template_5glwjdq", { // Service ID الجديد
+                    to_email: searchEmail,
+                    user_name: foundUser.username,
+                    user_password: foundUser.password
+                }).then(() => {
+                    alert("تم إرسال بيانات الدخول إلى بريدك بنجاح!");
+                }).catch(err => {
+                    alert("فشل الإرسال، تأكد من إعدادات القالب.");
+                });
             } else {
-                pnl = (trade.entryPrice - currentPrice) * (trade.amount / trade.entryPrice);
+                alert("هذا البريد غير مسجل.");
             }
-
-            const pnlClass = pnl >= 0 ? 'pnl-plus' : 'pnl-minus';
-
-            list.innerHTML += `
-                <div class="order-row">
-                    <span style="color:${trade.type === 'buy' ? '#0ecb81' : '#f6465d'}">${trade.type === 'buy' ? 'شراء' : 'بيع'}</span>
-                    <span>${trade.amount}$</span>
-                    <span class="${pnlClass}">${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}$</span>
-                    <button class="close-btn" onclick="closeTrade(${index}, ${pnl})">إغلاق</button>
-                </div>
-            `;
         });
-    }
-
-    // إغلاق الصفقة وإرجاع الرصيد مع الربح/الخسارة
-    function closeTrade(index, pnl) {
-        const trade = activeTrades[index];
-        const finalReturn = trade.amount + pnl;
-
-        db.ref('users/' + user).once('value', s => {
-            const latestBalance = s.val().balance_demo;
-            db.ref('users/' + user).update({ balance_demo: latestBalance + finalReturn });
-        });
-
-        activeTrades.splice(index, 1);
-        updateOrderBook();
-        alert(`تم إغلاق الصفقة بنتيجة: ${pnl.toFixed(2)}$`);
     }
 </script>
 </body>
