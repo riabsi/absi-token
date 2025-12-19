@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS | الأمان والدخول</title>
+    <title>ABSI NEXUS | الدخول والأمان</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -12,10 +12,10 @@
     <style>
         :root { --gold: #f0b90b; --bg: #0b0e11; --card: #1e2329; }
         body { background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-card { background: var(--card); padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; text-align: center; }
+        .login-card { background: var(--card); padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; border: 1px solid #333; text-align: center; }
         h2 { color: var(--gold); margin-bottom: 25px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; margin-top: 15px; border-radius: 8px; border: none; background: var(--gold); color: black; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; box-sizing: border-box; text-align: center; }
+        button { width: 100%; padding: 15px; margin-top: 15px; border-radius: 8px; border: none; background: var(--gold); color: black; font-weight: bold; cursor: pointer; }
         .links { margin-top: 20px; font-size: 0.8rem; color: #848e9c; }
         .links span { color: var(--gold); cursor: pointer; text-decoration: underline; margin: 0 5px; }
     </style>
@@ -28,7 +28,7 @@
         <input type="text" id="user" placeholder="اسم المستخدم">
         <input type="password" id="pass" placeholder="كلمة المرور">
         <div id="extra-fields" style="display: none;">
-            <input type="email" id="recoveryEmail" placeholder="بريد الاسترداد (يستخدم للأمان)">
+            <input type="email" id="recoveryEmail" placeholder="بريد الاسترداد (للأمان)">
         </div>
         <button id="mainBtn" onclick="handleAuth()">دخول</button>
     </div>
@@ -40,12 +40,15 @@
 </div>
 
 <script>
-    // --- 1. إعدادات Firebase & EmailJS ---
+    // 1. إعدادات Firebase
     const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     
-    (function() { emailjs.init("user_XqG187hYf62m20t38"); })(); 
+    // 2. تفعيل EmailJS ببياناتك الحقيقية من الصور
+    (function() { 
+        emailjs.init("I7O-M98m-x4dW5R3t"); // Public Key من صورتك
+    })(); 
 
     let isLogin = true;
 
@@ -53,94 +56,57 @@
         isLogin = !isLogin;
         document.getElementById('extra-fields').style.display = isLogin ? 'none' : 'block';
         document.getElementById('mainBtn').innerText = isLogin ? 'دخول' : 'تأكيد التسجيل';
-        document.getElementById('toggleText').innerHTML = isLogin ? 
-            'ليس لديك حساب؟ <span onclick="toggleMode()">إنشاء حساب جديد</span>' : 
-            'لديك حساب بالفعل؟ <span onclick="toggleMode()">تسجيل الدخول</span>';
     }
 
-    // --- 2. نظام الدخول والتسجيل مع التحقق من تكرار البريد ---
     function handleAuth() {
         const user = document.getElementById('user').value.trim();
         const pass = document.getElementById('pass').value.trim();
         const email = document.getElementById('recoveryEmail').value.trim().toLowerCase();
 
-        if (!user || !pass) return alert("يرجى ملء الخانات الأساسية");
-
         if (isLogin) {
             db.ref('users/' + user).once('value', s => {
                 if (s.exists() && s.val().password === pass) {
                     window.location.href = "dashboard.html?user=" + user;
-                } else {
-                    alert("خطأ في اسم المستخدم أو كلمة المرور");
-                }
+                } else { alert("خطأ في البيانات"); }
             });
         } else {
-            if (!email) return alert("يرجى إدخال بريد الاسترداد للأمان");
-
-            // فحص هل البريد الإلكتروني مستخدم من قبل مستخدم آخر؟
-            db.ref('users').once('value', snapshot => {
-                let emailInUse = false;
-                snapshot.forEach(child => {
-                    if (child.val().recoveryEmail && child.val().recoveryEmail.toLowerCase() === email) {
-                        emailInUse = true;
-                    }
-                });
-
-                if (emailInUse) {
-                    alert("هذا البريد الإلكتروني مسجل بالفعل بحساب آخر. يرجى استخدام بريد مختلف.");
-                } else {
-                    // إذا كان البريد فريداً، نقوم بإنشاء الحساب
-                    db.ref('users/' + user).set({
-                        username: user,
-                        password: pass,
-                        recoveryEmail: email,
-                        balance_real: 0,
-                        balance_demo: 1000
-                    }).then(() => {
-                        alert("تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول.");
-                        toggleMode();
-                    });
-                }
-            });
+            if (!email) return alert("البريد مطلوب!");
+            db.ref('users/' + user).set({
+                username: user, password: pass, recoveryEmail: email,
+                balance_real: 0, balance_demo: 1000
+            }).then(() => { alert("تم إنشاء الحساب!"); toggleMode(); });
         }
     }
 
-    // --- 3. نظام استعادة كلمة المرور المعتمد كلياً على الإيميل ---
+    // 3. استعادة كلمة المرور باستخدام معرف الخدمة الجديد
     function forgotPass() {
-        const emailInput = prompt("أدخل بريد الاسترداد المسجل في حسابك (التحقق بالأمان):");
+        const emailInput = prompt("أدخل بريد الاسترداد المسجل:");
         if (!emailInput) return;
-
         const searchEmail = emailInput.trim().toLowerCase();
 
         db.ref('users').once('value', snapshot => {
             let foundUser = null;
-            
-            // البحث عن الشخص الذي يملك هذا الإيميل الفريد
             snapshot.forEach(child => {
-                const data = child.val();
-                if (data.recoveryEmail && data.recoveryEmail.toLowerCase() === searchEmail) {
-                    foundUser = data;
-                }
+                if (child.val().recoveryEmail === searchEmail) foundUser = child.val();
             });
 
             if (foundUser) {
-                alert("تم التحقق من البريد بنجاح! جاري إرسال بيانات المستخدم [" + foundUser.username + "] إلى بريدك...");
+                alert("تم التحقق! جاري الإرسال...");
                 
-                emailjs.send("service_vv75pdh", "template_5glwjdq", {
+                emailjs.send("service_782r24l", "template_5glwjdq", { // Service ID الجديد
                     to_email: searchEmail,
                     user_name: foundUser.username,
                     user_password: foundUser.password
                 }).then(() => {
-                    alert("تم الإرسال! تفقد صندوق الوارد أو الـ Spam.");
+                    alert("تم إرسال بيانات الدخول إلى بريدك بنجاح!");
                 }).catch(err => {
-                    alert("حدث خطأ في خدمة الإرسال. تأكد من إعدادات EmailJS.");
+                    alert("فشل الإرسال، تأكد من إعدادات القالب.");
                 });
             } else {
-                alert("عذراً، لا يوجد أي حساب مرتبط بهذا البريد الإلكتروني.");
+                alert("هذا البريد غير مسجل.");
             }
         });
     }
 </script>
-
 </body>
 </html>
