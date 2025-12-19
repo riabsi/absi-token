@@ -3,215 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS | النظام المطور</title>
+    <title>ABSI NEXUS | النظام المتكامل</title>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
         :root { --gold: #f0b90b; --bg: #0b0e11; --card: #1e2329; --green: #0ecb81; --red: #f6465d; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; overflow-x: hidden; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 20px; overflow-x: hidden; }
         
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--card); border-bottom: 1px solid #333; }
-        .user-info { display: flex; align-items: center; gap: 8px; }
+        /* Header المطور */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: var(--card); border-bottom: 1px solid #333; height: 60px; position: sticky; top: 0; z-index: 1000; }
+        .logo-text { color: var(--gold); font-weight: bold; font-size: 1.2rem; position: absolute; left: 50%; transform: translateX(-50%); }
+        .user-section { display: flex; align-items: center; gap: 10px; }
         .profile-pic { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--gold); }
-        
-        /* Notifications Bell */
-        .notif-box { position: relative; margin: 0 10px; cursor: pointer; }
-        .bell-icon { font-size: 20px; color: var(--gold); }
-        .notif-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: red; border-radius: 50%; border: 1px solid var(--bg); }
+        .bell-btn { font-size: 20px; cursor: pointer; position: relative; }
+        .notif-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: red; border-radius: 50%; }
 
-        .wallet-btn { background: var(--gold); color: black; border: none; padding: 6px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        /* Wallet Button */
+        .wallet-btn { background: var(--gold); color: black; border: none; padding: 7px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
 
-        /* News Ticker (شريط الأخبار) */
-        .news-ticker { background: #161a1e; color: var(--gold); padding: 5px 0; font-size: 0.8rem; border-bottom: 1px solid #333; overflow: hidden; white-space: nowrap; }
-        .ticker-text { display: inline-block; animation: ticker 30s linear infinite; padding-left: 100%; }
-        @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+        /* Chart Area */
+        #chart-container { width: 100%; height: 320px; background: #0b0e11; position: relative; margin-top: 5px; }
 
         /* Trading & Layout */
-        #chart { width: 100%; height: 300px; }
-        .trade-box { padding: 15px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; text-align: center; box-sizing: border-box; }
-        .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .buy-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; }
-        .sell-btn { background: var(--red); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; }
+        .trade-section { padding: 10px 15px; }
+        .amount-input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; text-align: center; font-size: 1.1rem; }
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-buy { background: var(--green); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; }
+        .btn-sell { background: var(--red); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; }
 
         /* Order Book */
         .order-book { margin-top: 15px; background: var(--card); border-radius: 10px; padding: 10px; border: 1px solid #333; }
-        .order-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2b3139; font-size: 0.8rem; }
-        .close-x { background: #333; color: white; border: none; border-radius: 3px; padding: 2px 6px; }
+        .order-head { display: flex; justify-content: space-between; color: #848e9c; font-size: 0.75rem; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 8px; }
+        .order-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2b3139; font-size: 0.85rem; }
 
-        /* Wallet Popup */
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--gold); z-index: 100; width: 280px; text-align: center; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99; }
-        .active-mode { background: var(--gold); color: black !important; }
-        .mode-switch button { background: #333; color: white; border: none; padding: 8px; width: 45%; border-radius: 5px; margin: 5px; }
+        /* Popups */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid var(--gold); z-index: 2000; width: 85%; max-width: 320px; text-align: center; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1500; }
+        .deposit-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid #444; }
+        .deposit-btn { background: #0ecb81; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
+        .switch-group { display: flex; gap: 10px; margin: 15px 0; }
+        .switch-group button { flex: 1; padding: 8px; border: none; border-radius: 5px; background: #333; color: white; }
+        .active-mode { background: var(--gold) !important; color: black !important; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="user-info">
+        <div class="user-section">
             <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="profile-pic">
-            <span id="usernameDisplay">...</span>
+            <span id="displayUser">...</span>
         </div>
         
-        <div class="notif-box" onclick="showLatestNews()">
-            <span class="bell-icon">🔔</span>
-            <div class="notif-dot"></div>
-        </div>
+        <div class="logo-text">ABSI NEXUS</div>
 
-        <button class="wallet-btn" onclick="toggleWallet()">محفظتي</button>
-    </div>
-
-    <div class="news-ticker">
-        <div class="ticker-text" id="newsContent">
-            جاري جلب أخبار الأسواق العالمية... تحديثات الفيدرالي الأمريكي... تقلبات البتكوين الحالية... إطلاق خدمة ABSI NEXUS الجديدة...
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="bell-btn" onclick="alert('سوق العملات الرقمية مستقر حالياً')">🔔<div class="notif-dot"></div></div>
+            <button class="wallet-btn" onclick="openWallet()">محفظتي</button>
         </div>
     </div>
 
-    <div id="chart"></div>
+    <div id="chart-container"></div>
 
-    <div class="trade-box">
-        <input type="number" id="tradeAmount" value="100">
-        <div class="btns">
-            <button class="buy-btn" onclick="openTrade('buy')">شراء</button>
-            <button class="sell-btn" onclick="openTrade('sell')">بيع</button>
+    <div class="trade-section">
+        <input type="number" id="tradeAmt" class="amount-input" value="100">
+        <div class="action-btns">
+            <button class="btn-buy" onclick="startTrade('buy')">شراء</button>
+            <button class="btn-sell" onclick="startTrade('sell')">بيع</button>
         </div>
 
         <div class="order-book">
-            <div style="display: flex; justify-content: space-between; color: #848e9c; font-size: 0.7rem; margin-bottom: 5px;">
+            <div class="order-head">
                 <span>النوع</span><span>الكمية</span><span>الربح/الخسارة</span><span>إغلاق</span>
             </div>
-            <div id="ordersContainer"></div>
+            <div id="tradesList"></div>
         </div>
     </div>
 
-    <div class="overlay" id="overlay" onclick="toggleWallet()"></div>
+    <div class="overlay" id="overlay" onclick="closeWallet()"></div>
     <div class="modal" id="walletModal">
-        <h3>محفظة ABSI</h3>
-        <p>الرصيد: <span id="balanceDisplay">0.00$</span></p>
-        <div class="mode-switch">
-            <button id="realBtn" onclick="switchMode('real')">حقيقي</button>
-            <button id="demoBtn" onclick="switchMode('demo')">تجريبي</button>
+        <h3 style="color:var(--gold); margin-top:0;">محفظة ABSI</h3>
+        <p>الرصيد المتاح:</p>
+        <h2 id="balanceText" style="margin:10px 0;">0.00$</h2>
+        
+        <div class="switch-group">
+            <button id="btnReal" onclick="setMode('real')">حقيقي</button>
+            <button id="btnDemo" onclick="setMode('demo')" class="active-mode">تجريبي</button>
         </div>
-        <button onclick="toggleWallet()" style="margin-top:15px; color:#848e9c; border:none; background:none;">إغلاق</button>
+
+        <div class="deposit-section">
+            <p style="font-size:0.8rem; color:#848e9c;">هل ترغب في زيادة رصيدك؟</p>
+            <button class="deposit-btn" onclick="requestDeposit()">➕ طلب إيداع أموال</button>
+        </div>
+        
+        <button onclick="closeWallet()" style="margin-top:20px; background:none; border:none; color:#848e9c; cursor:pointer;">إغلاق</button>
     </div>
 
 <script>
+    // Firebase
     const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const urlParams = new URLSearchParams(window.location.search);
-    const user = urlParams.get('user') || 'guest';
-    document.getElementById('usernameDisplay').innerText = user;
+    
+    const params = new URLSearchParams(window.location.search);
+    const currentUser = params.get('user') || 'Guest';
+    document.getElementById('displayUser').innerText = currentUser;
 
-    let currentBalance = 0;
-    let mode = 'demo';
-    let currentPrice = 0;
-    let openTrades = [];
+    let balance = 0;
+    let currentMode = 'demo';
+    let btcPrice = 0;
+    let trades = [];
 
-    // --- نظام الإشعارات والأخبار ---
-    function showLatestNews() {
-        alert("تنبيه السوق: البتكوين يختبر مناطق دعم جديدة. الأخبار الحالية تشير إلى تفاؤل في الأسواق الناشئة.");
+    // Wallet Logic
+    function openWallet() {
+        document.getElementById('walletModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+    function closeWallet() {
+        document.getElementById('walletModal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+    function setMode(m) {
+        currentMode = m;
+        document.getElementById('btnReal').className = (m === 'real' ? 'active-mode' : '');
+        document.getElementById('btnDemo').className = (m === 'demo' ? 'active-mode' : '');
+        syncData();
+    }
+    function requestDeposit() {
+        const amount = prompt("أدخل المبلغ المراد إيداعه ($):");
+        if(amount) alert("تم إرسال طلب الإيداع للإدارة. سيتم التحديث فور التأكد.");
     }
 
-    function updateMarketNews() {
-        const news = [
-            "🔥 اختراق البتكوين لحاجز الـ 86,000$ يثير حماس المستثمرين",
-            "📊 تقرير: تدفقات مالية ضخمة تدخل صناديق الـ ETF للعملات الرقمية",
-            "⚡ شركة تسلا تعلن عن تحديثات بخصوص قبول الدفع بالكريبتو قريباً",
-            "🌍 الأسواق الآسيوية تفتتح على ارتفاع ملحوظ اليوم"
-        ];
-        document.getElementById('newsContent').innerText = news.join(" | ");
-    }
-    setInterval(updateMarketNews, 60000); // تحديث الأخبار كل دقيقة
-
-    // --- وظائف المحفظة ---
-    function loadUserData() {
-        db.ref('users/' + user).on('value', s => {
+    function syncData() {
+        db.ref('users/' + currentUser).on('value', s => {
             const data = s.val();
-            currentBalance = mode === 'demo' ? data.balance_demo : data.balance_real;
-            document.getElementById('balanceDisplay').innerText = currentBalance.toFixed(2) + "$";
+            balance = (currentMode === 'demo') ? data.balance_demo : data.balance_real;
+            document.getElementById('balanceText').innerText = balance.toFixed(2) + "$";
         });
     }
 
-    function toggleWallet() {
-        const m = document.getElementById('walletModal');
-        const o = document.getElementById('overlay');
-        const show = m.style.display !== 'block';
-        m.style.display = show ? 'block' : 'none';
-        o.style.display = show ? 'block' : 'none';
-    }
-
-    function switchMode(m) {
-        mode = m;
-        document.getElementById('realBtn').className = mode === 'real' ? 'active-mode' : '';
-        document.getElementById('demoBtn').className = mode === 'demo' ? 'active-mode' : '';
-        loadUserData();
-    }
-
-    // --- الرسم البياني والتداول ---
-    const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+    // Charting (TradingView Lightweight)
+    const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
         layout: { backgroundColor: '#0b0e11', textColor: '#848e9c' },
         grid: { vertLines: { color: '#1e2329' }, horzLines: { color: '#1e2329' } },
         priceScale: { borderColor: '#333' },
-        timeScale: { borderColor: '#333' }
+        timeScale: { borderColor: '#333', timeVisible: true }
     });
-    const candleSeries = chart.addCandlestickSeries({ upColor: '#0ecb81', downColor: '#f6465d' });
+    const series = chart.addCandlestickSeries({ upColor: '#0ecb81', downColor: '#f6465d' });
 
-    fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=100')
-        .then(r => r.json()).then(data => {
-            const formatted = data.map(d => ({ time: d[0]/1000, open: +d[1], high: +d[2], low: +d[3], close: +d[4] }));
-            candleSeries.setData(formatted);
-            currentPrice = formatted[formatted.length-1].close;
+    // Binance Data
+    fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=80')
+        .then(res => res.json()).then(data => {
+            const candles = data.map(d => ({ time: d[0]/1000, open: +d[1], high: +d[2], low: +d[3], close: +d[4] }));
+            series.setData(candles);
+            btcPrice = candles[candles.length-1].close;
         });
 
-    const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
-    ws.onmessage = (e) => {
+    const socket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
+    socket.onmessage = (e) => {
         const k = JSON.parse(e.data).k;
-        currentPrice = parseFloat(k.c);
-        candleSeries.update({ time: k.t/1000, open: +k.o, high: +k.h, low: +k.l, close: currentPrice });
-        updateTradesDisplay();
+        btcPrice = parseFloat(k.c);
+        series.update({ time: k.t/1000, open: +k.o, high: +k.h, low: +k.l, close: btcPrice });
+        refreshTrades();
     };
 
-    function openTrade(type) {
-        const amt = parseFloat(document.getElementById('tradeAmount').value);
-        if(amt > currentBalance) return alert("رصيد غير كافٍ!");
+    // Trade Logic
+    function startTrade(type) {
+        const amt = parseFloat(document.getElementById('tradeAmt').value);
+        if(amt > balance) return alert("الرصيد غير كافٍ!");
         
-        openTrades.push({ id: Date.now(), type, entryPrice: currentPrice, amount: amt });
-        const key = mode === 'demo' ? 'balance_demo' : 'balance_real';
-        db.ref('users/' + user).update({ [key]: currentBalance - amt });
+        trades.push({ id: Date.now(), type, entry: btcPrice, amount: amt });
+        const key = (currentMode === 'demo') ? 'balance_demo' : 'balance_real';
+        db.ref('users/' + currentUser).update({ [key]: balance - amt });
     }
 
-    function updateTradesDisplay() {
-        const container = document.getElementById('ordersContainer');
-        container.innerHTML = '';
-        openTrades.forEach((t, i) => {
-            let pnl = (t.type === 'buy') ? (currentPrice - t.entryPrice) * (t.amount/t.entryPrice) : (t.entryPrice - currentPrice) * (t.amount/t.entryPrice);
-            container.innerHTML += `
-                <div class="order-row">
+    function refreshTrades() {
+        const list = document.getElementById('tradesList');
+        list.innerHTML = '';
+        trades.forEach((t, i) => {
+            let pnl = (t.type === 'buy') ? (btcPrice - t.entry) * (t.amount/t.entry) : (t.entry - btcPrice) * (t.amount/t.entry);
+            list.innerHTML += `
+                <div class="order-item">
                     <span style="color:${t.type==='buy'?'#0ecb81':'#f6465d'}">${t.type==='buy'?'شراء':'بيع'}</span>
                     <span>${t.amount}$</span>
                     <span style="color:${pnl>=0?'#0ecb81':'#f6465d'}">${pnl.toFixed(2)}$</span>
-                    <button class="close-x" onclick="closeTrade(${i}, ${pnl})">X</button>
+                    <button class="close-x" style="background:#333; color:white; border:none; border-radius:3px; padding:2px 6px;" onclick="closeOrder(${i}, ${pnl})">X</button>
                 </div>`;
         });
     }
 
-    function closeTrade(i, pnl) {
-        const t = openTrades[i];
-        const key = mode === 'demo' ? 'balance_demo' : 'balance_real';
-        db.ref('users/' + user).once('value', s => {
-            db.ref('users/' + user).update({ [key]: s.val()[key] + (t.amount + pnl) });
+    function closeOrder(index, pnl) {
+        const t = trades[index];
+        const key = (currentMode === 'demo') ? 'balance_demo' : 'balance_real';
+        db.ref('users/' + currentUser).once('value', s => {
+            db.ref('users/' + currentUser).update({ [key]: s.val()[key] + (t.amount + pnl) });
         });
-        openTrades.splice(i, 1);
-        updateTradesDisplay();
+        trades.splice(index, 1);
+        refreshTrades();
     }
 
-    loadUserData();
-    updateMarketNews();
+    syncData();
 </script>
 </body>
 </html>
