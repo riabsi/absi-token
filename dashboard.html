@@ -2,120 +2,216 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ABSI NEXUS | التداول المباشر</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABSI NEXUS | النظام المطور</title>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://s3.tradingview.com/tv.js"></script>
-    
+
     <style>
-        :root { --bg: #0b0e11; --panel: #1e2329; --gold: #f0b90b; --text: #eaecef; }
-        body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        :root { --gold: #f0b90b; --bg: #0b0e11; --card: #1e2329; --green: #0ecb81; --red: #f6465d; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; overflow-x: hidden; }
         
-        header { height: 60px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; }
-        .brand-center { position: absolute; left: 50%; transform: translateX(-50%); color: var(--gold); font-weight: bold; font-size: 1.2rem; }
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--card); border-bottom: 1px solid #333; }
+        .user-info { display: flex; align-items: center; gap: 8px; }
+        .profile-pic { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--gold); }
         
-        #chart-zone { height: 50vh; background: #000; }
-        .trade-zone { flex: 1; background: var(--panel); padding: 15px; border-top: 2px solid var(--gold); }
-        
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; color: white; transition: 0.2s; }
-        .btn:active { transform: scale(0.95); }
-        .btn-buy { background: #0ecb81; }
-        .btn-sell { background: #f6465d; }
-        
-        input { width: 100%; padding: 12px; background: #2b3139; border: 1px solid #444; border-radius: 8px; color: white; text-align: center; font-size: 1.1rem; }
-        
-        /* تصميم الرسالة المنبثقة السريعة */
-        .toast { position: fixed; top: 20%; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 10px 25px; border-radius: 30px; font-weight: bold; z-index: 10000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        /* Notifications Bell */
+        .notif-box { position: relative; margin: 0 10px; cursor: pointer; }
+        .bell-icon { font-size: 20px; color: var(--gold); }
+        .notif-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: red; border-radius: 50%; border: 1px solid var(--bg); }
+
+        .wallet-btn { background: var(--gold); color: black; border: none; padding: 6px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+
+        /* News Ticker (شريط الأخبار) */
+        .news-ticker { background: #161a1e; color: var(--gold); padding: 5px 0; font-size: 0.8rem; border-bottom: 1px solid #333; overflow: hidden; white-space: nowrap; }
+        .ticker-text { display: inline-block; animation: ticker 30s linear infinite; padding-left: 100%; }
+        @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+
+        /* Trading & Layout */
+        #chart { width: 100%; height: 300px; }
+        .trade-box { padding: 15px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; text-align: center; box-sizing: border-box; }
+        .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .buy-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; }
+        .sell-btn { background: var(--red); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; }
+
+        /* Order Book */
+        .order-book { margin-top: 15px; background: var(--card); border-radius: 10px; padding: 10px; border: 1px solid #333; }
+        .order-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2b3139; font-size: 0.8rem; }
+        .close-x { background: #333; color: white; border: none; border-radius: 3px; padding: 2px 6px; }
+
+        /* Wallet Popup */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--gold); z-index: 100; width: 280px; text-align: center; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99; }
+        .active-mode { background: var(--gold); color: black !important; }
+        .mode-switch button { background: #333; color: white; border: none; padding: 8px; width: 45%; border-radius: 5px; margin: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="toast" class="toast">تم فتح الصفقة بنجاح</div>
-
-    <header>
-        <div style="display:flex; background:#000; border-radius:12px; padding:2px; border:1px solid #444;">
-            <button id="rBtn" onclick="switchMode('REAL')" style="background:none; border:none; color:#848e9c; font-size:0.65rem; padding:5px 10px; cursor:pointer;">حقيقي</button>
-            <button id="dBtn" onclick="switchMode('DEMO')" style="background:#2d83ff; border:none; color:white; font-size:0.65rem; padding:5px 10px; border-radius:10px; cursor:pointer;">تجريبي</button>
+    <div class="header">
+        <div class="user-info">
+            <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="profile-pic">
+            <span id="usernameDisplay">...</span>
         </div>
-        <div class="brand-center">ABSI NEXUS</div>
-        <div style="text-align:left;">
-            <div id="accLabel" style="font-size:0.6rem; color:#2d83ff;">محفظة التجريبي</div>
-            <div id="headBal" style="font-size:1rem; font-weight:bold;">0.00$</div>
+        
+        <div class="notif-box" onclick="showLatestNews()">
+            <span class="bell-icon">🔔</span>
+            <div class="notif-dot"></div>
         </div>
-    </header>
 
-    <div id="chart-zone"><div id="tv_chart" style="height:100%;"></div></div>
+        <button class="wallet-btn" onclick="toggleWallet()">محفظتي</button>
+    </div>
 
-    <div class="trade-zone">
-        <p style="margin: 0 0 10px 0; font-size: 0.8rem; color: #848e9c;">مبلغ التداول (USDT):</p>
-        <input type="number" id="tradeAmt" value="100">
-        <div class="btn-group">
-            <button class="btn btn-buy" onclick="executeTrade('شراء')">شراء / Long</button>
-            <button class="btn btn-sell" onclick="executeTrade('بيع')">بيع / Short</button>
+    <div class="news-ticker">
+        <div class="ticker-text" id="newsContent">
+            جاري جلب أخبار الأسواق العالمية... تحديثات الفيدرالي الأمريكي... تقلبات البتكوين الحالية... إطلاق خدمة ABSI NEXUS الجديدة...
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+    <div id="chart"></div>
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentUser = urlParams.get('user');
-        let currentMode = 'DEMO';
-        let currentBalance = 0;
+    <div class="trade-box">
+        <input type="number" id="tradeAmount" value="100">
+        <div class="btns">
+            <button class="buy-btn" onclick="openTrade('buy')">شراء</button>
+            <button class="sell-btn" onclick="openTrade('sell')">بيع</button>
+        </div>
 
-        if (!currentUser) { window.location.href = "index.html"; }
+        <div class="order-book">
+            <div style="display: flex; justify-content: space-between; color: #848e9c; font-size: 0.7rem; margin-bottom: 5px;">
+                <span>النوع</span><span>الكمية</span><span>الربح/الخسارة</span><span>إغلاق</span>
+            </div>
+            <div id="ordersContainer"></div>
+        </div>
+    </div>
 
-        window.onload = function() {
-            new TradingView.widget({
-                "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": "1",
-                "theme": "dark", "container_id": "tv_chart", "locale": "ar"
-            });
-            switchMode('DEMO');
-        };
+    <div class="overlay" id="overlay" onclick="toggleWallet()"></div>
+    <div class="modal" id="walletModal">
+        <h3>محفظة ABSI</h3>
+        <p>الرصيد: <span id="balanceDisplay">0.00$</span></p>
+        <div class="mode-switch">
+            <button id="realBtn" onclick="switchMode('real')">حقيقي</button>
+            <button id="demoBtn" onclick="switchMode('demo')">تجريبي</button>
+        </div>
+        <button onclick="toggleWallet()" style="margin-top:15px; color:#848e9c; border:none; background:none;">إغلاق</button>
+    </div>
 
-        function switchMode(mode) {
-            currentMode = mode;
-            const path = mode === 'REAL' ? '/balance_real' : '/balance_demo';
-            
-            // تحديث الألوان
-            document.getElementById('rBtn').style.background = mode === 'REAL' ? "#f0b90b" : "none";
-            document.getElementById('rBtn').style.color = mode === 'REAL' ? "black" : "#848e9c";
-            document.getElementById('dBtn').style.background = mode === 'DEMO' ? "#2d83ff" : "none";
-            document.getElementById('accLabel').innerText = mode === 'REAL' ? "رصيدك الحقيقي" : "محفظة التجريبي";
+<script>
+    const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const urlParams = new URLSearchParams(window.location.search);
+    const user = urlParams.get('user') || 'guest';
+    document.getElementById('usernameDisplay').innerText = user;
 
-            db.ref('users/' + currentUser + path).on('value', s => {
-                currentBalance = s.val() || 0;
-                document.getElementById('headBal').innerText = currentBalance.toFixed(2) + "$";
-            });
-        }
+    let currentBalance = 0;
+    let mode = 'demo';
+    let currentPrice = 0;
+    let openTrades = [];
 
-        function executeTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value);
-            
-            if (amt > currentBalance) {
-                showToast("الرصيد غير كافٍ!");
-                return;
-            }
+    // --- نظام الإشعارات والأخبار ---
+    function showLatestNews() {
+        alert("تنبيه السوق: البتكوين يختبر مناطق دعم جديدة. الأخبار الحالية تشير إلى تفاؤل في الأسواق الناشئة.");
+    }
 
-            const newBalance = currentBalance - amt;
-            const path = currentMode === 'REAL' ? 'balance_real' : 'balance_demo';
+    function updateMarketNews() {
+        const news = [
+            "🔥 اختراق البتكوين لحاجز الـ 86,000$ يثير حماس المستثمرين",
+            "📊 تقرير: تدفقات مالية ضخمة تدخل صناديق الـ ETF للعملات الرقمية",
+            "⚡ شركة تسلا تعلن عن تحديثات بخصوص قبول الدفع بالكريبتو قريباً",
+            "🌍 الأسواق الآسيوية تفتتح على ارتفاع ملحوظ اليوم"
+        ];
+        document.getElementById('newsContent').innerText = news.join(" | ");
+    }
+    setInterval(updateMarketNews, 60000); // تحديث الأخبار كل دقيقة
 
-            db.ref('users/' + currentUser).update({ [path]: newBalance }).then(() => {
-                showToast(`تم فتح صفقة ${type} بـ ${amt}$`);
-            });
-        }
+    // --- وظائف المحفظة ---
+    function loadUserData() {
+        db.ref('users/' + user).on('value', s => {
+            const data = s.val();
+            currentBalance = mode === 'demo' ? data.balance_demo : data.balance_real;
+            document.getElementById('balanceDisplay').innerText = currentBalance.toFixed(2) + "$";
+        });
+    }
 
-        function showToast(text) {
-            const t = document.getElementById('toast');
-            t.innerText = text;
-            t.style.display = 'block';
-            setTimeout(() => { t.style.display = 'none'; }, 1500);
-        }
-    </script>
+    function toggleWallet() {
+        const m = document.getElementById('walletModal');
+        const o = document.getElementById('overlay');
+        const show = m.style.display !== 'block';
+        m.style.display = show ? 'block' : 'none';
+        o.style.display = show ? 'block' : 'none';
+    }
+
+    function switchMode(m) {
+        mode = m;
+        document.getElementById('realBtn').className = mode === 'real' ? 'active-mode' : '';
+        document.getElementById('demoBtn').className = mode === 'demo' ? 'active-mode' : '';
+        loadUserData();
+    }
+
+    // --- الرسم البياني والتداول ---
+    const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+        layout: { backgroundColor: '#0b0e11', textColor: '#848e9c' },
+        grid: { vertLines: { color: '#1e2329' }, horzLines: { color: '#1e2329' } },
+        priceScale: { borderColor: '#333' },
+        timeScale: { borderColor: '#333' }
+    });
+    const candleSeries = chart.addCandlestickSeries({ upColor: '#0ecb81', downColor: '#f6465d' });
+
+    fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=100')
+        .then(r => r.json()).then(data => {
+            const formatted = data.map(d => ({ time: d[0]/1000, open: +d[1], high: +d[2], low: +d[3], close: +d[4] }));
+            candleSeries.setData(formatted);
+            currentPrice = formatted[formatted.length-1].close;
+        });
+
+    const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
+    ws.onmessage = (e) => {
+        const k = JSON.parse(e.data).k;
+        currentPrice = parseFloat(k.c);
+        candleSeries.update({ time: k.t/1000, open: +k.o, high: +k.h, low: +k.l, close: currentPrice });
+        updateTradesDisplay();
+    };
+
+    function openTrade(type) {
+        const amt = parseFloat(document.getElementById('tradeAmount').value);
+        if(amt > currentBalance) return alert("رصيد غير كافٍ!");
+        
+        openTrades.push({ id: Date.now(), type, entryPrice: currentPrice, amount: amt });
+        const key = mode === 'demo' ? 'balance_demo' : 'balance_real';
+        db.ref('users/' + user).update({ [key]: currentBalance - amt });
+    }
+
+    function updateTradesDisplay() {
+        const container = document.getElementById('ordersContainer');
+        container.innerHTML = '';
+        openTrades.forEach((t, i) => {
+            let pnl = (t.type === 'buy') ? (currentPrice - t.entryPrice) * (t.amount/t.entryPrice) : (t.entryPrice - currentPrice) * (t.amount/t.entryPrice);
+            container.innerHTML += `
+                <div class="order-row">
+                    <span style="color:${t.type==='buy'?'#0ecb81':'#f6465d'}">${t.type==='buy'?'شراء':'بيع'}</span>
+                    <span>${t.amount}$</span>
+                    <span style="color:${pnl>=0?'#0ecb81':'#f6465d'}">${pnl.toFixed(2)}$</span>
+                    <button class="close-x" onclick="closeTrade(${i}, ${pnl})">X</button>
+                </div>`;
+        });
+    }
+
+    function closeTrade(i, pnl) {
+        const t = openTrades[i];
+        const key = mode === 'demo' ? 'balance_demo' : 'balance_real';
+        db.ref('users/' + user).once('value', s => {
+            db.ref('users/' + user).update({ [key]: s.val()[key] + (t.amount + pnl) });
+        });
+        openTrades.splice(i, 1);
+        updateTradesDisplay();
+    }
+
+    loadUserData();
+    updateMarketNews();
+</script>
 </body>
 </html>
