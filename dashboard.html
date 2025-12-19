@@ -3,184 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS | التداول المتقدم</title>
+    <title>ABSI NEXUS | لوحة التداول</title>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
         :root { --gold: #f0b90b; --bg: #0b0e11; --card: #1e2329; --green: #0ecb81; --red: #f6465d; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow-x: hidden; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; }
         
-        /* Header المصحح */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--card); border-bottom: 1px solid #333; height: 60px; position: sticky; top: 0; z-index: 1000; }
-        .logo-area { display: flex; align-items: center; gap: 10px; flex: 1; }
-        .logo-text { color: var(--gold); font-weight: bold; font-size: 1.1rem; white-space: nowrap; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--card); border-radius: 10px; margin-bottom: 10px; }
+        .logo { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
         
-        /* زر تبديل الأزواج */
-        .pair-selector { background: #2b3139; color: var(--gold); border: 1px solid #444; border-radius: 5px; padding: 5px; font-size: 0.8rem; cursor: pointer; }
+        #chart { width: 100%; height: 300px; background: var(--card); border-radius: 10px; margin-bottom: 10px; }
 
-        .user-section { display: flex; align-items: center; gap: 8px; justify-content: flex-end; flex: 1; }
-        .profile-pic { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold); }
-        .wallet-btn { background: var(--gold); color: black; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+        .trade-controls { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; text-align: center; box-sizing: border-box; }
+        
+        .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .buy-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .sell-btn { background: var(--red); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* منطقة الرسم البياني الثابتة */
-        #chart-wrapper { width: 100%; height: 350px; background: #0b0e11; border-bottom: 1px solid #333; position: relative; }
-
-        /* Trading Controls */
-        .trade-panel { padding: 15px; }
-        .amt-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; text-align: center; font-size: 1.2rem; box-sizing: border-box; }
-        .grid-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-up { background: var(--green); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; }
-        .btn-down { background: var(--red); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; }
-
-        /* Order Book */
-        .orders-container { margin-top: 15px; background: var(--card); border-radius: 10px; padding: 10px; border: 1px solid #333; min-height: 100px; }
-        .order-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2b3139; font-size: 0.8rem; }
-
-        /* Wallet Popup */
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid var(--gold); z-index: 2000; width: 85%; max-width: 300px; text-align: center; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1500; }
-        .active-mode { background: var(--gold) !important; color: black !important; }
+        /* --- دفتر الأوامر (Order Book) --- */
+        .order-book { margin-top: 20px; background: #161a1e; border-radius: 10px; padding: 10px; border: 1px solid #333; }
+        .order-header { display: flex; justify-content: space-between; color: #848e9c; font-size: 0.8rem; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; }
+        .order-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2b3139; font-size: 0.85rem; }
+        .pnl-plus { color: var(--green); font-weight: bold; }
+        .pnl-minus { color: var(--red); font-weight: bold; }
+        .close-btn { background: #333; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.7rem; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo-area">
-            <span class="logo-text">ABSI NEXUS</span>
-            <select class="pair-selector" id="pairSelect" onchange="changePair()">
-                <option value="BTCUSDT">BTC/USDT</option>
-                <option value="ETHUSDT">ETH/USDT</option>
-                <option value="BNBUSDT">BNB/USDT</option>
-                <option value="SOLUSDT">SOL/USDT</option>
-            </select>
-        </div>
-        
-        <div class="user-section">
-            <span id="userLabel" style="font-size: 0.8rem; color: #848e9c;">...</span>
-            <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="profile-pic">
-            <button class="wallet-btn" onclick="openW()">محفظتي</button>
-        </div>
+        <div class="logo">ABSI NEXUS</div>
+        <div id="balanceDisplay" style="color: var(--gold);">الرصيد: 0.00$</div>
     </div>
 
-    <div id="chart-wrapper"></div>
+    <div id="chart"></div>
 
-    <div class="trade-panel">
-        <input type="number" id="tradeVal" class="amt-input" value="100">
-        <div class="grid-btns">
-            <button class="btn-up" onclick="exec('buy')">شراء</button>
-            <button class="btn-down" onclick="exec('sell')">بيع</button>
+    <div class="trade-controls">
+        <input type="number" id="amount" value="100" placeholder="الكمية USDT">
+        <div class="btns">
+            <button class="buy-btn" onclick="placeOrder('buy')">شراء / Long</button>
+            <button class="sell-btn" onclick="placeOrder('sell')">بيع / Short</button>
         </div>
 
-        <div class="orders-container">
-            <div style="display: flex; justify-content: space-between; color: #848e9c; font-size: 0.7rem; border-bottom: 1px solid #333; padding-bottom: 5px;">
-                <span>الزوج</span><span>النوع</span><span>الربح/الخسارة</span><span>إغلاق</span>
+        <div class="order-book">
+            <div class="order-header">
+                <span>النوع</span>
+                <span>الكمية</span>
+                <span>الربح/الخسارة</span>
+                <span>إجراء</span>
             </div>
-            <div id="activeOrders"></div>
+            <div id="ordersList">
+                </div>
         </div>
-    </div>
-
-    <div class="overlay" id="ovr" onclick="closeW()"></div>
-    <div class="modal" id="wMod">
-        <h3 style="color:var(--gold); margin:0;">المحفظة</h3>
-        <p id="balText" style="font-size: 1.5rem; margin: 15px 0;">0.00$</p>
-        <div style="display: flex; gap: 10px;">
-            <button id="rB" style="flex:1; padding:10px; border-radius:5px; border:none;" onclick="setM('real')">حقيقي</button>
-            <button id="dB" style="flex:1; padding:10px; border-radius:5px; border:none;" onclick="setM('demo')">تجريبي</button>
-        </div>
-        <button onclick="closeW()" style="margin-top:20px; background:none; border:none; color:#848e9c;">إغلاق</button>
     </div>
 
 <script>
+    // إعدادات Firebase
     const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const user = new URLSearchParams(window.location.search).get('user') || 'Guest';
-    document.getElementById('userLabel').innerText = user;
 
-    let bal = 0, curMode = 'demo', curPrice = 0, currentPair = 'BTCUSDT', trades = [], socket;
+    const user = new URLSearchParams(window.location.search).get('user') || 'guest';
+    let currentPrice = 0;
+    let userBalance = 0;
+    let activeTrades = [];
 
-    // Chart Setup
-    const chart = LightweightCharts.createChart(document.getElementById('chart-wrapper'), {
+    // جلب رصيد المستخدم
+    db.ref('users/' + user).on('value', s => {
+        if(s.exists()) {
+            userBalance = s.val().balance_demo;
+            document.getElementById('balanceDisplay').innerText = `الرصيد التجريبي: ${userBalance.toFixed(2)}$`;
+        }
+    });
+
+    // إعداد الرسم البياني
+    const chart = LightweightCharts.createChart(document.getElementById('chart'), {
         layout: { backgroundColor: '#0b0e11', textColor: '#848e9c' },
         grid: { vertLines: { color: '#1e2329' }, horzLines: { color: '#1e2329' } },
-        priceScale: { borderColor: '#333' },
-        timeScale: { borderColor: '#333', timeVisible: true }
     });
     const series = chart.addCandlestickSeries({ upColor: '#0ecb81', downColor: '#f6465d' });
 
-    function changePair() {
-        currentPair = document.getElementById('pairSelect').value;
-        if(socket) socket.close();
-        initData();
-    }
+    // اتصال مباشر بسعر البتكوين (Binance)
+    const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
+    ws.onmessage = (e) => {
+        const k = JSON.parse(e.data).k;
+        currentPrice = parseFloat(k.c);
+        series.update({ time: k.t / 1000, open: +k.o, high: +k.h, low: +k.l, close: currentPrice });
+        updateOrderBook(); // تحديث الأرباح والخسائر مع كل حركة سعر
+    };
 
-    function initData() {
-        fetch(`https://api.binance.com/api/v3/klines?symbol=${currentPair}&interval=1m&limit=100`)
-            .then(r => r.json()).then(data => {
-                const candles = data.map(d => ({ time: d[0]/1000, open: +d[1], high: +d[2], low: +d[3], close: +d[4] }));
-                series.setData(candles);
-                curPrice = candles[candles.length-1].close;
-            });
+    // وظيفة فتح صفقة
+    function placeOrder(type) {
+        const amt = parseFloat(document.getElementById('amount').value);
+        if (amt > userBalance) return alert("الرصيد غير كافٍ!");
 
-        socket = new WebSocket(`wss://stream.binance.com:9443/ws/${currentPair.toLowerCase()}@kline_1m`);
-        socket.onmessage = (e) => {
-            const k = JSON.parse(e.data).k;
-            curPrice = parseFloat(k.c);
-            series.update({ time: k.t/1000, open: +k.o, high: +k.h, low: +k.l, close: curPrice });
-            updateUI();
+        const trade = {
+            id: Date.now(),
+            type: type,
+            entryPrice: currentPrice,
+            amount: amt
         };
+
+        activeTrades.push(trade);
+        // خصم مؤقت من الرصيد في الواجهة
+        userBalance -= amt;
+        db.ref('users/' + user).update({ balance_demo: userBalance });
+        updateOrderBook();
     }
 
-    function openW() { document.getElementById('wMod').style.display = 'block'; document.getElementById('ovr').style.display = 'block'; }
-    function closeW() { document.getElementById('wMod').style.display = 'none'; document.getElementById('ovr').style.display = 'none'; }
-    
-    function setM(m) {
-        curMode = m;
-        document.getElementById('rB').className = (m === 'real' ? 'active-mode' : '');
-        document.getElementById('dB').className = (m === 'demo' ? 'active-mode' : '');
-        db.ref('users/' + user).on('value', s => {
-            bal = m === 'demo' ? s.val().balance_demo : s.val().balance_real;
-            document.getElementById('balText').innerText = bal.toFixed(2) + "$";
-        });
-    }
+    // تحديث دفتر الأوامر وحساب الأرباح
+    function updateOrderBook() {
+        const list = document.getElementById('ordersList');
+        list.innerHTML = '';
 
-    function exec(type) {
-        const v = parseFloat(document.getElementById('tradeVal').value);
-        if(v > bal) return alert("رصيد غير كافٍ");
-        trades.push({ id: Date.now(), pair: currentPair, type, entry: curPrice, amt: v });
-        const key = curMode === 'demo' ? 'balance_demo' : 'balance_real';
-        db.ref('users/' + user).update({ [key]: bal - v });
-    }
+        activeTrades.forEach((trade, index) => {
+            let pnl = 0;
+            if (trade.type === 'buy') {
+                pnl = (currentPrice - trade.entryPrice) * (trade.amount / trade.entryPrice);
+            } else {
+                pnl = (trade.entryPrice - currentPrice) * (trade.amount / trade.entryPrice);
+            }
 
-    function updateUI() {
-        const cont = document.getElementById('activeOrders');
-        cont.innerHTML = '';
-        trades.forEach((t, i) => {
-            let pnl = (t.type === 'buy') ? (curPrice - t.entry) * (t.amt/t.entry) : (t.entry - curPrice) * (t.amt/t.entry);
-            cont.innerHTML += `
+            const pnlClass = pnl >= 0 ? 'pnl-plus' : 'pnl-minus';
+
+            list.innerHTML += `
                 <div class="order-row">
-                    <span>${t.pair}</span>
-                    <span style="color:${t.type==='buy'?'#0ecb81':'#f6465d'}">${t.type==='buy'?'شراء':'بيع'}</span>
-                    <span style="color:${pnl>=0?'#0ecb81':'#f6465d'}">${pnl.toFixed(2)}$</span>
-                    <button style="background:#333; color:white; border:none; padding:2px 6px;" onclick="cls(${i}, ${pnl})">X</button>
-                </div>`;
+                    <span style="color:${trade.type === 'buy' ? '#0ecb81' : '#f6465d'}">${trade.type === 'buy' ? 'شراء' : 'بيع'}</span>
+                    <span>${trade.amount}$</span>
+                    <span class="${pnlClass}">${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}$</span>
+                    <button class="close-btn" onclick="closeTrade(${index}, ${pnl})">إغلاق</button>
+                </div>
+            `;
         });
     }
 
-    function cls(i, pnl) {
-        const t = trades[i];
-        const key = curMode === 'demo' ? 'balance_demo' : 'balance_real';
+    // إغلاق الصفقة وإرجاع الرصيد مع الربح/الخسارة
+    function closeTrade(index, pnl) {
+        const trade = activeTrades[index];
+        const finalReturn = trade.amount + pnl;
+
         db.ref('users/' + user).once('value', s => {
-            db.ref('users/' + user).update({ [key]: s.val()[key] + (t.amt + pnl) });
+            const latestBalance = s.val().balance_demo;
+            db.ref('users/' + user).update({ balance_demo: latestBalance + finalReturn });
         });
-        trades.splice(i, 1);
-        updateUI();
-    }
 
-    setM('demo');
-    initData();
+        activeTrades.splice(index, 1);
+        updateOrderBook();
+        alert(`تم إغلاق الصفقة بنتيجة: ${pnl.toFixed(2)}$`);
+    }
 </script>
 </body>
 </html>
