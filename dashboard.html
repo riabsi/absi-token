@@ -3,148 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSI NEXUS | النظام المتكامل</title>
+    <title>ABSI NEXUS | التداول المتقدم</title>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
         :root { --gold: #f0b90b; --bg: #0b0e11; --card: #1e2329; --green: #0ecb81; --red: #f6465d; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 20px; overflow-x: hidden; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow-x: hidden; }
         
-        /* Header المطور */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: var(--card); border-bottom: 1px solid #333; height: 60px; position: sticky; top: 0; z-index: 1000; }
-        .logo-text { color: var(--gold); font-weight: bold; font-size: 1.2rem; position: absolute; left: 50%; transform: translateX(-50%); }
-        .user-section { display: flex; align-items: center; gap: 10px; }
-        .profile-pic { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--gold); }
-        .bell-btn { font-size: 20px; cursor: pointer; position: relative; }
-        .notif-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: red; border-radius: 50%; }
+        /* Header المصحح */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--card); border-bottom: 1px solid #333; height: 60px; position: sticky; top: 0; z-index: 1000; }
+        .logo-area { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .logo-text { color: var(--gold); font-weight: bold; font-size: 1.1rem; white-space: nowrap; }
+        
+        /* زر تبديل الأزواج */
+        .pair-selector { background: #2b3139; color: var(--gold); border: 1px solid #444; border-radius: 5px; padding: 5px; font-size: 0.8rem; cursor: pointer; }
 
-        /* Wallet Button */
-        .wallet-btn { background: var(--gold); color: black; border: none; padding: 7px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .user-section { display: flex; align-items: center; gap: 8px; justify-content: flex-end; flex: 1; }
+        .profile-pic { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold); }
+        .wallet-btn { background: var(--gold); color: black; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
 
-        /* Chart Area */
-        #chart-container { width: 100%; height: 320px; background: #0b0e11; position: relative; margin-top: 5px; }
+        /* منطقة الرسم البياني الثابتة */
+        #chart-wrapper { width: 100%; height: 350px; background: #0b0e11; border-bottom: 1px solid #333; position: relative; }
 
-        /* Trading & Layout */
-        .trade-section { padding: 10px 15px; }
-        .amount-input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; text-align: center; font-size: 1.1rem; }
-        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-buy { background: var(--green); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; }
-        .btn-sell { background: var(--red); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; }
+        /* Trading Controls */
+        .trade-panel { padding: 15px; }
+        .amt-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #444; background: #2b3139; color: white; text-align: center; font-size: 1.2rem; box-sizing: border-box; }
+        .grid-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-up { background: var(--green); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; }
+        .btn-down { background: var(--red); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; }
 
         /* Order Book */
-        .order-book { margin-top: 15px; background: var(--card); border-radius: 10px; padding: 10px; border: 1px solid #333; }
-        .order-head { display: flex; justify-content: space-between; color: #848e9c; font-size: 0.75rem; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 8px; }
-        .order-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2b3139; font-size: 0.85rem; }
+        .orders-container { margin-top: 15px; background: var(--card); border-radius: 10px; padding: 10px; border: 1px solid #333; min-height: 100px; }
+        .order-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2b3139; font-size: 0.8rem; }
 
-        /* Popups */
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid var(--gold); z-index: 2000; width: 85%; max-width: 320px; text-align: center; }
+        /* Wallet Popup */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid var(--gold); z-index: 2000; width: 85%; max-width: 300px; text-align: center; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1500; }
-        .deposit-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid #444; }
-        .deposit-btn { background: #0ecb81; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
-        .switch-group { display: flex; gap: 10px; margin: 15px 0; }
-        .switch-group button { flex: 1; padding: 8px; border: none; border-radius: 5px; background: #333; color: white; }
         .active-mode { background: var(--gold) !important; color: black !important; }
     </style>
 </head>
 <body>
 
     <div class="header">
+        <div class="logo-area">
+            <span class="logo-text">ABSI NEXUS</span>
+            <select class="pair-selector" id="pairSelect" onchange="changePair()">
+                <option value="BTCUSDT">BTC/USDT</option>
+                <option value="ETHUSDT">ETH/USDT</option>
+                <option value="BNBUSDT">BNB/USDT</option>
+                <option value="SOLUSDT">SOL/USDT</option>
+            </select>
+        </div>
+        
         <div class="user-section">
+            <span id="userLabel" style="font-size: 0.8rem; color: #848e9c;">...</span>
             <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="profile-pic">
-            <span id="displayUser">...</span>
-        </div>
-        
-        <div class="logo-text">ABSI NEXUS</div>
-
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div class="bell-btn" onclick="alert('سوق العملات الرقمية مستقر حالياً')">🔔<div class="notif-dot"></div></div>
-            <button class="wallet-btn" onclick="openWallet()">محفظتي</button>
+            <button class="wallet-btn" onclick="openW()">محفظتي</button>
         </div>
     </div>
 
-    <div id="chart-container"></div>
+    <div id="chart-wrapper"></div>
 
-    <div class="trade-section">
-        <input type="number" id="tradeAmt" class="amount-input" value="100">
-        <div class="action-btns">
-            <button class="btn-buy" onclick="startTrade('buy')">شراء</button>
-            <button class="btn-sell" onclick="startTrade('sell')">بيع</button>
+    <div class="trade-panel">
+        <input type="number" id="tradeVal" class="amt-input" value="100">
+        <div class="grid-btns">
+            <button class="btn-up" onclick="exec('buy')">شراء</button>
+            <button class="btn-down" onclick="exec('sell')">بيع</button>
         </div>
 
-        <div class="order-book">
-            <div class="order-head">
-                <span>النوع</span><span>الكمية</span><span>الربح/الخسارة</span><span>إغلاق</span>
+        <div class="orders-container">
+            <div style="display: flex; justify-content: space-between; color: #848e9c; font-size: 0.7rem; border-bottom: 1px solid #333; padding-bottom: 5px;">
+                <span>الزوج</span><span>النوع</span><span>الربح/الخسارة</span><span>إغلاق</span>
             </div>
-            <div id="tradesList"></div>
+            <div id="activeOrders"></div>
         </div>
     </div>
 
-    <div class="overlay" id="overlay" onclick="closeWallet()"></div>
-    <div class="modal" id="walletModal">
-        <h3 style="color:var(--gold); margin-top:0;">محفظة ABSI</h3>
-        <p>الرصيد المتاح:</p>
-        <h2 id="balanceText" style="margin:10px 0;">0.00$</h2>
-        
-        <div class="switch-group">
-            <button id="btnReal" onclick="setMode('real')">حقيقي</button>
-            <button id="btnDemo" onclick="setMode('demo')" class="active-mode">تجريبي</button>
+    <div class="overlay" id="ovr" onclick="closeW()"></div>
+    <div class="modal" id="wMod">
+        <h3 style="color:var(--gold); margin:0;">المحفظة</h3>
+        <p id="balText" style="font-size: 1.5rem; margin: 15px 0;">0.00$</p>
+        <div style="display: flex; gap: 10px;">
+            <button id="rB" style="flex:1; padding:10px; border-radius:5px; border:none;" onclick="setM('real')">حقيقي</button>
+            <button id="dB" style="flex:1; padding:10px; border-radius:5px; border:none;" onclick="setM('demo')">تجريبي</button>
         </div>
-
-        <div class="deposit-section">
-            <p style="font-size:0.8rem; color:#848e9c;">هل ترغب في زيادة رصيدك؟</p>
-            <button class="deposit-btn" onclick="requestDeposit()">➕ طلب إيداع أموال</button>
-        </div>
-        
-        <button onclick="closeWallet()" style="margin-top:20px; background:none; border:none; color:#848e9c; cursor:pointer;">إغلاق</button>
+        <button onclick="closeW()" style="margin-top:20px; background:none; border:none; color:#848e9c;">إغلاق</button>
     </div>
 
 <script>
-    // Firebase
     const firebaseConfig = { databaseURL: "https://absinexus-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
-    const params = new URLSearchParams(window.location.search);
-    const currentUser = params.get('user') || 'Guest';
-    document.getElementById('displayUser').innerText = currentUser;
+    const user = new URLSearchParams(window.location.search).get('user') || 'Guest';
+    document.getElementById('userLabel').innerText = user;
 
-    let balance = 0;
-    let currentMode = 'demo';
-    let btcPrice = 0;
-    let trades = [];
+    let bal = 0, curMode = 'demo', curPrice = 0, currentPair = 'BTCUSDT', trades = [], socket;
 
-    // Wallet Logic
-    function openWallet() {
-        document.getElementById('walletModal').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-    }
-    function closeWallet() {
-        document.getElementById('walletModal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-    }
-    function setMode(m) {
-        currentMode = m;
-        document.getElementById('btnReal').className = (m === 'real' ? 'active-mode' : '');
-        document.getElementById('btnDemo').className = (m === 'demo' ? 'active-mode' : '');
-        syncData();
-    }
-    function requestDeposit() {
-        const amount = prompt("أدخل المبلغ المراد إيداعه ($):");
-        if(amount) alert("تم إرسال طلب الإيداع للإدارة. سيتم التحديث فور التأكد.");
-    }
-
-    function syncData() {
-        db.ref('users/' + currentUser).on('value', s => {
-            const data = s.val();
-            balance = (currentMode === 'demo') ? data.balance_demo : data.balance_real;
-            document.getElementById('balanceText').innerText = balance.toFixed(2) + "$";
-        });
-    }
-
-    // Charting (TradingView Lightweight)
-    const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
+    // Chart Setup
+    const chart = LightweightCharts.createChart(document.getElementById('chart-wrapper'), {
         layout: { backgroundColor: '#0b0e11', textColor: '#848e9c' },
         grid: { vertLines: { color: '#1e2329' }, horzLines: { color: '#1e2329' } },
         priceScale: { borderColor: '#333' },
@@ -152,58 +110,77 @@
     });
     const series = chart.addCandlestickSeries({ upColor: '#0ecb81', downColor: '#f6465d' });
 
-    // Binance Data
-    fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=80')
-        .then(res => res.json()).then(data => {
-            const candles = data.map(d => ({ time: d[0]/1000, open: +d[1], high: +d[2], low: +d[3], close: +d[4] }));
-            series.setData(candles);
-            btcPrice = candles[candles.length-1].close;
-        });
-
-    const socket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
-    socket.onmessage = (e) => {
-        const k = JSON.parse(e.data).k;
-        btcPrice = parseFloat(k.c);
-        series.update({ time: k.t/1000, open: +k.o, high: +k.h, low: +k.l, close: btcPrice });
-        refreshTrades();
-    };
-
-    // Trade Logic
-    function startTrade(type) {
-        const amt = parseFloat(document.getElementById('tradeAmt').value);
-        if(amt > balance) return alert("الرصيد غير كافٍ!");
-        
-        trades.push({ id: Date.now(), type, entry: btcPrice, amount: amt });
-        const key = (currentMode === 'demo') ? 'balance_demo' : 'balance_real';
-        db.ref('users/' + currentUser).update({ [key]: balance - amt });
+    function changePair() {
+        currentPair = document.getElementById('pairSelect').value;
+        if(socket) socket.close();
+        initData();
     }
 
-    function refreshTrades() {
-        const list = document.getElementById('tradesList');
-        list.innerHTML = '';
+    function initData() {
+        fetch(`https://api.binance.com/api/v3/klines?symbol=${currentPair}&interval=1m&limit=100`)
+            .then(r => r.json()).then(data => {
+                const candles = data.map(d => ({ time: d[0]/1000, open: +d[1], high: +d[2], low: +d[3], close: +d[4] }));
+                series.setData(candles);
+                curPrice = candles[candles.length-1].close;
+            });
+
+        socket = new WebSocket(`wss://stream.binance.com:9443/ws/${currentPair.toLowerCase()}@kline_1m`);
+        socket.onmessage = (e) => {
+            const k = JSON.parse(e.data).k;
+            curPrice = parseFloat(k.c);
+            series.update({ time: k.t/1000, open: +k.o, high: +k.h, low: +k.l, close: curPrice });
+            updateUI();
+        };
+    }
+
+    function openW() { document.getElementById('wMod').style.display = 'block'; document.getElementById('ovr').style.display = 'block'; }
+    function closeW() { document.getElementById('wMod').style.display = 'none'; document.getElementById('ovr').style.display = 'none'; }
+    
+    function setM(m) {
+        curMode = m;
+        document.getElementById('rB').className = (m === 'real' ? 'active-mode' : '');
+        document.getElementById('dB').className = (m === 'demo' ? 'active-mode' : '');
+        db.ref('users/' + user).on('value', s => {
+            bal = m === 'demo' ? s.val().balance_demo : s.val().balance_real;
+            document.getElementById('balText').innerText = bal.toFixed(2) + "$";
+        });
+    }
+
+    function exec(type) {
+        const v = parseFloat(document.getElementById('tradeVal').value);
+        if(v > bal) return alert("رصيد غير كافٍ");
+        trades.push({ id: Date.now(), pair: currentPair, type, entry: curPrice, amt: v });
+        const key = curMode === 'demo' ? 'balance_demo' : 'balance_real';
+        db.ref('users/' + user).update({ [key]: bal - v });
+    }
+
+    function updateUI() {
+        const cont = document.getElementById('activeOrders');
+        cont.innerHTML = '';
         trades.forEach((t, i) => {
-            let pnl = (t.type === 'buy') ? (btcPrice - t.entry) * (t.amount/t.entry) : (t.entry - btcPrice) * (t.amount/t.entry);
-            list.innerHTML += `
-                <div class="order-item">
+            let pnl = (t.type === 'buy') ? (curPrice - t.entry) * (t.amt/t.entry) : (t.entry - curPrice) * (t.amt/t.entry);
+            cont.innerHTML += `
+                <div class="order-row">
+                    <span>${t.pair}</span>
                     <span style="color:${t.type==='buy'?'#0ecb81':'#f6465d'}">${t.type==='buy'?'شراء':'بيع'}</span>
-                    <span>${t.amount}$</span>
                     <span style="color:${pnl>=0?'#0ecb81':'#f6465d'}">${pnl.toFixed(2)}$</span>
-                    <button class="close-x" style="background:#333; color:white; border:none; border-radius:3px; padding:2px 6px;" onclick="closeOrder(${i}, ${pnl})">X</button>
+                    <button style="background:#333; color:white; border:none; padding:2px 6px;" onclick="cls(${i}, ${pnl})">X</button>
                 </div>`;
         });
     }
 
-    function closeOrder(index, pnl) {
-        const t = trades[index];
-        const key = (currentMode === 'demo') ? 'balance_demo' : 'balance_real';
-        db.ref('users/' + currentUser).once('value', s => {
-            db.ref('users/' + currentUser).update({ [key]: s.val()[key] + (t.amount + pnl) });
+    function cls(i, pnl) {
+        const t = trades[i];
+        const key = curMode === 'demo' ? 'balance_demo' : 'balance_real';
+        db.ref('users/' + user).once('value', s => {
+            db.ref('users/' + user).update({ [key]: s.val()[key] + (t.amt + pnl) });
         });
-        trades.splice(index, 1);
-        refreshTrades();
+        trades.splice(i, 1);
+        updateUI();
     }
 
-    syncData();
+    setM('demo');
+    initData();
 </script>
 </body>
 </html>
