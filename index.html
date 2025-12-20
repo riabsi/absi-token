@@ -70,103 +70,187 @@
             </div>
         </div>
 
-        <div id="page-futures" class="page" style="background:#0b0e11; color:#eaecef;">
+        <div id="page-futures" class="page" style="background:#0b0e11; color:#eaecef; font-family: sans-serif;">
     
     <style>
         .f-green { color: #0ecb81 !important; }
         .f-red { color: #f6465d !important; }
         .f-bg-green { background-color: #0ecb81 !important; }
         .f-bg-red { background-color: #f6465d !important; }
-        .input-box { background: #2b3139; border: 1px solid #444; border-radius: 4px; padding: 8px; display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .input-box input { background: none; border: none; color: white; width: 70%; outline: none; }
+        .input-box { background: #1e2329; border: 1px solid #2b3139; border-radius: 4px; padding: 6px 10px; display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .input-box input { background: none; border: none; color: white; width: 60%; outline: none; font-size: 14px; }
+        .pos-card { background: #1e2329; padding: 12px; border-bottom: 1px solid #2b3139; margin-bottom: 2px; }
+        .tab-btn { padding: 10px; color: #848e9c; cursor: pointer; font-size: 13px; }
+        .tab-btn.active { color: white; border-bottom: 2px solid #f0b90b; }
     </style>
 
-    <div style="padding: 10px 15px; border-bottom: 1px solid #2b3139; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display:flex; align-items:center; gap:8px;">
+    <div style="padding: 10px 15px; border-bottom: 1px solid #2b3139; display: flex; justify-content: space-between; align-items: center; background: #161a1e;">
+        <div>
             <strong style="font-size:16px;">BTCUSDT</strong>
-            <span style="background:#2b3139; color:#f0b90b; font-size:10px; padding:2px 5px; border-radius:3px;">20x</span>
+            <span style="background:#2b3139; color:#f0b90b; font-size:10px; padding:2px 5px; border-radius:3px; margin-right:5px;">20x</span>
         </div>
-        <div style="text-align: left;">
-            <span class="f-green" id="f-price-top" style="font-weight:bold;">98,420.50</span>
+        <div style="text-align: right;">
+            <div style="font-size:11px; color:#848e9c;">المتاح (USDT)</div>
+            <div id="f-wallet-bal" style="font-weight:bold; color:white;">10000.00</div>
         </div>
     </div>
 
     <div style="display:flex; padding:10px; gap:12px;">
-        
-        <div style="flex: 1; font-family: monospace;">
-            <div style="display:flex; justify-content:space-between; color:#848e9c; font-size:10px; margin-bottom:5px;">
-                <span>السعر</span>
-                <span>الكمية</span>
+        <div style="flex: 1; font-family: monospace; font-size: 11px;">
+            <div id="f-ob-red" style="height: 110px; overflow:hidden; display:flex; flex-direction:column-reverse; opacity:0.8;"></div>
+            <div style="margin:8px 0; text-align:center; padding:5px; background: rgba(14, 203, 129, 0.1);">
+                <span id="f-price-mid" class="f-green" style="font-size:16px; font-weight:bold;">98420.50</span>
             </div>
-            <div id="f-ob-red" style="height: 120px; overflow:hidden; display:flex; flex-direction:column-reverse;"></div>
-            <div style="margin:10px 0; text-align:center; padding:5px; border-top:1px solid #23282e; border-bottom:1px solid #23282e;">
-                <span id="f-price-mid" class="f-green" style="font-size:16px; font-weight:bold;">98,420.50</span>
-            </div>
-            <div id="f-ob-green" style="height: 120px; overflow:hidden;"></div>
+            <div id="f-ob-green" style="height: 110px; overflow:hidden; opacity:0.8;"></div>
         </div>
 
-        <div style="flex: 1.2;">
-            <div style="display:flex; gap:5px; margin-bottom:10px;">
-                <button style="flex:1; background:#2b3139; color:white; border:1px solid #444; padding:5px; border-radius:3px; font-size:11px;">متقاطع</button>
-                <button style="flex:1; background:#2b3139; color:white; border:1px solid #444; padding:5px; border-radius:3px; font-size:11px;">20x</button>
+        <div style="flex: 1.3;">
+            <div style="display:flex; background:#2b3139; border-radius:4px; margin-bottom:10px; overflow:hidden; height:32px;">
+                <button id="btn-f-buy" onclick="setTradeSide('buy')" style="flex:1; background:#0ecb81; color:white; border:none; font-weight:bold;">شراء</button>
+                <button id="btn-f-sell" onclick="setTradeSide('sell')" style="flex:1; background:none; color:#848e9c; border:none; font-weight:bold;">بيع</button>
             </div>
 
-            <div style="display:flex; background:#2b3139; border-radius:4px; margin-bottom:10px; overflow:hidden; height:35px;">
-                <button id="btn-buy-f" onclick="setFSide('buy')" style="flex:1; background:#0ecb81; color:white; border:none; font-weight:bold;">شراء</button>
-                <button id="btn-sell-f" onclick="setFSide('sell')" style="flex:1; background:none; color:#848e9c; border:none; font-weight:bold;">بيع</button>
+            <div class="input-box"><input type="number" id="f-entry-price" step="0.1"><span style="color:#848e9c; font-size:11px;">USDT</span></div>
+            <div class="input-box"><input type="number" id="f-entry-qty" placeholder="الكمية" oninput="calcCost()"><span style="color:#848e9c; font-size:11px;">BTC</span></div>
+
+            <div style="font-size:10px; color:#848e9c; margin: 5px 0; display:flex; justify-content:space-between;">
+                <span>التكلفة:</span>
+                <span><span id="f-cost-val">0.00</span> USDT</span>
             </div>
 
-            <div class="input-box"><input type="number" id="f-input-price" value="98420.50"><span style="color:#848e9c; font-size:12px;">USDT</span></div>
-            <div class="input-box"><input type="number" id="f-input-qty" placeholder="الكمية"><span style="color:#848e9c; font-size:12px;">BTC</span></div>
-
-            <input type="range" style="width:100%; margin:10px 0;" min="0" max="100" value="0">
-            
-            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:10px;">
-                <span style="color:#848e9c;">التكلفة</span>
-                <span>0.00 USDT</span>
-            </div>
-
-            <button id="f-main-action" style="width:100%; padding:12px; background:#0ecb81; color:white; border:none; border-radius:4px; font-weight:bold;">شراء / Long</button>
+            <button id="f-btn-main" onclick="openNewPosition()" style="width:100%; padding:12px; background:#0ecb81; color:white; border:none; border-radius:4px; font-weight:bold; font-size:14px; margin-top:5px;">شراء / Long</button>
         </div>
     </div>
 
+    <div style="flex:1; background:#161a1e; border-top: 5px solid #0b0e11;">
+        <div style="display:flex; border-bottom:1px solid #2b3139;">
+            <div class="tab-btn active">الصفقات (<span id="pos-count">0</span>)</div>
+            <div class="tab-btn">طلبات مفتوحة</div>
+        </div>
+        
+        <div id="positions-list" style="overflow-y:auto; height: 200px;">
+            </div>
+    </div>
+
     <script>
-        // دالة لتحديث الأرقام في الدفتر
-        function updateFuturesMarket() {
-            const red = document.getElementById('f-ob-red');
-            const green = document.getElementById('f-ob-green');
-            if(!red || !green) return;
+        let fWallet = 10000.00;
+        let fCurrentPrice = 98420.50;
+        let fSide = 'buy';
+        let positions = [];
 
-            let price = parseFloat(document.getElementById('f-price-mid').innerText.replace(',',''));
-            let rH = '', gH = '';
+        // 1. محرك السعر المباشر
+        function runFuturesEngine() {
+            fCurrentPrice += (Math.random() - 0.5) * 6;
+            document.getElementById('f-price-mid').innerText = fCurrentPrice.toFixed(2);
+            document.getElementById('f-entry-price').value = fCurrentPrice.toFixed(2);
             
-            for(let i=0; i<7; i++) {
-                rH += `<div style="display:flex; justify-content:space-between; font-size:10px;"><span class="f-red">${(price + (i*1.5)).toFixed(1)}</span><span style="color:#eee">${(Math.random()*0.1).toFixed(3)}</span></div>`;
-                gH += `<div style="display:flex; justify-content:space-between; font-size:10px;"><span class="f-green">${(price - (i*1.5)).toFixed(1)}</span><span style="color:#eee">${(Math.random()*0.1).toFixed(3)}</span></div>`;
-            }
-            red.innerHTML = rH;
-            green.innerHTML = gH;
-
-            // تحريك السعر قليلاً
-            let newPrice = price + (Math.random() - 0.5) * 4;
-            document.getElementById('f-price-mid').innerText = newPrice.toFixed(2);
-            document.getElementById('f-price-top').innerText = newPrice.toFixed(2);
+            updateOB();
+            updatePnL();
         }
-        setInterval(updateFuturesMarket, 1000);
+        setInterval(runFuturesEngine, 1000);
 
-        function setFSide(side) {
-            const btnBuy = document.getElementById('btn-buy-f');
-            const btnSell = document.getElementById('btn-sell-f');
-            const mainBtn = document.getElementById('f-main-action');
+        function updateOB() {
+            let rH = '', gH = '';
+            for(let i=0; i<6; i++) {
+                rH += `<div style="display:flex; justify-content:space-between;"><span class="f-red">${(fCurrentPrice + (i*2)).toFixed(1)}</span><span>${(Math.random()*0.5).toFixed(2)}</span></div>`;
+                gH += `<div style="display:flex; justify-content:space-between;"><span class="f-green">${(fCurrentPrice - (i*2)).toFixed(1)}</span><span>${(Math.random()*0.5).toFixed(2)}</span></div>`;
+            }
+            document.getElementById('f-ob-red').innerHTML = rH;
+            document.getElementById('f-ob-green').innerHTML = gH;
+        }
 
+        // 2. إدارة الواجهة
+        function setTradeSide(side) {
+            fSide = side;
+            const b = document.getElementById('btn-f-buy'), s = document.getElementById('btn-f-sell'), m = document.getElementById('f-btn-main');
             if(side === 'buy') {
-                btnBuy.style.background = '#0ecb81'; btnBuy.style.color = 'white';
-                btnSell.style.background = 'none'; btnSell.style.color = '#848e9c';
-                mainBtn.style.background = '#0ecb81'; mainBtn.innerText = 'شراء / Long';
+                b.style.background = '#0ecb81'; b.style.color = 'white'; s.style.background = 'none'; s.style.color = '#848e9c';
+                m.style.background = '#0ecb81'; m.innerText = 'شراء / Long';
             } else {
-                btnSell.style.background = '#f6465d'; btnSell.style.color = 'white';
-                btnBuy.style.background = 'none'; btnBuy.style.color = '#848e9c';
-                mainBtn.style.background = '#f6465d'; mainBtn.innerText = 'بيع / Short';
+                s.style.background = '#f6465d'; s.style.color = 'white'; b.style.background = 'none'; b.style.color = '#848e9c';
+                m.style.background = '#f6465d'; m.innerText = 'بيع / Short';
+            }
+        }
+
+        function calcCost() {
+            let qty = document.getElementById('f-entry-qty').value || 0;
+            let cost = (qty * fCurrentPrice) / 20; // رافعة 20
+            document.getElementById('f-cost-val').innerText = cost.toFixed(2);
+        }
+
+        // 3. فتح وإغلاق الصفقات
+        function openNewPosition() {
+            let qty = parseFloat(document.getElementById('f-entry-qty').value);
+            let cost = (qty * fCurrentPrice) / 20;
+
+            if(!qty || qty <= 0) return alert("أدخل الكمية");
+            if(cost > fWallet) return alert("الرصيد غير كافٍ");
+
+            fWallet -= cost;
+            document.getElementById('f-wallet-bal').innerText = fWallet.toFixed(2);
+
+            let newPos = {
+                id: Date.now(),
+                pair: 'BTCUSDT 20x',
+                side: fSide,
+                entry: fCurrentPrice,
+                qty: qty,
+                margin: cost
+            };
+            positions.push(newPos);
+            renderPositions();
+            document.getElementById('f-entry-qty').value = '';
+        }
+
+        function renderPositions() {
+            const list = document.getElementById('positions-list');
+            document.getElementById('pos-count').innerText = positions.length;
+            list.innerHTML = '';
+
+            positions.forEach(p => {
+                list.innerHTML += `
+                    <div class="pos-card" id="pos-${p.id}">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span style="font-weight:bold; color:${p.side==='buy'?'#0ecb81':'#f6465d'}">${p.side.toUpperCase()} ${p.pair}</span>
+                            <span id="pnl-${p.id}" style="font-weight:bold;">0.00 USDT</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; font-size:11px; color:#848e9c; gap:5px;">
+                            <div>حجم المركز: <span style="color:white">${(p.qty * p.entry).toFixed(2)}</span></div>
+                            <div>سعر الدخول: <span style="color:white">${p.entry.toFixed(2)}</span></div>
+                            <div>الهامش: <span style="color:white">${p.margin.toFixed(2)}</span></div>
+                            <button onclick="closePos(${p.id})" style="background:#2b3139; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer;">إغلاق</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updatePnL() {
+            positions.forEach(p => {
+                let diff = fCurrentPrice - p.entry;
+                if(p.side === 'sell') diff = p.entry - fCurrentPrice;
+                let pnl = diff * p.qty;
+                let pnlEl = document.getElementById(`pnl-${p.id}`);
+                if(pnlEl) {
+                    pnlEl.innerText = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + " USDT";
+                    pnlEl.className = pnl >= 0 ? 'f-green' : 'f-red';
+                }
+            });
+        }
+
+        function closePos(id) {
+            let pIndex = positions.findIndex(x => x.id === id);
+            if(pIndex > -1) {
+                let p = positions[pIndex];
+                let diff = fCurrentPrice - p.entry;
+                if(p.side === 'sell') diff = p.entry - fCurrentPrice;
+                let pnl = diff * p.qty;
+                
+                fWallet += (p.margin + pnl);
+                document.getElementById('f-wallet-bal').innerText = fWallet.toFixed(2);
+                
+                positions.splice(pIndex, 1);
+                renderPositions();
             }
         }
     </script>
