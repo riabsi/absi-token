@@ -70,7 +70,69 @@
             </div>
         </div>
 
-        <div id="page-futures" class="page"><div class="empty-page">صفحة العقود الآجلة قريباً...</div></div>
+        <div id="futures" class="page-content">
+    <div style="background: var(--bg); padding: 8px 15px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+        <div onclick="toggleMarketList()" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+            <strong style="font-size:16px; color:white;">BTCUSDT</strong>
+            <span style="background:var(--card); color:var(--yellow); font-size:10px; padding:2px 5px; border-radius:3px;">20x</span>
+            <i class="fas fa-caret-down" style="color:var(--dim)"></i>
+        </div>
+        <div style="text-align: left;">
+            <span style="color:var(--green); font-weight:bold; font-size:14px;" id="livePriceTop">98,420.50</span>
+            <div style="font-size:9px; color:var(--dim)">0.0100% 04:12:05</div>
+        </div>
+    </div>
+
+    <div style="display:flex; padding:10px; gap:12px;">
+        
+        <div style="flex: 1; display: flex; flex-direction: column; background: var(--bg); padding: 5px; border-radius: 4px;">
+            <div style="display:flex; justify-content:space-between; color:var(--dim); font-size:10px; margin-bottom:8px;">
+                <span>السعر</span>
+                <span>الكمية</span>
+            </div>
+            
+            <div id="liveOrderBookRed" style="display: flex; flex-direction: column-reverse; gap: 2px;"></div>
+            
+            <div id="livePriceMidContainer" style="margin: 12px 0; text-align: center; border-top: 1px solid #2b3139; border-bottom: 1px solid #2b3139; padding: 8px 0;">
+                <div id="livePriceMid" style="font-size:18px; font-weight:bold; color:var(--green);">98,420.50</div>
+                <div style="font-size:10px; color:var(--dim)">$98,420.50</div>
+            </div>
+            
+            <div id="liveOrderBookGreen" style="display: flex; flex-direction: column; gap: 2px;"></div>
+        </div>
+
+        <div style="flex: 1.2;">
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <button onclick="toggleMarginMode(this)" style="flex:1; background:var(--card); color:white; border:1px solid var(--border); padding:6px; border-radius:4px; font-size:11px;">متقاطع</button>
+                <button onclick="changeLeverage()" style="flex:1; background:var(--card); color:white; border:1px solid var(--border); padding:6px; border-radius:4px; font-size:11px;"><span id="levDisplay">20x</span></button>
+            </div>
+
+            <div style="display:flex; background:var(--card); border-radius:4px; margin-bottom:10px; overflow:hidden; border:1px solid var(--border); height:35px;">
+                <button id="fLong" onclick="setFMode('long')" style="background:var(--green); color:white; flex:1; border:none; font-weight:bold;">شراء</button>
+                <button id="fShort" onclick="setFMode('short')" style="background:none; color:var(--dim); flex:1; border:none; font-weight:bold;">بيع</button>
+            </div>
+
+            <div class="input-group" style="margin-bottom:8px; background:var(--card); padding:8px; border-radius:4px; display:flex; justify-content:space-between;">
+                <input type="number" id="futuresPriceInput" value="98420.50" style="background:none; border:none; color:white; width:70%;">
+                <span style="color:var(--dim); font-size:12px;">USDT</span>
+            </div>
+
+            <div class="input-group" style="margin-bottom:8px; background:var(--card); padding:8px; border-radius:4px; display:flex; justify-content:space-between;">
+                <input type="number" id="futuresQtyInput" placeholder="الكمية" oninput="calculateCost()" style="background:none; border:none; color:white; width:70%;">
+                <span style="color:var(--dim); font-size:12px;">BTC</span>
+            </div>
+
+            <input type="range" id="percentSlider" min="0" max="100" value="0" style="width:100%; margin:15px 0;" oninput="updateByPercent(this.value)">
+            
+            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:15px;">
+                <span style="color:var(--dim)">التكلفة</span>
+                <span><span id="costDisplay">0.00</span> USDT</span>
+            </div>
+
+            <button id="fAction" onclick="executeTrade()" style="width:100%; padding:14px; background:var(--green); color:white; border:none; border-radius:6px; font-weight:bold; font-size:15px;">شراء / Long</button>
+        </div>
+    </div>
+        </div>
         <div id="page-assets" class="page"><div class="empty-page">صفحة الأصول والمحفظة قريباً...</div></div>
     </div>
 
